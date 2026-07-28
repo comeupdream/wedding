@@ -640,10 +640,12 @@
         <textarea id="f-note" name="note"></textarea>
       </div>
       <button class="submit" type="submit">Send RSVP</button>
+      <p class="code-error" id="rsvp-error" hidden>Something went wrong sending your
+         RSVP — please try again in a moment.</p>
     </form>
     <p class="rsvp-confirm" id="rsvp-confirm">Thank you — we can't wait to celebrate with you.</p>
-    <p class="rsvp-note">Each invitation has its own code. RSVPs are saved on this
-       device for now — online collection is coming soon with the full site.</p>
+    <p class="rsvp-note">Each invitation has its own code — check your invite, or
+       send us a note if it's gone missing.</p>
   </div>
 </section>
 
@@ -786,7 +788,6 @@
     });
   })();
 
-  var GUESTS = [{"code":"OAKLEAF-3800","name":"Mother \u2013 Rashmi","party":1},{"code":"CEDAR-7677","name":"Sister \u2013 Amy","party":1},{"code":"ASPEN-4698","name":"Amy's Husband \u2013 Chris","party":1},{"code":"BIRCH-7144","name":"Sister \u2013 Ashley","party":1},{"code":"ORCHARD-8836","name":"Ashley's Husband \u2013 Joe","party":1},{"code":"LANTERN-6818","name":"Linda","party":1},{"code":"ACORN-8710","name":"Shawn","party":1},{"code":"CEDAR-8710","name":"Mia","party":1},{"code":"CIDER-4145","name":"Dexter","party":1},{"code":"MAPLE-6029","name":"Taylor","party":1},{"code":"HICKORY-6763","name":"Anthony","party":1},{"code":"BIRCH-5796","name":"Pradeep","party":1},{"code":"ACORN-2433","name":"Sudhir","party":1},{"code":"SUMAC-3680","name":"Pinki","party":1},{"code":"ACORN-4996","name":"Vikram","party":1},{"code":"CEDAR-4049","name":"Sonya","party":1},{"code":"ACORN-4066","name":"Mini","party":1},{"code":"LANTERN-8441","name":"Ravi","party":1},{"code":"WILLOW-7668","name":"Geeta","party":1},{"code":"ORCHARD-8089","name":"Dhruv","party":1},{"code":"CIDER-1009","name":"Ridhi","party":1},{"code":"ACORN-2626","name":"Ruchi","party":1},{"code":"WILLOW-1368","name":"Vinay","party":1},{"code":"AUTUMN-8971","name":"Neal","party":1},{"code":"ASPEN-6445","name":"Rahul","party":1},{"code":"SUMAC-7947","name":"Sid","party":1},{"code":"MAPLE-5700","name":"Saurabh","party":1},{"code":"LANTERN-4227","name":"Aneesha","party":1},{"code":"EMBER-7861","name":"Sarika","party":1},{"code":"SUMAC-6103","name":"Asher","party":1},{"code":"ASPEN-4723","name":"Simran","party":1},{"code":"SUMAC-2890","name":"Zed","party":1},{"code":"CIDER-7296","name":"Brianna","party":1},{"code":"MAPLE-7458","name":"Brian","party":1},{"code":"HARVEST-8579","name":"Sincere","party":1},{"code":"HARVEST-9297","name":"Nick","party":1},{"code":"HICKORY-9164","name":"Jon","party":1},{"code":"OAKLEAF-2282","name":"Carson","party":1},{"code":"SUMAC-8377","name":"Sam","party":1},{"code":"LANTERN-1355","name":"Herpal Family","party":3},{"code":"FOLIAGE-8762","name":"Raju & Herleen Family","party":4},{"code":"SUMAC-6864","name":"Durga Family","party":3},{"code":"OAKLEAF-2211","name":"Tony & Alka Family","party":4},{"code":"BIRCH-7320","name":"Gita Aunty","party":1},{"code":"ACORN-9780","name":"Pratima & Ravi","party":2},{"code":"FOLIAGE-4415","name":"Apu Aunty Family","party":3},{"code":"MAPLE-5297","name":"Abba Aunty Family","party":2},{"code":"ASPEN-5950","name":"Mother \u2013 Yuly","party":1},{"code":"BIRCH-6369","name":"Father \u2013 Rudy","party":1},{"code":"AUTUMN-2698","name":"Sister \u2013 Lynda","party":1},{"code":"CEDAR-2534","name":"Lynda's Husband \u2013 Dylan","party":1},{"code":"OAKLEAF-1142","name":"Sister \u2013 Alexia","party":1},{"code":"WILLOW-5607","name":"Sister \u2013 Gaby","party":1},{"code":"FOLIAGE-8534","name":"Gaby's Husband \u2013 David","party":1},{"code":"EMBER-1829","name":"Sebastian","party":1},{"code":"ORCHARD-5684","name":"Lindsay","party":1},{"code":"WILLOW-8400","name":"Charnae","party":1},{"code":"BIRCH-8183","name":"Olivia","party":1},{"code":"LANTERN-5785","name":"Yamilette","party":1},{"code":"BIRCH-3721","name":"Kulsoom","party":1},{"code":"FOLIAGE-9690","name":"Loey","party":1}];
   (function () {
     var gate = document.getElementById("code-gate");
     var codeInput = document.getElementById("f-code");
@@ -800,28 +801,39 @@
     var dinnerWrap = document.getElementById("dinner-wrap");
     if (!gate || !form) return;
 
-    function norm(s) { return (s || "").toUpperCase().replace(/[^A-Z0-9]/g, ""); }
-    var byCode = {};
-    GUESTS.forEach(function (g) { byCode[norm(g.code)] = g; });
     var current = null;
 
+    function showCodeError(msg) {
+      codeError.textContent = msg;
+      codeError.hidden = false;
+      codeInput.focus();
+      codeInput.select();
+    }
     function tryUnlock() {
-      var g = byCode[norm(codeInput.value)];
-      if (!g) {
-        codeError.hidden = false;
-        codeInput.focus();
-        codeInput.select();
-        return;
-      }
-      current = g;
-      codeError.hidden = true;
-      gate.hidden = true;
-      form.hidden = false;
-      greeting.textContent = "Welcome, " + g.name + " — we saved " + g.party +
-        (g.party > 1 ? " seats" : " seat") + " for you.";
-      partyInput.value = g.party;
-      partyInput.max = g.party;
-      form.querySelector("select").focus();
+      codeBtn.disabled = true;
+      fetch("/api/unlock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: codeInput.value })
+      }).then(function (r) {
+        if (r.status === 404) throw new Error("badcode");
+        if (!r.ok) throw new Error("server");
+        return r.json();
+      }).then(function (g) {
+        current = { code: codeInput.value, name: g.name, party: g.party };
+        codeError.hidden = true;
+        gate.hidden = true;
+        form.hidden = false;
+        greeting.textContent = "Welcome, " + g.name + " — we saved " + g.party +
+          (g.party > 1 ? " seats" : " seat") + " for you.";
+        partyInput.value = g.party;
+        partyInput.max = g.party;
+        form.querySelector("select").focus();
+      }).catch(function (e) {
+        showCodeError(e.message === "badcode"
+          ? "We couldn't find that code — double-check your invitation, or send us a note."
+          : "The RSVP service isn't reachable right now — please try again shortly.");
+      }).then(function () { codeBtn.disabled = false; });
     }
     codeBtn.addEventListener("click", tryUnlock);
     codeInput.addEventListener("keydown", function (e) {
@@ -842,21 +854,27 @@
       if (!email.value.trim() || email.value.indexOf("@") < 0) { email.focus(); return; }
       var entry = {
         code: current ? current.code : "",
-        name: current ? current.name : "",
         events: eventsSel.value,
         party: partyInput.value,
         email: email.value.trim(),
         dinner: dinnerWrap.hidden ? "" : document.getElementById("f-dinner").value,
-        note: document.getElementById("f-note").value.trim(),
-        at: new Date().toISOString()
+        note: document.getElementById("f-note").value.trim()
       };
-      try {
-        var saved = JSON.parse(localStorage.getItem("wedding-rsvps") || "[]");
-        saved.push(entry);
-        localStorage.setItem("wedding-rsvps", JSON.stringify(saved));
-      } catch (err) { /* storage unavailable — confirmation still shows */ }
-      form.style.display = "none";
-      confirmMsg.style.display = "block";
+      var sendBtn = form.querySelector(".submit");
+      var sendError = document.getElementById("rsvp-error");
+      sendBtn.disabled = true;
+      fetch("/api/rsvp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(entry)
+      }).then(function (r) {
+        if (!r.ok) throw new Error("server");
+        form.style.display = "none";
+        confirmMsg.style.display = "block";
+      }).catch(function () {
+        sendBtn.disabled = false;
+        sendError.hidden = false;
+      });
     });
   })();
 </script>

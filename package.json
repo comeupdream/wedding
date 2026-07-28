@@ -1,0 +1,13 @@
+{
+  "name": "wedding",
+  "version": "1.0.0",
+  "description": "Sharon & Zachary — wedding invite portal and RSVP service.",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  }
+}
