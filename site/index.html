@@ -40,6 +40,8 @@
     --body: "Iowan Old Style", "Palatino Linotype", "Georgia", serif;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { cursor: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABwAAAAcCAYAAAByDd+UAAAFM0lEQVR4nLWWW2xUVRSG/7XPmTmnLR1LSEq5U0oCtqWgUDBoqPhkiEIwmSaECBpIRGJATEATIzNj8MUGQUIiXkJCTEycCSExakSNtsGgQJFbuSjSTilCuTnt0E7PnMtaPkynDpdpqYT/6Zydlf/ba++1916EQRQCVPY7DAgBcq84ASgMUPY/AvBgvncpGoSGHIPc8dxJhADVH3unKM/47aYCEA18Ap/Nnza2N+WV+HSyxpcFOhd/fTSVMyHUx+ABwFfPzS681Jksc1wxiwq1rtUH/7ic9euHyF3AfpgAwPaa8lW2g9VQUqUUFYtI2nOpUxF+Mg35cN3x+AkA2Fk7aVZfj1rvCRZqupQRkcEsSTCd8fnw6YaTbbtzODIAzGa2s66yyLret6e4QH9hwkQDZWMMmKaC5wqSt1xc7kijo9OySafXGULkYtuEMtM/dryBQECHphMsi9F5JY2Oi2kk+5y9o8cFVq744WRK+jMlAAiFoKrOBKn19JGvJowyFz0+L+CMLvVrwkLCIBBEKQIze2fPpfTmY0kAwJzHAnh0eqGrlNKYBRAQKQgpyNVrjvf7oaTv0k3rm/Kq+JLTlZBIBEzRYFCrj8W8huopa0YV6R/VPTPSHlni81sWD2woAIgASgGmqeRkS48AQE31CLIsJmbcFWuaComEYzf9nPBf702/+mZL+65oMKhRpqIqfedPpc4uqC2ZPKOmCKmUKKVwT4kAup5xd125DZQrZqCgkPjUiR780tzdNnVGYWV97IyjAEj8bN/0IkOVl5b5yHGg8pkAmUxcVwaFDcQ5UKVjDCow1JSOc9Y0AKIAwGUeO8LUqMDUmHlwo6zZ/cQwCwpNxcWmRo7NY4H+Q0wQ22OAWYiGchqGiAjMQi4LSBd7AFjg1ztuWS73plgpBZF7XmDDU3+RSW+KVU+f5+l+vQMAlAC0fknrhbTNp65eSYumDfMeHESaBu68kpa0wy1vLL7QKgCpcF2dRhGwX1eftLVZ1J30oGmZGT5IdpoGJJOexNss8unaxxQBh+vqMsdCADSunGT8eohaZlUWVzwxL8DptAxarUMBDYP40KGkOnbm1oUxo6X6pab2NCGzhxILQi3c024VFWHtn+d70RbvY9NQ4P+xuMyAaSiJx/v43PlejDBpzctN7VYsmGEpIHPrR4PQ1h+Nf28zbz3e3KNfu2E7xjChzIBhEK7ftN1jR3t0V/i9dcfbfowGoWVfltxFo1AdtHAjvPerJu8tfcS/dMHTI52SgO5L24J8N89tMD+hK+k6BxoTvqtd9hdvnYsv37wAeqQJHvpfi1wbCTfBCxNoxkR92Y1uZ/+BxoQv0e24Q2XKAhiGysCaunxXu+19myK1KzYLVDgHdidw4KFc9N1f6UlVztJr3c7+A01d+j8J28m3p5nMFBIJO5vZvrnBSfVUH+NczxzG3QoBKgLwt89ONVouurFRxf7nn3yqxCkt9fssiweWlznzKly7bjsHD3T5btxyvtwYnrOc6mMcAuhevU3ews9Co9Gg1v5u8+clpr5s3vyAO35cgZ5OZ3wMQ8nfl/u83w4m9a5eZ/ems/FVIpljlq/hGvSkhQAVBoQI0lBdvmuErr0yu7bYnVpRpAFAa2vKO3I4qfc43vaNLW0bBuLzwIYEAv+1gBGAt9ZM2eIDvV07N+ABQPPhpGaJ987GU/EtQUCLAjwY7L4lOW1fQ3X5aztmVsiOmRXSMKN8LZC/rXxgheqgA8C2WRUrPqipeDF37KHpzkb4ocKyigah5eush9K/9oR+mSOJyagAAAAASUVORK5CYII=) 14 13, auto !important; }
+  input[type="text"], input[type="email"], input[type="number"], textarea { cursor: text !important; }
   html { scroll-behavior: smooth; }
   body {
     font-family: var(--body);
@@ -770,6 +772,9 @@
         y: fromTop ? -20 : Math.random() * hero.clientHeight,
         size: 5 + Math.random() * 8,
         vy: 0.35 + Math.random() * 0.75,
+        vx: 0,
+        gy: 0,
+        gs: 0,
         drift: 0.4 + Math.random() * 0.9,
         phase: Math.random() * Math.PI * 2,
         spin: (Math.random() - 0.5) * 0.045,
@@ -796,14 +801,36 @@
       ctx.clearRect(0, 0, hero.clientWidth, hero.clientHeight);
       for (var i = 0; i < leaves.length; i++) {
         var l = leaves[i];
-        l.y += l.vy;
-        l.x += Math.sin(t / 1400 + l.phase) * l.drift;
-        l.angle += l.spin;
+        l.vx *= 0.94;
+        l.gy *= 0.94;
+        l.gs *= 0.94;
+        l.y += l.vy + l.gy;
+        l.x += Math.sin(t / 1400 + l.phase) * l.drift + l.vx;
+        l.angle += l.spin + l.gs;
+        if (l.x < -40) l.x = hero.clientWidth + 30;
+        if (l.x > hero.clientWidth + 40) l.x = -30;
         if (l.y > hero.clientHeight + 24) leaves[i] = makeLeaf(true);
+        if (l.y < -60) l.y = -20;
         drawLeaf(l);
       }
       requestAnimationFrame(tick);
     }
+
+    hero.addEventListener("pointerdown", function (e) {
+      var rect = hero.getBoundingClientRect();
+      var cx = e.clientX - rect.left;
+      var cy = e.clientY - rect.top;
+      for (var i = 0; i < leaves.length; i++) {
+        var l = leaves[i];
+        var dx = l.x - cx;
+        var dy = l.y - cy;
+        var d = Math.sqrt(dx * dx + dy * dy) + 0.01;
+        var force = Math.min(22, 2400 / (d + 50));
+        l.vx += (dx / d) * force * (0.6 + Math.random() * 0.8);
+        l.gy += (dy / d) * force * (0.45 + Math.random() * 0.55) - force * 0.18;
+        l.gs += (Math.random() - 0.5) * force * 0.06;
+      }
+    });
 
     resize();
     var count = Math.min(46, Math.max(24, Math.floor(hero.clientWidth / 30)));
