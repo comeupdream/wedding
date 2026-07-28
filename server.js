@@ -36,6 +36,37 @@ const throttled = (ip) => {
   return false;
 };
 
+const MIME = {
+  ".mp4": "video/mp4", ".png": "image/png", ".svg": "image/svg+xml",
+  ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp",
+  ".ico": "image/x-icon",
+};
+const ASSETS_DIR = path.join(__dirname, "site", "assets");
+const serveStatic = (req, res, filePath) => {
+  const resolved = path.resolve(filePath);
+  if (!resolved.startsWith(ASSETS_DIR) || !fs.existsSync(resolved) || !fs.statSync(resolved).isFile()) {
+    res.writeHead(404, { "Content-Type": "application/json" });
+    return res.end('{"error":"not found"}');
+  }
+  const size = fs.statSync(resolved).size;
+  const type = MIME[path.extname(resolved).toLowerCase()] || "application/octet-stream";
+  const common = { "Content-Type": type, "Accept-Ranges": "bytes", "Cache-Control": "public, max-age=86400" };
+  const range = /bytes=(\d*)-(\d*)/.exec(req.headers.range || "");
+  if (range && (range[1] || range[2])) {
+    const start = range[1] ? parseInt(range[1], 10) : 0;
+    let end = range[2] ? parseInt(range[2], 10) : size - 1;
+    if (start >= size) {
+      res.writeHead(416, { "Content-Range": `bytes */${size}` });
+      return res.end();
+    }
+    end = Math.min(end, size - 1);
+    res.writeHead(206, { ...common, "Content-Range": `bytes ${start}-${end}/${size}`, "Content-Length": end - start + 1 });
+    return fs.createReadStream(resolved, { start, end }).pipe(res);
+  }
+  res.writeHead(200, { ...common, "Content-Length": size });
+  fs.createReadStream(resolved).pipe(res);
+};
+
 const readBody = (req) => new Promise((resolve, reject) => {
   let body = "";
   req.on("data", (c) => {
@@ -92,6 +123,13 @@ http.createServer(async (req, res) => {
       return send(200, fs.readFileSync(path.join(__dirname, "site", "index.html")), "text/html; charset=utf-8");
     }
     if (url.pathname === "/healthz") return send(200, { ok: true });
+
+    if (req.method === "GET" && url.pathname.startsWith("/assets/")) {
+      return serveStatic(req, res, path.join(__dirname, "site", url.pathname));
+    }
+    if (req.method === "GET" && url.pathname === "/favicon.ico") {
+      return serveStatic(req, res, path.join(ASSETS_DIR, "favicon-32.png"));
+    }
 
     if (req.method === "POST" && url.pathname === "/api/unlock") {
       const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
