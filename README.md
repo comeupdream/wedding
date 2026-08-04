@@ -92,16 +92,25 @@ yet, headcounts for the ceremony and the reception, and the meal split. The
 Guests can RSVP again at any time — the latest answer replaces the earlier one,
 and unlocking shows them what they last sent so they can amend it.
 
-Storage lives under `DATA_DIR`: `rsvps.json` holds the current answer per
-invitation, `rsvps.log.jsonl` appends every submission ever received. Each one is
-also printed to the service logs as a third copy.
+`rsvps.json` holds the current answer per invitation and `rsvps.log.jsonl`
+appends every submission ever received. Each one is also printed to the service
+logs as a third copy.
+
+The server finds its own storage — there's no env var to set. If a disk is
+mounted at `/var/data` (or `/data`) it uses it; otherwise it falls back to a
+working copy inside the container and says so, in the startup logs and in red at
+the top of `/admin`. Set `DATA_DIR` only if you want to override both.
 
 ## Deploying
 
 `render.yaml` is a Render blueprint: push to GitHub, then **New + → Blueprint**
-and point it at this repo. Set `ADMIN_PASSWORD` in the Render dashboard once the
-service exists. The blueprint mounts a 1 GB disk at `/var/data` so RSVPs survive
-deploys — see the comments in `render.yaml` to run on the free plan instead.
+and point it at this repo. It must be a **Web Service**, not a Static Site — the
+site and the API are the same process.
+
+Two things to do by hand: set `ADMIN_PASSWORD` in the Render dashboard, and keep
+the 1 GB disk mounted at `/var/data`. The disk is the only thing standing between
+you and losing every RSVP on the next deploy — and adding a guest *is* a deploy.
+It costs about $0.25/month on a paid instance.
 
 Editing `guest-codes.json` needs a redeploy to take effect (or `kill -HUP` the
 process if you're on a shell).

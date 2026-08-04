@@ -8,9 +8,29 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3000;
-const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, "data");
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "";
 const GUESTS_FILE = process.env.GUESTS_FILE || path.join(__dirname, "guest-codes.json");
+
+// Where the RSVPs live. A mounted disk is found on its own — no env var to set,
+// and nothing to get wrong. Only a directory that already exists counts as a
+// disk: Render creates the mount point, so if /var/data isn't there, no disk is
+// attached and we fall back to a working copy that a redeploy will wipe.
+const MOUNTS = ["/var/data", "/data"];
+const mounted = (dir) => {
+  try {
+    fs.accessSync(dir, fs.constants.W_OK);
+    return fs.statSync(dir).isDirectory();
+  } catch { return false; }
+};
+export const resolveStorage = (env = process.env, mounts = MOUNTS) => {
+  if (env.DATA_DIR) return { dir: env.DATA_DIR, durable: true, why: "DATA_DIR" };
+  const disk = mounts.find(mounted);
+  if (disk) return { dir: disk, durable: true, why: "mounted disk" };
+  return { dir: path.join(__dirname, "data"), durable: false, why: "no disk attached" };
+};
+
+const STORAGE = resolveStorage();
+const DATA_DIR = STORAGE.dir;
 const RSVP_FILE = path.join(DATA_DIR, "rsvps.json");
 const RSVP_LOG = path.join(DATA_DIR, "rsvps.log.jsonl");
 
@@ -198,6 +218,7 @@ const ADMIN_HTML = `<!doctype html><meta charset="utf-8">
   th{background:#F3E6CE} .muted{color:#6E5247;font-style:italic}
   .totals{margin-top:1.2rem;padding:.8rem 1rem;background:#F3E6CE;border:1px solid #d8c4a5}
   .totals b{font-size:1.1rem} .no{color:#8a6a60}
+  .warn{margin-top:1.2rem;padding:.8rem 1rem;background:#F7DFD6;border:1px solid #B33F2E;font-size:.9rem}
 </style>
 <h1>RSVPs</h1>
 <p><input id="pw" type="password" placeholder="Admin password"> <button id="go">View</button>
@@ -225,7 +246,13 @@ function load() {
       var t = data.totals;
       msg.textContent = t.responses + " of " + data.invited + " invitations answered";
       csv.hidden = false;
-      sum.innerHTML = "<div class=totals><b>" + t.ceremony + "</b> at the ceremony &nbsp;·&nbsp; <b>" +
+      var warn = data.storage && !data.storage.durable
+        ? "<div class=warn><b>These answers won't survive the next deploy.</b> " +
+          "No disk is attached, so they're being kept in " + esc(data.storage.dir) +
+          " inside the running container. Attach a disk in Render, or download the CSV " +
+          "before you deploy again.</div>"
+        : "";
+      sum.innerHTML = warn + "<div class=totals><b>" + t.ceremony + "</b> at the ceremony &nbsp;·&nbsp; <b>" +
         t.reception + "</b> at the reception &nbsp;·&nbsp; <b>" + t.vegetarian +
         "</b> vegetarian / <b>" + t.standard + "</b> standard meals &nbsp;·&nbsp; <b>" +
         t.declined + "</b> cannot attend &nbsp;·&nbsp; <b>" + data.awaiting.length + "</b> awaiting reply</div>";
@@ -270,7 +297,9 @@ export const createApp = () => http.createServer(async (req, res) => {
     if (req.method === "GET" && (url.pathname === "/" || url.pathname === "/index.html")) {
       return send(200, fs.readFileSync(path.join(__dirname, "site", "index.html")), "text/html; charset=utf-8");
     }
-    if (url.pathname === "/healthz") return send(200, { ok: true, guests: byCode.size });
+    if (url.pathname === "/healthz") {
+      return send(200, { ok: true, guests: byCode.size, durable: STORAGE.durable });
+    }
 
     if (req.method === "GET" && url.pathname.startsWith("/assets/")) {
       return serveStatic(req, res, path.join(__dirname, "site", url.pathname));
@@ -327,8 +356,10 @@ export const createApp = () => http.createServer(async (req, res) => {
       const awaiting = [...byCode.values()]
         .filter((g) => !all[g.code])
         .map(({ code, name, invite, party }) => ({ code, name, invite, party }));
-      return send(200, { invited: byCode.size, totals: totals(rsvps), rsvps, awaiting },
-        "application/json", { "Cache-Control": "no-store" });
+      return send(200, {
+        invited: byCode.size, totals: totals(rsvps), rsvps, awaiting,
+        storage: { dir: DATA_DIR, durable: STORAGE.durable },
+      }, "application/json", { "Cache-Control": "no-store" });
     }
 
     if (req.method === "GET" && url.pathname === "/admin") {
@@ -345,5 +376,10 @@ export const createApp = () => http.createServer(async (req, res) => {
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMain) {
   if (!ADMIN_PASSWORD) console.warn("ADMIN_PASSWORD is unset — /admin and the RSVP export are disabled.");
+  console.log(`RSVPs stored in ${DATA_DIR} (${STORAGE.why})`);
+  if (!STORAGE.durable) {
+    console.warn("No disk attached — RSVPs are wiped by the next deploy or restart. " +
+      "Attach one in Render (Settings -> Disks, mount it at /var/data) and they'll persist.");
+  }
   createApp().listen(PORT, () => console.log(`wedding site listening on :${PORT} — ${byCode.size} guests loaded`));
 }

@@ -4,19 +4,20 @@ services:
   - type: web
     name: wedding
     runtime: node
-    plan: starter         # RSVPs live on the disk below, which needs a paid plan.
-                          # For a free instance: set `plan: free`, delete the
-                          # `disk:` block and the DATA_DIR var. RSVPs then survive
-                          # only until the next deploy or restart — but every one
-                          # is also printed to the service logs, and you can pull
-                          # the whole list any time from /admin as CSV.
-                          # Free instances also sleep when idle, so the first
-                          # guest of the day waits ~30s for the page.
+    plan: starter         # Needed for the disk below (disks require a paid plan)
+                          # and to keep the service awake — free instances sleep
+                          # when idle, so the first guest of the day waits ~30s.
     region: ohio
     buildCommand: npm install
     startCommand: npm start
     autoDeploy: true
     healthCheckPath: /healthz
+    # The disk is what makes RSVPs outlive a deploy — and you will deploy, since
+    # adding a guest means editing guest-codes.json. 1 GB is far more than a
+    # guest list needs; it's the smallest size Render offers, ~$0.25/month.
+    # The server finds this mount on its own — no env var points at it. Drop the
+    # block and RSVPs fall back to a working copy inside the container that every
+    # deploy wipes; /admin says so in red when that happens.
     disk:
       name: rsvp-data
       mountPath: /var/data
@@ -24,8 +25,6 @@ services:
     envVars:
       - key: NODE_VERSION
         value: "22"
-      - key: DATA_DIR
-        value: /var/data   # rsvps.json (current answers) + rsvps.log.jsonl (every submission)
       - key: ADMIN_PASSWORD
         sync: false        # password for the /admin dashboard — set it in the Render
                            # dashboard. Leave it unset and /admin stays locked.

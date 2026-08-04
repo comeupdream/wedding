@@ -17,7 +17,7 @@ process.env.GUESTS_FILE = guestsFile;
 process.env.ADMIN_PASSWORD = "s3cret";
 process.env.PORT = "0";
 
-const { createApp } = await import("../server.js");
+const { createApp, resolveStorage } = await import("../server.js");
 const server = createApp().listen(0);
 await new Promise((r) => server.once("listening", r));
 const base = `http://127.0.0.1:${server.address().port}`;
@@ -101,6 +101,20 @@ for (let i = 0; i < 12; i++) {
 check("repeated wrong guesses get throttled", throttled);
 r = await post("/api/unlock", { code: "4821" });
 check("a correct password is still refused while locked out", r.status === 429);
+
+// --- storage detection ----------------------------------------------------
+const disk = fs.mkdtempSync(path.join(os.tmpdir(), "wedding-disk-"));
+let store = resolveStorage({}, [disk]);
+check("a mounted disk is found without an env var", store.dir === disk && store.durable, JSON.stringify(store));
+store = resolveStorage({}, ["/definitely-not-mounted"]);
+check("no disk falls back to a working copy", !store.durable && store.dir.endsWith("data"), JSON.stringify(store));
+check("no disk is reported as such", store.why === "no disk attached");
+store = resolveStorage({ DATA_DIR: "/somewhere/else" }, [disk]);
+check("DATA_DIR still wins if it's set", store.dir === "/somewhere/else" && store.durable);
+fs.rmSync(disk, { recursive: true, force: true });
+
+r = await fetch(base + "/api/rsvps", { headers: { Authorization: "Bearer s3cret" } });
+check("export reports where the answers live", (await r.json()).storage.durable === true);
 
 // --- static ---------------------------------------------------------------
 r = await fetch(base + "/healthz");
