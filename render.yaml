@@ -4,22 +4,28 @@ services:
   - type: web
     name: wedding
     runtime: node
-    plan: free            # bump to starter for always-on (free instances sleep when idle)
+    plan: starter         # RSVPs live on the disk below, which needs a paid plan.
+                          # For a free instance: set `plan: free`, delete the
+                          # `disk:` block and the DATA_DIR var. RSVPs then survive
+                          # only until the next deploy or restart — but every one
+                          # is also printed to the service logs, and you can pull
+                          # the whole list any time from /admin as CSV.
+                          # Free instances also sleep when idle, so the first
+                          # guest of the day waits ~30s for the page.
     region: ohio
     buildCommand: npm install
     startCommand: npm start
     autoDeploy: true
     healthCheckPath: /healthz
+    disk:
+      name: rsvp-data
+      mountPath: /var/data
+      sizeGB: 1
     envVars:
       - key: NODE_VERSION
-        value: "20"
+        value: "22"
+      - key: DATA_DIR
+        value: /var/data   # rsvps.json (current answers) + rsvps.log.jsonl (every submission)
       - key: ADMIN_PASSWORD
-        sync: false       # password for the /admin RSVP dashboard — set in the Render dashboard
-    # RSVPs are written to ./data/rsvps.json, which is wiped on each deploy or
-    # restart unless a persistent disk is attached (requires the starter plan).
-    # Every RSVP is also printed to the service logs as a backup copy.
-    # To make storage durable, uncomment below and add env var DATA_DIR=/data:
-    # disk:
-    #   name: data
-    #   mountPath: /data
-    #   sizeGB: 1
+        sync: false        # password for the /admin dashboard — set it in the Render
+                           # dashboard. Leave it unset and /admin stays locked.

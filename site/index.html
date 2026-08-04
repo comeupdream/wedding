@@ -190,6 +190,12 @@
   .code-row input { flex: 1; text-transform: uppercase; letter-spacing: 0.08em; }
   .code-row .btn { padding: 0.8rem 1.4rem; }
   .code-error { color: #FFB3A0; font-size: 0.9rem; margin-top: 0.6rem; }
+  .code-busy { color: rgba(251, 243, 228, 0.7); font-size: 0.9rem; margin-top: 0.6rem; }
+  .field-hint {
+    font-size: 0.78rem;
+    color: rgba(251, 243, 228, 0.6);
+    margin: 0;
+  }
   .rsvp-greeting {
     text-align: center;
     font-family: var(--script);
@@ -633,16 +639,18 @@
   <div class="shell-narrow">
     <p class="sec-label">RSVP</p>
     <h2>Save us a dance</h2>
-    <p class="lede">Enter the invitation code from your invite to RSVP for the
-       ceremony, the reception, or both.</p>
+    <p class="lede">Enter the four-digit password from your invitation to RSVP.
+       Your invite tells you which parts of the day you're joining us for.</p>
     <div id="code-gate">
       <div class="field">
-        <label for="f-code">Invitation code</label>
+        <label for="f-code">Invitation password</label>
         <div class="code-row">
-          <input id="f-code" type="text" autocomplete="off" spellcheck="false" placeholder="MAPLE-1234">
+          <input id="f-code" type="text" inputmode="numeric" autocomplete="off"
+                 spellcheck="false" maxlength="8" placeholder="1234">
           <button class="btn" id="code-btn" type="button">Unlock</button>
         </div>
-        <p class="code-error" id="code-error" hidden>We couldn't find that code —
+        <p class="code-busy" id="code-busy" hidden>Opening your invitation…</p>
+        <p class="code-error" id="code-error" hidden>We couldn't find that password —
            double-check your invitation, or send us a note.</p>
       </div>
     </div>
@@ -669,13 +677,14 @@
           <input id="f-email" name="email" type="email" autocomplete="email" required>
         </div>
         <div class="field" id="dinner-wrap">
-          <label for="f-dinner">Dinner preference</label>
-          <select id="f-dinner" name="dinner">
-            <option value="steak">Steak</option>
-            <option value="salmon">Glazed salmon</option>
-            <option value="indian">Indian buffet</option>
-            <option value="veg">Vegetarian</option>
+          <label for="f-meal" id="meal-label">Dinner preference</label>
+          <select id="f-meal" name="meal">
+            <option value="standard">Standard dinner</option>
+            <option value="vegetarian">Vegetarian</option>
           </select>
+          <input id="f-veg" name="vegetarian" type="number" min="0" step="1" value="0" hidden>
+          <p class="field-hint" id="meal-hint" hidden>How many in your party need a
+             vegetarian meal?</p>
         </div>
       </div>
       <div class="field">
@@ -687,8 +696,9 @@
          RSVP — please try again in a moment.</p>
     </form>
     <p class="rsvp-confirm" id="rsvp-confirm">Thank you — we can't wait to celebrate with you.</p>
-    <p class="rsvp-note">Each invitation has its own code — check your invite, or
-       send us a note if it's gone missing.</p>
+    <p class="rsvp-note">Each invitation has its own password — check your invite, or
+       send us a note if it's gone missing. Changed your mind? Unlock again and
+       send a new answer; the latest one counts.</p>
   </div>
 </section>
 
@@ -873,12 +883,19 @@
     var codeInput = document.getElementById("f-code");
     var codeBtn = document.getElementById("code-btn");
     var codeError = document.getElementById("code-error");
+    var codeBusy = document.getElementById("code-busy");
     var form = document.getElementById("rsvp-form");
     var greeting = document.getElementById("rsvp-greeting");
     var confirmMsg = document.getElementById("rsvp-confirm");
     var eventsSel = document.getElementById("f-events");
     var partyInput = document.getElementById("f-party");
+    var emailInput = document.getElementById("f-email");
+    var noteInput = document.getElementById("f-note");
     var dinnerWrap = document.getElementById("dinner-wrap");
+    var mealSel = document.getElementById("f-meal");
+    var mealLabel = document.getElementById("meal-label");
+    var mealHint = document.getElementById("meal-hint");
+    var vegInput = document.getElementById("f-veg");
     if (!gate || !form) return;
 
     var current = null;
@@ -889,60 +906,117 @@
       codeInput.focus();
       codeInput.select();
     }
-    function tryUnlock() {
+
+    // The invite decides what a guest may answer for: a ceremony-only invite
+    // never offers the reception.
+    function setEventOptions(allowed) {
+      Array.prototype.forEach.call(eventsSel.options, function (o) {
+        o.hidden = allowed.indexOf(o.value) < 0;
+        o.disabled = o.hidden;
+      });
+      var visible = Array.prototype.filter.call(eventsSel.options, function (o) { return !o.hidden; });
+      eventsSel.value = visible.length ? visible[0].value : "none";
+    }
+
+    // One dinner choice for a single guest; a headcount for a family.
+    function setMealMode(seats) {
+      var many = seats > 1;
+      mealSel.hidden = many;
+      vegInput.hidden = !many;
+      mealHint.hidden = !many;
+      mealLabel.setAttribute("for", many ? "f-veg" : "f-meal");
+      mealLabel.textContent = many ? "Vegetarian meals" : "Dinner preference";
+      vegInput.max = seats;
+    }
+
+    function unlocked(code, g) {
+      current = { code: code, name: g.name, party: g.party, invite: g.invite };
+      codeError.hidden = true;
+      gate.hidden = true;
+      form.hidden = false;
+      greeting.textContent = "Welcome, " + g.name + " — we saved " + g.party +
+        (g.party > 1 ? " seats" : " seat") + " for you.";
+      partyInput.value = g.party;
+      partyInput.max = g.party;
+      setEventOptions(g.events || ["both", "ceremony", "reception", "none"]);
+      setMealMode(g.party);
+      if (g.rsvp) {
+        // They've answered before — show it back so they can amend it.
+        eventsSel.value = g.rsvp.events;
+        partyInput.value = g.rsvp.party || g.party;
+        emailInput.value = g.rsvp.email || "";
+        noteInput.value = g.rsvp.note || "";
+        vegInput.value = g.rsvp.vegetarian || 0;
+        mealSel.value = g.rsvp.vegetarian > 0 ? "vegetarian" : "standard";
+        greeting.textContent = "Welcome back, " + g.name + " — here's what you sent us. " +
+          "Change anything you like and send it again.";
+      }
+      syncFields();
+      form.scrollIntoView({ block: "center" });
+      eventsSel.focus();
+    }
+
+    function tryUnlock(code, silent) {
+      var value = (code === undefined ? codeInput.value : code).trim();
+      if (!value) return;
       codeBtn.disabled = true;
+      codeBusy.hidden = !silent;
       fetch("/api/unlock", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: codeInput.value })
+        body: JSON.stringify({ code: value })
       }).then(function (r) {
         if (r.status === 404) throw new Error("badcode");
+        if (r.status === 429) throw new Error("throttled");
         if (!r.ok) throw new Error("server");
         return r.json();
       }).then(function (g) {
-        current = { code: codeInput.value, name: g.name, party: g.party };
-        codeError.hidden = true;
-        gate.hidden = true;
-        form.hidden = false;
-        greeting.textContent = "Welcome, " + g.name + " — we saved " + g.party +
-          (g.party > 1 ? " seats" : " seat") + " for you.";
-        partyInput.value = g.party;
-        partyInput.max = g.party;
-        form.querySelector("select").focus();
+        unlocked(value, g);
       }).catch(function (e) {
+        if (silent) codeInput.value = "";
         showCodeError(e.message === "badcode"
-          ? "We couldn't find that code — double-check your invitation, or send us a note."
-          : "The RSVP service isn't reachable right now — please try again shortly.");
-      }).then(function () { codeBtn.disabled = false; });
+          ? "We couldn't find that password — double-check your invitation, or send us a note."
+          : e.message === "throttled"
+            ? "That's a few too many tries — please wait a few minutes and try again."
+            : "The RSVP service isn't reachable right now — please try again shortly.");
+      }).then(function () {
+        codeBtn.disabled = false;
+        codeBusy.hidden = true;
+      });
     }
-    codeBtn.addEventListener("click", tryUnlock);
+    codeBtn.addEventListener("click", function () { tryUnlock(); });
     codeInput.addEventListener("keydown", function (e) {
       if (e.key === "Enter") { e.preventDefault(); tryUnlock(); }
     });
 
     function syncFields() {
       var v = eventsSel.value;
-      dinnerWrap.hidden = (v === "ceremony" || v === "none");
-      partyInput.disabled = (v === "none");
+      var coming = v !== "none";
+      dinnerWrap.hidden = !coming || v === "ceremony";
+      partyInput.disabled = !coming;
     }
     eventsSel.addEventListener("change", syncFields);
     syncFields();
 
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      var email = document.getElementById("f-email");
-      if (!email.value.trim() || email.value.indexOf("@") < 0) { email.focus(); return; }
+      if (!emailInput.value.trim() || emailInput.value.indexOf("@") < 0) { emailInput.focus(); return; }
+      var seats = parseInt(partyInput.value, 10) || 1;
+      var veg = dinnerWrap.hidden ? 0
+        : (vegInput.hidden ? (mealSel.value === "vegetarian" ? 1 : 0)
+                           : Math.min(seats, Math.max(0, parseInt(vegInput.value, 10) || 0)));
       var entry = {
         code: current ? current.code : "",
         events: eventsSel.value,
         party: partyInput.value,
-        email: email.value.trim(),
-        dinner: dinnerWrap.hidden ? "" : document.getElementById("f-dinner").value,
-        note: document.getElementById("f-note").value.trim()
+        email: emailInput.value.trim(),
+        vegetarian: veg,
+        note: noteInput.value.trim()
       };
       var sendBtn = form.querySelector(".submit");
       var sendError = document.getElementById("rsvp-error");
       sendBtn.disabled = true;
+      sendError.hidden = true;
       fetch("/api/rsvp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -951,10 +1025,25 @@
         if (!r.ok) throw new Error("server");
         form.style.display = "none";
         confirmMsg.style.display = "block";
+        confirmMsg.scrollIntoView({ block: "center" });
       }).catch(function () {
         sendBtn.disabled = false;
         sendError.hidden = false;
       });
     });
+
+    // Personal links carry the password (…/?c=4821). Unlock straight away and
+    // scrub it out of the address bar so it isn't left in history or a screenshot.
+    var fromLink = new URLSearchParams(location.search).get("c");
+    if (fromLink) {
+      codeInput.value = fromLink;
+      if (history.replaceState) {
+        var params = new URLSearchParams(location.search);
+        params.delete("c");
+        var q = params.toString();
+        history.replaceState(null, "", location.pathname + (q ? "?" + q : "") + location.hash);
+      }
+      tryUnlock(fromLink, true);
+    }
   })();
 </script>

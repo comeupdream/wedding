@@ -1,307 +1,368 @@
 [
  {
-  "code": "OAKLEAF-3800",
-  "name": "Mother \u2013 Rashmi",
-  "party": 1
+  "code": "5985",
+  "name": "Mother – Rashmi",
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "CEDAR-7677",
-  "name": "Sister \u2013 Amy",
-  "party": 1
+  "code": "3317",
+  "name": "Sister – Amy",
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "ASPEN-4698",
-  "name": "Amy's Husband \u2013 Chris",
-  "party": 1
+  "code": "7709",
+  "name": "Amy's Husband – Chris",
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "BIRCH-7144",
-  "name": "Sister \u2013 Ashley",
-  "party": 1
+  "code": "8233",
+  "name": "Sister – Ashley",
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "ORCHARD-8836",
-  "name": "Ashley's Husband \u2013 Joe",
-  "party": 1
+  "code": "5646",
+  "name": "Ashley's Husband – Joe",
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "LANTERN-6818",
+  "code": "3600",
   "name": "Linda",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "ACORN-8710",
+  "code": "3435",
   "name": "Shawn",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "CEDAR-8710",
+  "code": "8962",
   "name": "Mia",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "CIDER-4145",
+  "code": "2243",
   "name": "Dexter",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "MAPLE-6029",
+  "code": "8819",
   "name": "Taylor",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "HICKORY-6763",
+  "code": "5410",
   "name": "Anthony",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "BIRCH-5796",
+  "code": "5396",
   "name": "Pradeep",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "ACORN-2433",
+  "code": "2397",
   "name": "Sudhir",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "SUMAC-3680",
+  "code": "4151",
   "name": "Pinki",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "ACORN-4996",
+  "code": "1313",
   "name": "Vikram",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "CEDAR-4049",
+  "code": "5499",
   "name": "Sonya",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "ACORN-4066",
+  "code": "4636",
   "name": "Mini",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "LANTERN-8441",
+  "code": "2093",
   "name": "Ravi",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "WILLOW-7668",
+  "code": "3707",
   "name": "Geeta",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "ORCHARD-8089",
+  "code": "1148",
   "name": "Dhruv",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "CIDER-1009",
+  "code": "3496",
   "name": "Ridhi",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "ACORN-2626",
+  "code": "2440",
   "name": "Ruchi",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "WILLOW-1368",
+  "code": "8481",
   "name": "Vinay",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "AUTUMN-8971",
+  "code": "6484",
   "name": "Neal",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "ASPEN-6445",
+  "code": "3168",
   "name": "Rahul",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "SUMAC-7947",
+  "code": "7347",
   "name": "Sid",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "MAPLE-5700",
+  "code": "1217",
   "name": "Saurabh",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "LANTERN-4227",
+  "code": "6741",
   "name": "Aneesha",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "EMBER-7861",
+  "code": "1651",
   "name": "Sarika",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "SUMAC-6103",
+  "code": "1162",
   "name": "Asher",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "ASPEN-4723",
+  "code": "1001",
   "name": "Simran",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "SUMAC-2890",
+  "code": "2343",
   "name": "Zed",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "CIDER-7296",
+  "code": "1621",
   "name": "Brianna",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "MAPLE-7458",
+  "code": "2551",
   "name": "Brian",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "HARVEST-8579",
+  "code": "4062",
   "name": "Sincere",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "HARVEST-9297",
+  "code": "6269",
   "name": "Nick",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "HICKORY-9164",
+  "code": "9147",
   "name": "Jon",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "OAKLEAF-2282",
+  "code": "5001",
   "name": "Carson",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "SUMAC-8377",
+  "code": "5717",
   "name": "Sam",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "LANTERN-1355",
+  "code": "1607",
   "name": "Herpal Family",
-  "party": 3
+  "party": 3,
+  "invite": "both"
  },
  {
-  "code": "FOLIAGE-8762",
+  "code": "4466",
   "name": "Raju & Herleen Family",
-  "party": 4
+  "party": 4,
+  "invite": "both"
  },
  {
-  "code": "SUMAC-6864",
+  "code": "3915",
   "name": "Durga Family",
-  "party": 3
+  "party": 3,
+  "invite": "both"
  },
  {
-  "code": "OAKLEAF-2211",
+  "code": "7571",
   "name": "Tony & Alka Family",
-  "party": 4
+  "party": 4,
+  "invite": "both"
  },
  {
-  "code": "BIRCH-7320",
+  "code": "5281",
   "name": "Gita Aunty",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "ACORN-9780",
+  "code": "8087",
   "name": "Pratima & Ravi",
-  "party": 2
+  "party": 2,
+  "invite": "both"
  },
  {
-  "code": "FOLIAGE-4415",
+  "code": "5274",
   "name": "Apu Aunty Family",
-  "party": 3
+  "party": 3,
+  "invite": "both"
  },
  {
-  "code": "MAPLE-5297",
+  "code": "2804",
   "name": "Abba Aunty Family",
-  "party": 2
+  "party": 2,
+  "invite": "both"
  },
  {
-  "code": "ASPEN-5950",
-  "name": "Mother \u2013 Yuly",
-  "party": 1
+  "code": "7640",
+  "name": "Mother – Yuly",
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "BIRCH-6369",
-  "name": "Father \u2013 Rudy",
-  "party": 1
+  "code": "6828",
+  "name": "Father – Rudy",
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "AUTUMN-2698",
-  "name": "Sister \u2013 Lynda",
-  "party": 1
+  "code": "2930",
+  "name": "Sister – Lynda",
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "CEDAR-2534",
-  "name": "Lynda's Husband \u2013 Dylan",
-  "party": 1
+  "code": "6722",
+  "name": "Lynda's Husband – Dylan",
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "OAKLEAF-1142",
-  "name": "Sister \u2013 Alexia",
-  "party": 1
+  "code": "8698",
+  "name": "Sister – Alexia",
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "WILLOW-5607",
-  "name": "Sister \u2013 Gaby",
-  "party": 1
+  "code": "5357",
+  "name": "Sister – Gaby",
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "FOLIAGE-8534",
-  "name": "Gaby's Husband \u2013 David",
-  "party": 1
+  "code": "4958",
+  "name": "Gaby's Husband – David",
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "EMBER-1829",
+  "code": "8199",
   "name": "Sebastian",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "ORCHARD-5684",
+  "code": "8638",
   "name": "Lindsay",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "WILLOW-8400",
+  "code": "6098",
   "name": "Charnae",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "BIRCH-8183",
+  "code": "5338",
   "name": "Olivia",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "LANTERN-5785",
+  "code": "5449",
   "name": "Yamilette",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "BIRCH-3721",
+  "code": "3316",
   "name": "Kulsoom",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  },
  {
-  "code": "FOLIAGE-9690",
+  "code": "6104",
   "name": "Loey",
-  "party": 1
+  "party": 1,
+  "invite": "both"
  }
 ]

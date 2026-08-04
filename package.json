@@ -8,6 +8,9 @@
   },
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "test": "node tools/smoke.mjs",
+    "codes": "node tools/gen-codes.mjs",
+    "links": "node tools/gen-links.mjs"
   }
 }
