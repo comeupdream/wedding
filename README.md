@@ -92,14 +92,21 @@ yet, headcounts for the ceremony and the reception, and the meal split. The
 Guests can RSVP again at any time — the latest answer replaces the earlier one,
 and unlocking shows them what they last sent so they can amend it.
 
-`rsvps.json` holds the current answer per invitation and `rsvps.log.jsonl`
-appends every submission ever received. Each one is also printed to the service
-logs as a third copy.
+### Where the answers live
 
-The server finds its own storage — there's no env var to set. If a disk is
-mounted at `/var/data` (or `/data`) it uses it; otherwise it falls back to a
-working copy inside the container and says so, in the startup logs and in red at
-the top of `/admin`. Set `DATA_DIR` only if you want to override both.
+Set `DATABASE_URL` and RSVPs go to Postgres — two tables, `rsvps` (the current
+answer per invitation) and `rsvp_log` (every submission ever received, so an
+amended answer never erases what came before). The server creates both on first
+boot; there's no migration step.
+
+With no `DATABASE_URL` it falls back to JSON files, which is what makes
+`npm start` and the tests work on a laptop with nothing installed. That fallback
+is not durable, and it says so — in the startup logs and in red at the top of
+`/admin`. Every RSVP is also printed to the service logs as a backup copy either
+way.
+
+If you point `DATABASE_URL` at a provider outside Render, append `?sslmode=require`
+so the connection is encrypted.
 
 ## Deploying
 
@@ -107,10 +114,12 @@ the top of `/admin`. Set `DATA_DIR` only if you want to override both.
 and point it at this repo. It must be a **Web Service**, not a Static Site — the
 site and the API are the same process.
 
-Two things to do by hand: set `ADMIN_PASSWORD` in the Render dashboard, and keep
-the 1 GB disk mounted at `/var/data`. The disk is the only thing standing between
-you and losing every RSVP on the next deploy — and adding a guest *is* a deploy.
-It costs about $0.25/month on a paid instance.
+The blueprint creates two things: the web service and a `basic-256mb` Postgres
+instance, with `DATABASE_URL` wired between them automatically. The one thing to
+do by hand is set `ADMIN_PASSWORD` in the Render dashboard.
+
+Don't drop the database to Render's free Postgres plan — it is deleted 30 days
+after creation, taking every RSVP with it.
 
 Editing `guest-codes.json` needs a redeploy to take effect (or `kill -HUP` the
 process if you're on a shell).

@@ -12,5 +12,8 @@
     "test": "node tools/smoke.mjs",
     "codes": "node tools/gen-codes.mjs",
     "links": "node tools/gen-links.mjs"
+  },
+  "dependencies": {
+    "pg": "^8.22.0"
   }
 }

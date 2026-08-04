@@ -1,30 +1,30 @@
 # Render Blueprint — https://render.com/docs/blueprint-spec
 # Deploy: push to GitHub, then "New +" -> "Blueprint" and point it at this repo.
+databases:
+  - name: wedding-db
+    plan: basic-256mb   # The free Postgres plan is DELETED 30 days after it is
+                        # created, along with every RSVP in it. Don't use it for
+                        # a wedding that's further out than a month.
+    region: ohio        # must match the service's region to stay on the private network
+
 services:
   - type: web
     name: wedding
     runtime: node
-    plan: starter         # Needed for the disk below (disks require a paid plan)
-                          # and to keep the service awake — free instances sleep
-                          # when idle, so the first guest of the day waits ~30s.
+    plan: starter       # free instances sleep when idle, so the first guest of
+                        # the day would wait ~30s for the page to wake up
     region: ohio
     buildCommand: npm install
     startCommand: npm start
     autoDeploy: true
     healthCheckPath: /healthz
-    # The disk is what makes RSVPs outlive a deploy — and you will deploy, since
-    # adding a guest means editing guest-codes.json. 1 GB is far more than a
-    # guest list needs; it's the smallest size Render offers, ~$0.25/month.
-    # The server finds this mount on its own — no env var points at it. Drop the
-    # block and RSVPs fall back to a working copy inside the container that every
-    # deploy wipes; /admin says so in red when that happens.
-    disk:
-      name: rsvp-data
-      mountPath: /var/data
-      sizeGB: 1
     envVars:
       - key: NODE_VERSION
         value: "22"
+      - key: DATABASE_URL
+        fromDatabase:   # Render fills this in — the internal connection string,
+          name: wedding-db   # which stays on the private network. The server
+          property: connectionString   # creates its own tables on first boot.
       - key: ADMIN_PASSWORD
-        sync: false        # password for the /admin dashboard — set it in the Render
-                           # dashboard. Leave it unset and /admin stays locked.
+        sync: false     # password for the /admin dashboard — set it in the Render
+                        # dashboard. Leave it unset and /admin stays locked.

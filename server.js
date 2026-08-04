@@ -5,34 +5,12 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
+import { createStore } from "./store.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3000;
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "";
 const GUESTS_FILE = process.env.GUESTS_FILE || path.join(__dirname, "guest-codes.json");
-
-// Where the RSVPs live. A mounted disk is found on its own — no env var to set,
-// and nothing to get wrong. Only a directory that already exists counts as a
-// disk: Render creates the mount point, so if /var/data isn't there, no disk is
-// attached and we fall back to a working copy that a redeploy will wipe.
-const MOUNTS = ["/var/data", "/data"];
-const mounted = (dir) => {
-  try {
-    fs.accessSync(dir, fs.constants.W_OK);
-    return fs.statSync(dir).isDirectory();
-  } catch { return false; }
-};
-export const resolveStorage = (env = process.env, mounts = MOUNTS) => {
-  if (env.DATA_DIR) return { dir: env.DATA_DIR, durable: true, why: "DATA_DIR" };
-  const disk = mounts.find(mounted);
-  if (disk) return { dir: disk, durable: true, why: "mounted disk" };
-  return { dir: path.join(__dirname, "data"), durable: false, why: "no disk attached" };
-};
-
-const STORAGE = resolveStorage();
-const DATA_DIR = STORAGE.dir;
-const RSVP_FILE = path.join(DATA_DIR, "rsvps.json");
-const RSVP_LOG = path.join(DATA_DIR, "rsvps.log.jsonl");
 
 // ---------- guests ----------
 // Each guest: { code, name, party, invite }. `invite` decides which events the
@@ -71,46 +49,34 @@ process.on("SIGHUP", () => {
   }
 });
 
-// ---------- storage ----------
-// rsvps.json holds the current answer per guest (re-submitting replaces it);
-// rsvps.log.jsonl keeps every submission ever received, as an audit trail.
-const readAll = () => {
-  try { return JSON.parse(fs.readFileSync(RSVP_FILE, "utf8")); } catch { return {}; }
-};
-const saveRsvp = (entry) => {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-  const all = readAll();
-  const prev = all[entry.code];
-  all[entry.code] = prev ? { ...entry, firstAt: prev.firstAt || prev.at } : entry;
-  const tmp = RSVP_FILE + ".tmp";
-  fs.writeFileSync(tmp, JSON.stringify(all, null, 1));
-  fs.renameSync(tmp, RSVP_FILE);
-  fs.appendFileSync(RSVP_LOG, JSON.stringify(entry) + "\n");
-  return all[entry.code];
-};
-
 // ---------- brute-force guard ----------
 // Passwords are four digits, so the throttle is the security boundary: a client
-// gets 8 wrong guesses per 15 minutes, then has to wait the window out.
+// gets 8 wrong guesses per 15 minutes, then has to wait the window out. State is
+// per-app rather than per-module so two servers in one process don't share it.
 const WINDOW_MS = 15 * 60_000;
 const MAX_FAILS = 8;
-const fails = new Map();
 const clientIp = (req) =>
   String(req.headers["x-forwarded-for"] || "").split(",")[0].trim() ||
   req.socket.remoteAddress || "unknown";
-const recentFails = (ip) => {
-  const now = Date.now();
-  const recent = (fails.get(ip) || []).filter((t) => now - t < WINDOW_MS);
-  if (recent.length) fails.set(ip, recent); else fails.delete(ip);
-  return recent;
+const makeGuard = () => {
+  const fails = new Map();
+  const recent = (ip) => {
+    const now = Date.now();
+    const times = (fails.get(ip) || []).filter((t) => now - t < WINDOW_MS);
+    if (times.length) fails.set(ip, times); else fails.delete(ip);
+    return times;
+  };
+  setInterval(() => { for (const ip of fails.keys()) recent(ip); }, WINDOW_MS).unref();
+  return {
+    lockedOut(ip) {
+      const times = recent(ip);
+      if (times.length < MAX_FAILS) return 0;
+      return Math.ceil((WINDOW_MS - (Date.now() - times[0])) / 1000);
+    },
+    fail(ip) { fails.set(ip, [...recent(ip), Date.now()]); },
+    clear(ip) { fails.delete(ip); },
+  };
 };
-const lockedOut = (ip) => {
-  const recent = recentFails(ip);
-  if (recent.length < MAX_FAILS) return 0;
-  return Math.ceil((WINDOW_MS - (Date.now() - recent[0])) / 1000);
-};
-const noteFail = (ip) => fails.set(ip, [...recentFails(ip), Date.now()]);
-setInterval(() => { for (const ip of fails.keys()) recentFails(ip); }, WINDOW_MS).unref();
 
 const authorized = (req) => {
   if (!ADMIN_PASSWORD) return false;
@@ -248,8 +214,8 @@ function load() {
       csv.hidden = false;
       var warn = data.storage && !data.storage.durable
         ? "<div class=warn><b>These answers won't survive the next deploy.</b> " +
-          "No disk is attached, so they're being kept in " + esc(data.storage.dir) +
-          " inside the running container. Attach a disk in Render, or download the CSV " +
+          "No database is configured, so they're being kept in " + esc(data.storage.detail) +
+          " inside the running container. Set DATABASE_URL, or download the CSV " +
           "before you deploy again.</div>"
         : "";
       sum.innerHTML = warn + "<div class=totals><b>" + t.ceremony + "</b> at the ceremony &nbsp;·&nbsp; <b>" +
@@ -287,7 +253,9 @@ csv.addEventListener("click", function () {
 </script>`;
 
 // ---------- routes ----------
-export const createApp = () => http.createServer(async (req, res) => {
+export const createApp = (store) => {
+const guard = makeGuard();
+return http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost");
   const send = (status, body, type = "application/json", extra = {}) => {
     res.writeHead(status, { "Content-Type": type, ...extra });
@@ -298,7 +266,7 @@ export const createApp = () => http.createServer(async (req, res) => {
       return send(200, fs.readFileSync(path.join(__dirname, "site", "index.html")), "text/html; charset=utf-8");
     }
     if (url.pathname === "/healthz") {
-      return send(200, { ok: true, guests: byCode.size, durable: STORAGE.durable });
+      return send(200, { ok: true, guests: byCode.size, storage: store.kind, durable: store.durable });
     }
 
     if (req.method === "GET" && url.pathname.startsWith("/assets/")) {
@@ -312,7 +280,7 @@ export const createApp = () => http.createServer(async (req, res) => {
     // the events they may answer for, and any RSVP they already sent.
     if (req.method === "POST" && url.pathname === "/api/unlock") {
       const ip = clientIp(req);
-      const wait = lockedOut(ip);
+      const wait = guard.lockedOut(ip);
       if (wait) {
         return send(429, { error: "Too many tries — please wait a few minutes." }, "application/json",
           { "Retry-After": String(wait) });
@@ -320,11 +288,11 @@ export const createApp = () => http.createServer(async (req, res) => {
       const { code } = JSON.parse((await readBody(req)) || "{}");
       const guest = byCode.get(norm(code));
       if (!guest) {
-        noteFail(ip);
+        guard.fail(ip);
         return send(404, { error: "unknown code" });
       }
-      fails.delete(ip);
-      const existing = readAll()[guest.code] || null;
+      guard.clear(ip);
+      const existing = (await store.all())[guest.code] || null;
       return send(200, {
         name: guest.name,
         party: guest.party,
@@ -339,15 +307,15 @@ export const createApp = () => http.createServer(async (req, res) => {
       const b = JSON.parse((await readBody(req)) || "{}");
       const guest = byCode.get(norm(b.code));
       if (!guest) return send(404, { error: "unknown code" });
-      const entry = saveRsvp(buildRsvp(guest, b));
-      // Mirrored to stdout so Render logs keep a copy even without a disk.
+      const entry = await store.save(buildRsvp(guest, b));
+      // Mirrored to stdout so the service logs keep a copy either way.
       console.log("RSVP " + JSON.stringify(entry));
       return send(200, { ok: true, rsvp: entry }, "application/json", { "Cache-Control": "no-store" });
     }
 
     if (req.method === "GET" && (url.pathname === "/api/rsvps" || url.pathname === "/api/rsvps.csv")) {
       if (!authorized(req)) return send(401, { error: "unauthorized" });
-      const all = readAll();
+      const all = await store.all();
       const rsvps = Object.values(all).sort((a, b) => String(a.name).localeCompare(String(b.name)));
       if (url.pathname.endsWith(".csv")) {
         return send(200, toCsv(rsvps), "text/csv; charset=utf-8",
@@ -358,7 +326,7 @@ export const createApp = () => http.createServer(async (req, res) => {
         .map(({ code, name, invite, party }) => ({ code, name, invite, party }));
       return send(200, {
         invited: byCode.size, totals: totals(rsvps), rsvps, awaiting,
-        storage: { dir: DATA_DIR, durable: STORAGE.durable },
+        storage: { kind: store.kind, detail: store.detail, durable: store.durable },
       }, "application/json", { "Cache-Control": "no-store" });
     }
 
@@ -372,14 +340,16 @@ export const createApp = () => http.createServer(async (req, res) => {
     send(500, { error: "server error" });
   }
 });
+};
 
 const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 if (isMain) {
   if (!ADMIN_PASSWORD) console.warn("ADMIN_PASSWORD is unset — /admin and the RSVP export are disabled.");
-  console.log(`RSVPs stored in ${DATA_DIR} (${STORAGE.why})`);
-  if (!STORAGE.durable) {
-    console.warn("No disk attached — RSVPs are wiped by the next deploy or restart. " +
-      "Attach one in Render (Settings -> Disks, mount it at /var/data) and they'll persist.");
+  const store = await createStore();
+  console.log(`RSVPs stored in ${store.kind}: ${store.detail}`);
+  if (!store.durable) {
+    console.warn("Nothing durable is configured — RSVPs are wiped by the next deploy or restart. " +
+      "Set DATABASE_URL to a Postgres instance and they'll persist.");
   }
-  createApp().listen(PORT, () => console.log(`wedding site listening on :${PORT} — ${byCode.size} guests loaded`));
+  createApp(store).listen(PORT, () => console.log(`wedding site listening on :${PORT} — ${byCode.size} guests loaded`));
 }
