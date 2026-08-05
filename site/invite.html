@@ -36,7 +36,15 @@
     background:
       radial-gradient(120% 90% at 50% 0%, #4A2038 0%, #2E1A2E 55%, #241522 100%);
   }
-  .stage { width: min(38rem, 100%); }
+  /* Envelope and card share one grid cell, so the card rises into the place the
+     envelope just left instead of appearing below it. */
+  .stage {
+    width: min(38rem, 100%);
+    display: grid;
+    align-items: center;
+  }
+  .stage > .envelope,
+  .stage > .card { grid-area: 1 / 1; }
 
   /* ---------- the envelope ---------- */
   .envelope {
@@ -239,17 +247,39 @@
     outline-offset: 3px;
   }
 
-  /* Opening: the flap lifts, then the card takes the envelope's place. */
-  .stage.open .env-flap { transform: rotateX(180deg); }
-  .stage.open .seal { opacity: 0; transform: translate(-50%, -50%) scale(0.85); }
-  .card { opacity: 0; transform: translateY(1.5rem); transition: opacity 700ms ease 500ms, transform 700ms ease 500ms; }
+  /* Opening: the seal breaks, the flap lifts, the card rises out. */
+  .stage.open .env-flap { transform: rotateX(178deg); }
+  /* The seal doesn't fade — it shatters on the canvas, so it just vanishes
+     the instant the shards take its place. */
+  .stage.open .seal { opacity: 0; transition: none; }
+  .stage.open .env-body,
+  .stage.open .env-to,
+  .stage.open .env-hint { transition: opacity 400ms ease 350ms; opacity: 0; }
+  .stage.open .envelope { transform: translateY(0.6rem) scale(0.97); transition: transform 800ms ease 200ms; }
+  .card {
+    opacity: 0;
+    transform: translateY(2.2rem) scale(0.97);
+    transition: opacity 650ms ease 420ms, transform 850ms cubic-bezier(.2, .9, .25, 1) 420ms;
+  }
   .stage.open .card { opacity: 1; transform: none; }
   .card[hidden] { display: none; }
 
+  /* Sits over everything, purely decorative, and never takes a click. */
+  .fx {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 20;
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .env-flap, .seal, .card { transition: none !important; }
+    .env-flap, .seal, .card, .envelope, .env-body, .env-to, .env-hint { transition: none !important; }
   }
 </style>
+
+<canvas class="fx" id="fx" aria-hidden="true"></canvas>
 
 <main class="stage" id="stage">
   <h1 class="sr-only" id="page-title">An invitation from Sharon and Zachary</h1>
@@ -325,19 +355,168 @@
       ". Activate to open your invitation.");
   }
 
+  /* ---------------------------------------------------------------------
+     The opening. Everything below is drawn, not filmed: the wax seal breaks
+     into shards struck out from its centre, and a handful of maple leaves and
+     two small hearts puff out of the envelope and drift down. Each run differs
+     because every piece takes a random size, spin, and heading.
+
+     It is deliberately short — under three seconds, then the canvas clears and
+     the loop stops. WCAG's "moving content" rule (2.2.2) only bites past five,
+     and prefers-reduced-motion skips the whole thing anyway.
+  --------------------------------------------------------------------- */
+  var fx = document.getElementById("fx");
+  var ctx = fx.getContext("2d");
+  var bits = [];
+  var running = false;
+  var GRAVITY = 0.00042;          // px per ms squared, tuned by eye
+  var LEAF = ["#B33F2E", "#E8833A", "#C98A2D", "#8A2A1B", "#D6A03C"];
+  var rand = function (lo, hi) { return lo + Math.random() * (hi - lo); };
+
+  function size() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    fx.width = Math.round(innerWidth * dpr);
+    fx.height = Math.round(innerHeight * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  size();
+  addEventListener("resize", size);
+
+  // A wax shard: a wedge of the seal with a jagged inner break.
+  function shard(cx, cy, r, a0, a1) {
+    var pts = [[0, 0]];
+    var steps = 4;
+    for (var i = 0; i <= steps; i++) {
+      var a = a0 + (a1 - a0) * (i / steps);
+      var rr = r * rand(0.86, 1);
+      pts.push([Math.cos(a) * rr, Math.sin(a) * rr]);
+    }
+    var mid = (a0 + a1) / 2;
+    return {
+      kind: "wax", x: cx, y: cy, pts: pts,
+      vx: Math.cos(mid) * rand(0.09, 0.22),
+      vy: Math.sin(mid) * rand(0.09, 0.22) - rand(0.04, 0.12),
+      rot: 0, spin: rand(-0.009, 0.009),
+      life: 0, ttl: rand(800, 1150),
+      fill: ["#A83525", "#7E2517", "#5C1409"][(Math.random() * 3) | 0]
+    };
+  }
+
+  // A leaf, or now and then a small heart — it is a wedding, after all.
+  function leaf(cx, cy) {
+    var heart = Math.random() < 0.18;
+    return {
+      kind: heart ? "heart" : "leaf",
+      x: cx + rand(-14, 14), y: cy + rand(-8, 8),
+      vx: rand(-0.26, 0.26), vy: rand(-0.52, -0.2),
+      r: rand(5, 11),
+      rot: rand(0, Math.PI * 2), spin: rand(-0.004, 0.004),
+      sway: rand(0.0012, 0.0028), phase: rand(0, Math.PI * 2),
+      life: 0, ttl: rand(1900, 2800),
+      fill: heart ? "#B33F2E" : LEAF[(Math.random() * LEAF.length) | 0]
+    };
+  }
+
+  function drawLeaf(p) {
+    // Two mirrored curves meeting at a point, with a midrib.
+    var r = p.r;
+    ctx.beginPath();
+    ctx.moveTo(0, -r);
+    ctx.bezierCurveTo(r * 0.9, -r * 0.35, r * 0.7, r * 0.6, 0, r);
+    ctx.bezierCurveTo(-r * 0.7, r * 0.6, -r * 0.9, -r * 0.35, 0, -r);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(0, -r * 0.85);
+    ctx.lineTo(0, r * 0.85);
+    ctx.globalAlpha *= 0.35;
+    ctx.strokeStyle = "#5C1409";
+    ctx.lineWidth = Math.max(0.6, r * 0.09);
+    ctx.stroke();
+  }
+
+  function drawHeart(p) {
+    var r = p.r;
+    ctx.beginPath();
+    ctx.moveTo(0, r * 0.75);
+    ctx.bezierCurveTo(-r * 1.5, -r * 0.2, -r * 0.55, -r * 1.15, 0, -r * 0.42);
+    ctx.bezierCurveTo(r * 0.55, -r * 1.15, r * 1.5, -r * 0.2, 0, r * 0.75);
+    ctx.fill();
+  }
+
+  function frame(last) {
+    return function step(now) {
+      var dt = Math.min(now - last, 34);   // clamp, so a stall doesn't teleport
+      last = now;
+      ctx.clearRect(0, 0, fx.width, fx.height);
+      for (var i = bits.length - 1; i >= 0; i--) {
+        var p = bits[i];
+        p.life += dt;
+        if (p.life > p.ttl) { bits.splice(i, 1); continue; }
+        p.vy += GRAVITY * dt;
+        if (p.sway) p.vx += Math.sin(p.phase + p.life * p.sway) * 0.0016 * dt;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.rot += p.spin * dt;
+
+        var fade = p.life / p.ttl;
+        ctx.save();
+        var from = p.kind === "wax" ? 0.55 : 0.72;
+        ctx.globalAlpha = fade > from ? 1 - (fade - from) / (1 - from) : 1;
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.fill;
+        if (p.kind === "wax") {
+          ctx.beginPath();
+          ctx.moveTo(p.pts[0][0], p.pts[0][1]);
+          for (var j = 1; j < p.pts.length; j++) ctx.lineTo(p.pts[j][0], p.pts[j][1]);
+          ctx.closePath();
+          ctx.fill();
+        } else if (p.kind === "heart") { drawHeart(p); } else { drawLeaf(p); }
+        ctx.restore();
+      }
+      if (bits.length) { requestAnimationFrame(step); }
+      else { running = false; ctx.clearRect(0, 0, fx.width, fx.height); }
+    };
+  }
+  function run() {
+    if (running) return;
+    running = true;
+    requestAnimationFrame(function (t) { requestAnimationFrame(frame(t)); });
+  }
+
+  function breakSeal() {
+    var seal = envelope.querySelector(".seal");
+    var box = seal.getBoundingClientRect();
+    var cx = box.left + box.width / 2;
+    var cy = box.top + box.height / 2;
+    var r = box.width / 2;
+    var n = 7 + ((Math.random() * 3) | 0);
+    var edge = 0;
+    for (var i = 0; i < n; i++) {
+      var next = edge + (Math.PI * 2) / n * rand(0.75, 1.3);
+      bits.push(shard(cx, cy, r, edge, Math.min(next, Math.PI * 2)));
+      edge = next;
+      if (edge >= Math.PI * 2) break;
+    }
+    // ...and the puff of leaves that comes out with it.
+    for (var k = 0; k < 16; k++) bits.push(leaf(cx, cy + r * 0.4));
+    run();
+  }
+
   function open() {
     if (stage.classList.contains("open")) return;
+    var motion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     card.hidden = false;
+    if (!motion) breakSeal();
     // Let the browser lay the card out before the transition starts.
     requestAnimationFrame(function () {
       stage.classList.add("open");
       envelope.setAttribute("aria-expanded", "true");
     });
-    var motion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     setTimeout(function () {
       envelope.hidden = true;
       card.focus();
-    }, motion ? 0 : 700);
+    }, motion ? 0 : 900);
   }
   envelope.addEventListener("click", open);
 

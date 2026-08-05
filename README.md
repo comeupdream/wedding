@@ -97,8 +97,12 @@ they're always the right hostname.
 ### The invitation card
 
 The link you send opens `/invite?c=####`: a vanilla envelope addressed to the
-household in script, sealed with a red wax **W**. It opens — by click, tap, or
-keyboard — onto their own card: both names, everyone on that invitation by name,
+household in script, sealed with a red wax **W**. Opening it — by click, tap, or
+keyboard — breaks the seal: the wax splits into shards struck out from its
+centre and a puff of maple leaves and a couple of small hearts drifts out and
+falls, all drawn on a canvas rather than played from a file, so no two openings
+look the same. It runs about 2.2 seconds, clears its own canvas, and stops.
+Behind it the flap lifts and the card rises into the envelope's place, showing: both names, everyone on that invitation by name,
 the date, what they're invited to, how many seats are held, and a button through
 to the RSVP form that carries their password. Someone who opens it with a bad
 link still gets a card; it just asks for the password at the RSVP step.
@@ -161,6 +165,10 @@ so the connection is encrypted.
 The invite page, the invitation card, and `/admin` are checked against **WCAG 2.2
 AAA** — axe-core reports zero violations across every state, including the
 opened card, the RSVP form, and the admin links tab.
+
+The opening animation is held to the same bar: `prefers-reduced-motion` skips
+the particles entirely, nothing flashes, and it ends well inside the five
+seconds past which WCAG asks for a pause control.
 
 What that meant in practice: every text colour is measured rather than guessed
 (the `--maple-ink`, `--gold-ink` and `--ink-muted` tokens all clear 7:1 on paper,
