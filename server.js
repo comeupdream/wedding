@@ -156,6 +156,26 @@ const serveStatic = (req, res, filePath) => {
   fs.createReadStream(resolved).pipe(res);
 };
 
+// The share image for an invitation. By code when a card was rendered for it;
+// otherwise by household name through the manifest, because the live list
+// keeps passwords handed out before the render, so a real invitation can
+// carry a code no file was ever named after. The unaddressed envelope is the
+// last resort — a preview should always have a picture.
+const shareCard = (guest) => {
+  const dir = path.join(ASSETS_DIR, "share");
+  if (fs.existsSync(path.join(dir, `${guest.code}.jpg`)))
+    return { file: `${guest.code}.jpg`, addressed: true };
+  try {
+    const manifest = JSON.parse(fs.readFileSync(path.join(dir, "manifest.json"), "utf8"));
+    for (const [name, file] of Object.entries(manifest)) {
+      if (norm(name) === norm(guest.name) && fs.existsSync(path.join(dir, file)))
+        return { file, addressed: true };
+    }
+  } catch { /* no manifest shipped — fall through to the default */ }
+  if (fs.existsSync(path.join(dir, "default.jpg"))) return { file: "default.jpg", addressed: false };
+  return null;
+};
+
 const SMALL_BODY = 10_000;          // an unlock or an RSVP
 const UPLOAD_BODY = 12_000_000;     // a spreadsheet, base64-encoded
 const readBody = (req, max = SMALL_BODY) => new Promise((resolve, reject) => {
@@ -485,7 +505,7 @@ var SCOPE = { both: "Ceremony &amp; reception", ceremony: "Ceremony only", recep
 // seal and their own words.
 var ROLES = {
   "best-man":      { label: "Best man",        wax: "Gold",   swatch: "#C79A2A" },
-  "maid-of-honor": { label: "Maid of honour",  wax: "Gold",   swatch: "#C79A2A" },
+  "maid-of-honor": { label: "Maid of honour",  wax: "Ivory",  swatch: "#EDDFC2" },
   "groom-mother":  { label: "Groom's mother",  wax: "Blue",   swatch: "#33608F" },
   "bride-parents": { label: "Bride's parents", wax: "Blue",   swatch: "#33608F" },
   "groom-sister":  { label: "Groom's sisters", wax: "Ivy",    swatch: "#2A6A4A" },
@@ -863,7 +883,6 @@ return http.createServer(async (req, res) => {
       // the picture has to be a real file, not the page's canvas.
       const guest = byCode.get(norm(url.searchParams.get("c")));
       if (guest) {
-        const img = path.join(ASSETS_DIR, "share", `${guest.code}.jpg`);
         const proto = String(req.headers["x-forwarded-proto"] || "https").split(",")[0];
         const origin = `${proto}://${req.headers.host}`;
         const title = `An invitation for ${guest.name}`;
@@ -874,13 +893,16 @@ return http.createServer(async (req, res) => {
           `<meta property="og:url" content="${escapeAttr(origin + "/invite?c=" + guest.code)}">`,
           `<meta name="twitter:card" content="summary_large_image">`,
         ];
-        if (fs.existsSync(img)) {
+        const card = shareCard(guest);
+        if (card) {
           tags.push(
-            `<meta property="og:image" content="${escapeAttr(origin)}/assets/share/${guest.code}.jpg">`,
+            `<meta property="og:image" content="${escapeAttr(origin)}/assets/share/${card.file}">`,
             `<meta property="og:image:type" content="image/jpeg">`,
             `<meta property="og:image:width" content="1200">`,
             `<meta property="og:image:height" content="630">`,
-            `<meta property="og:image:alt" content="${escapeAttr("A sealed envelope addressed to " + guest.name)}">`);
+            `<meta property="og:image:alt" content="${escapeAttr(card.addressed
+              ? "A sealed envelope addressed to " + guest.name
+              : "A sealed wedding invitation envelope")}">`);
         }
         html = html.replace("<!--share-->", tags.join("\n"));
       }

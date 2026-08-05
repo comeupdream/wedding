@@ -375,6 +375,15 @@
           <stop offset="74%"  stop-color="#96701A"/>
           <stop offset="100%" stop-color="#5F430A"/>
         </radialGradient>
+        <!-- Ivory, for the maids of honour. Near-white wax pressed onto a vanilla
+             envelope has almost nothing to separate it, so the rim carries a warm
+             shadow and the monogram is inked dark instead of light. -->
+        <radialGradient id="ivory" cx="36%" cy="28%" r="78%">
+          <stop offset="0%"   stop-color="#FFFDF7"/>
+          <stop offset="30%"  stop-color="#FAF2DF"/>
+          <stop offset="62%"  stop-color="#EDDFC2"/>
+          <stop offset="100%" stop-color="#C3AE86"/>
+        </radialGradient>
         <!-- The sheen across the top-left, where a pressed seal catches light. -->
         <radialGradient id="sheen" cx="34%" cy="24%" r="42%">
           <stop offset="0%"   stop-color="#FFF6D4" stop-opacity=".72"/>
@@ -420,7 +429,7 @@
         <rect x="0" y="0" width="100" height="100" filter="url(#mica)" opacity=".55"/>
       </g>
       <circle cx="50" cy="50" r="33" fill="none" stroke="#5B1409" stroke-opacity=".45" stroke-width="1.6" id="seal-ring"/>
-      <text x="50" y="50" text-anchor="middle" dominant-baseline="central"
+      <text x="50" y="50" text-anchor="middle" dominant-baseline="central" id="seal-mono"
             font-family="Didot, 'Bodoni MT', Georgia, serif" font-size="40" fill="#FBEDDC" fill-opacity=".93">W</text>
     </svg>
   </button>
@@ -492,10 +501,11 @@
         }
       },
       // Sharon's side. The three maids of honour are her sisters, which is why
-      // theirs reads the way it does; gold seal, like the best man's.
+      // theirs reads the way it does. Ivory wax — near-white on a vanilla
+      // envelope, so the monogram is inked dark instead of light.
       "maid-of-honor": {
-        seal: "url(#gold)", ring: "#5A3E09", tone: "gold",
-        shades: ["#E0B44A", "#B98A22", "#7A5410"],
+        seal: "url(#ivory)", ring: "#8A7350", mono: "#5C4A2E", tone: "gold",
+        shades: ["#FFFDF7", "#EDDFC2", "#C3AE86"],
         ask: function (n) {
           return n + " — you have been beside me my whole life, and I'm not " +
             "walking towards him without you. Will you be one of my maids of honour?";
@@ -544,11 +554,14 @@
     var role = ROLES[g.role];
     var wax = document.getElementById("seal-wax");
     var ring = document.getElementById("seal-ring");
+    var mono = document.getElementById("seal-mono");
     var cardEl = document.querySelector(".card");
     cardEl.classList.remove("role-gold", "role-silver", "role-rose", "role-blue", "role-ivy");
     if (role) {
       if (wax) wax.setAttribute("fill", role.seal);
       if (ring) ring.setAttribute("stroke", role.ring);
+      // Light wax needs a dark W; every other seal keeps the cream one.
+      if (mono) mono.setAttribute("fill", role.mono || "#FBEDDC");
       // Address them by the first name on the invitation.
       // Words written for this guest win over the role's default. *stars* mark
       // emphasis; everything else is escaped, so the text stays plain data.
@@ -568,6 +581,7 @@
       waxShades = WAX_RED;
       if (wax) wax.setAttribute("fill", "url(#wax)");
       if (ring) ring.setAttribute("stroke", "#5B1409");
+      if (mono) mono.setAttribute("fill", "#FBEDDC");
       ask.hidden = true;
       var plain = document.getElementById("seal-shine");
       if (plain) plain.setAttribute("hidden", "");

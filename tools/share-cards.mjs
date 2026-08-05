@@ -28,7 +28,7 @@ const opt = (n, d) => {
 const WAX = {
   "":              { a: "#A83525", b: "#7E2517", c: "#5C1409", ring: "#5B1409" },
   "best-man":      { a: "#FBE9A8", b: "#C79A2A", c: "#5F430A", ring: "#5A3E09", shine: true },
-  "maid-of-honor": { a: "#FBE9A8", b: "#C79A2A", c: "#5F430A", ring: "#5A3E09", shine: true },
+  "maid-of-honor": { a: "#FFFDF7", b: "#EDDFC2", c: "#C3AE86", ring: "#8A7350", mono: "#5C4A2E", shine: true },
   "groom-mother":  { a: "#8FB6DF", b: "#33608F", c: "#1A3654", ring: "#12283E", shine: true },
   "bride-parents": { a: "#8FB6DF", b: "#33608F", c: "#1A3654", ring: "#12283E", shine: true },
   "groom-sister":  { a: "#A8DCBE", b: "#2A6A4A", c: "#1B4A33", ring: "#123524", shine: true },
@@ -97,7 +97,7 @@ ${fontCss}
       '<rect width="100" height="100" filter="url(#m)" opacity=".55"/></g>' : ""}
     <circle cx="50" cy="50" r="33" fill="none" stroke="${wax.ring}" stroke-opacity=".45" stroke-width="1.6"/>
     <text x="50" y="50" text-anchor="middle" dominant-baseline="central"
-      font-family="Didot, 'Bodoni MT', Georgia, serif" font-size="40" fill="#FBEDDC" fill-opacity=".93">W</text>
+      font-family="Didot, 'Bodoni MT', Georgia, serif" font-size="40" fill="${wax.mono || "#FBEDDC"}" fill-opacity=".93">W</text>
   </svg>
 </div>`;
 };
@@ -113,6 +113,10 @@ if (!list.length) {
   console.error("nothing to render — no invitation has a role yet, or --who matched nobody");
   process.exit(1);
 }
+// The fallback envelope, addressed to nobody: served for any valid code that
+// has no rendered card of its own — a password minted on the live site, say —
+// so every link unfurls with a picture rather than silently dropping it.
+if (!who) list.push({ code: "default", name: "", role: "" });
 
 // A bare import resolves from this file's folder, so also try the folder the
 // command was run from — that's usually where Playwright actually lives.
@@ -149,4 +153,14 @@ for (const g of list) {
     `  (${(fs.statSync(file).size / 1024).toFixed(0)}KB)`);
 }
 await browser.close();
+
+// The manifest, keyed by household name. The live list keeps passwords that
+// were handed out before this render, so a code can point at no file at all —
+// the server uses this to find the household's card by name instead.
+const manifestPath = path.join(OUT, "manifest.json");
+let manifest = {};
+try { manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8")); } catch { /* first run */ }
+for (const g of list) if (g.name) manifest[g.name] = `${g.code}.jpg`;
+fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 1));
+
 console.log(`\n${list.length} share card(s) in ${path.relative(ROOT, OUT)}`);
