@@ -310,6 +310,8 @@ if (dbUrl) {
   await pgStore.putGuests([
     { code: "4821", name: "The Dodsons", party: 3, invite: "both", contact: "",
       members: ["Amy", "Chris", "Dexter"], role: "" },
+    { code: "9999", name: "TEST", party: 2, invite: "both", contact: "",
+      members: [], role: "", ask: "", test: true },
     { code: "1001", name: "Jon Snyder", party: 1, invite: "both", contact: "",
       members: ["Jon"], role: "best-man" },
     { code: "1002", name: "Carson Whitmore", party: 1, invite: "both", contact: "",
@@ -323,6 +325,10 @@ if (dbUrl) {
   check("a groomsman's role survives too",
     (back.find((g) => g.code === "1002") || {}).role === "groomsman");
   check("everyone else has no role", (back.find((g) => g.code === "4821") || {}).role === "");
+  check("a test invitation stays a test invitation through the database",
+    (back.find((g) => g.code === "9999") || {}).test === true &&
+    (back.find((g) => g.code === "4821") || {}).test === false,
+    JSON.stringify(back.map((g) => [g.code, g.test])));
   await pgStore.putGuests(JSON.parse(fs.readFileSync(guestsFile, "utf8")));
 
   // The whole reason Postgres is here: a fresh process — a redeploy — still

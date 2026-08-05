@@ -1,5 +1,19 @@
 [
  {
+  "code": "1556",
+  "name": "TEST",
+  "party": 3,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Test One",
+   "Test Two"
+  ],
+  "role": "",
+  "ask": "",
+  "test": true
+ },
+ {
   "code": "3863",
   "name": "Abha & Family",
   "party": 3,
@@ -11,7 +25,8 @@
    "Ashwin"
   ],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "8231",
@@ -26,7 +41,8 @@
    "Lindsay"
   ],
   "role": "maid-of-honor",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "5069",
@@ -36,7 +52,8 @@
   "contact": "kharams@hotmail.com",
   "members": [],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "3530",
@@ -49,7 +66,8 @@
    "Audra"
   ],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "8995",
@@ -64,7 +82,8 @@
    "Shelly"
   ],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "4845",
@@ -77,7 +96,8 @@
    "Rajeev"
   ],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "2341",
@@ -87,7 +107,8 @@
   "contact": "bholi0910@gmail.com",
   "members": [],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "2551",
@@ -97,7 +118,8 @@
   "contact": "",
   "members": [],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "6578",
@@ -107,7 +129,8 @@
   "contact": "",
   "members": [],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "8831",
@@ -117,7 +140,8 @@
   "contact": "",
   "members": [],
   "role": "groomsman",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "2570",
@@ -127,7 +151,8 @@
   "contact": "ccwjr@comcast.net",
   "members": [],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "1723",
@@ -137,7 +162,8 @@
   "contact": "",
   "members": [],
   "role": "bridesmaid",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "6996",
@@ -152,7 +178,8 @@
    "Loveena"
   ],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "3987",
@@ -165,7 +192,8 @@
    "Dylan"
   ],
   "role": "maid-of-honor",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "2022",
@@ -178,7 +206,8 @@
    "Sudhir"
   ],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "4337",
@@ -192,7 +221,8 @@
    "Roshni"
   ],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "1484",
@@ -202,7 +232,8 @@
   "contact": "Jassslach@yahoo.com",
   "members": [],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "5995",
@@ -215,7 +246,8 @@
    "Francine"
   ],
   "role": "best-man",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "2668",
@@ -228,7 +260,8 @@
    "Ashok"
   ],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "4728",
@@ -241,7 +274,8 @@
    "Luciano"
   ],
   "role": "bridesmaid",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "9430",
@@ -251,7 +285,8 @@
   "contact": "Leenachug@hotmail.com",
   "members": [],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "7455",
@@ -264,7 +299,8 @@
    "Shawn"
   ],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "1023",
@@ -274,17 +310,8 @@
   "contact": "",
   "members": [],
   "role": "maid-of-honor",
-  "ask": "Lynda — you have been beside me for *your* whole life, whether you liked it or not. Will you be one of my maids of honour?"
- },
- {
-  "code": "5985",
-  "name": "Mother – Rashmi",
-  "party": 1,
-  "invite": "both",
-  "contact": "",
-  "members": [],
-  "role": "",
-  "ask": ""
+  "ask": "Lynda — you have been beside me for *your* whole life, whether you liked it or not. Will you be one of my maids of honour?",
+  "test": false
  },
  {
   "code": "4259",
@@ -294,7 +321,8 @@
   "contact": "",
   "members": [],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "4424",
@@ -307,7 +335,8 @@
    "Harish"
   ],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "6760",
@@ -317,7 +346,8 @@
   "contact": "",
   "members": [],
   "role": "bridesmaid",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "5511",
@@ -330,7 +360,8 @@
    "Daughter"
   ],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "3935",
@@ -343,7 +374,8 @@
    "Sudhir"
   ],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "2775",
@@ -356,7 +388,8 @@
    "Gulnar"
   ],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "9254",
@@ -366,7 +399,8 @@
   "contact": "What's App Brother's group",
   "members": [],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "8133",
@@ -376,7 +410,8 @@
   "contact": "RajniTrehan10@gmail.com",
   "members": [],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "2939",
@@ -391,7 +426,8 @@
    "Divita"
   ],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "4844",
@@ -401,7 +437,21 @@
   "contact": "Rajmadhok17@gmail.com",
   "members": [],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
+ },
+ {
+  "code": "3168",
+  "name": "Rashmi",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Rashmi"
+  ],
+  "role": "groom-mother",
+  "ask": "",
+  "test": false
  },
  {
   "code": "9625",
@@ -414,7 +464,8 @@
    "Geeta"
   ],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "2030",
@@ -424,7 +475,8 @@
   "contact": "",
   "members": [],
   "role": "groomsman",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "5908",
@@ -434,7 +486,8 @@
   "contact": "What's App Brother's group",
   "members": [],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "6117",
@@ -444,7 +497,8 @@
   "contact": "",
   "members": [],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "7901",
@@ -457,7 +511,8 @@
    "Pari"
   ],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "4062",
@@ -467,7 +522,8 @@
   "contact": "",
   "members": [],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "8383",
@@ -477,7 +533,8 @@
   "contact": "makarla@gmail.com",
   "members": [],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "1155",
@@ -492,7 +549,8 @@
    "Taylor"
   ],
   "role": "bridesmaid",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "4392",
@@ -507,7 +565,8 @@
    "Anthony"
   ],
   "role": "bridesmaid",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "7510",
@@ -522,7 +581,8 @@
    "Simran"
   ],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "1358",
@@ -535,7 +595,8 @@
    "Harry"
   ],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "8228",
@@ -550,7 +611,8 @@
    "Samay's wife"
   ],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "9568",
@@ -560,7 +622,8 @@
   "contact": "invite via What's app family group and phone call",
   "members": [],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "7008",
@@ -570,7 +633,8 @@
   "contact": "What's App Brother's group",
   "members": [],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "5449",
@@ -580,7 +644,8 @@
   "contact": "",
   "members": [],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  },
  {
   "code": "7072",
@@ -592,8 +657,9 @@
    "Yuly",
    "Rudy"
   ],
-  "role": "",
-  "ask": ""
+  "role": "bride-parents",
+  "ask": "",
+  "test": false
  },
  {
   "code": "9208",
@@ -603,6 +669,7 @@
   "contact": "",
   "members": [],
   "role": "",
-  "ask": ""
+  "ask": "",
+  "test": false
  }
 ]

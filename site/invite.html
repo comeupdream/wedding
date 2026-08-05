@@ -175,6 +175,7 @@
   }
   .card > *:not(.sparkles) { position: relative; z-index: 1; }
   .card.role-gold .sparkles { color: #C79A2A; }
+  .card.role-blue .sparkles { color: #4C7CAE; }
   .card.role-silver .sparkles { color: #9AA1A8; }
   .card.role-rose .sparkles { color: #B9647F; }
   @media (prefers-reduced-motion: reduce) {
@@ -191,6 +192,10 @@
   .card.role-silver::after { border-color: rgba(110, 118, 126, 0.55); }
   .card.role-rose::after { border-color: rgba(163, 69, 104, 0.5); }
   .card.role-rose .ask { color: #742640; }     /* 8.4:1 on the vellum card */
+  .card.role-blue .ask { color: #1E3F62; }     /* 9.1:1 on the vellum card */
+  .card.role-blue::after { border-color: rgba(51, 96, 143, 0.5); }
+  /* The parents' cards are a thank-you, so their line is given more room. */
+  .card.role-blue .ask { font-size: clamp(1.1rem, 3.6vw, 1.4rem); max-width: 28rem; }
   .card.role-silver .ask { color: #4A5057; }   /* 7.6:1 on the vellum card */
   .eyebrow {
     margin: 0 0 1.4rem;
@@ -388,6 +393,11 @@
           <stop offset="55%" stop-color="#8C9298"/>
           <stop offset="100%" stop-color="#5A6067"/>
         </radialGradient>
+        <radialGradient id="blue" cx="38%" cy="32%" r="72%">
+          <stop offset="0%" stop-color="#6E9ACB"/>
+          <stop offset="55%" stop-color="#33608F"/>
+          <stop offset="100%" stop-color="#1A3654"/>
+        </radialGradient>
         <radialGradient id="rose" cx="38%" cy="32%" r="72%">
           <stop offset="0%" stop-color="#D98098"/>
           <stop offset="55%" stop-color="#A34568"/>
@@ -482,6 +492,25 @@
             "walking towards him without you. Will you be one of my maids of honour?";
         }
       },
+      // The parents. Blue wax, and the only cards that thank rather than ask.
+      "groom-mother": {
+        seal: "url(#blue)", ring: "#12283E", tone: "blue",
+        shades: ["#7FA8D4", "#33608F", "#1A3654"],
+        ask: function (n) {
+          return "Mum — you raised me for this day long before either of us knew " +
+            "it was coming. Everything I am walking towards, you gave me first. " +
+            "Thank you.";
+        }
+      },
+      "bride-parents": {
+        seal: "url(#blue)", ring: "#12283E", tone: "blue",
+        shades: ["#7FA8D4", "#33608F", "#1A3654"],
+        ask: function (n) {
+          return "Mum and Dad — you showed me what this looks like when it's done " +
+            "right, and I have spent my life measuring against it. Thank you for " +
+            "every single day of it.";
+        }
+      },
       // Sharon's ask, so it is written in her voice rather than Zachary's.
       "bridesmaid": {
         seal: "url(#rose)", ring: "#5E1B30", tone: "rose",
@@ -497,7 +526,7 @@
     var wax = document.getElementById("seal-wax");
     var ring = document.getElementById("seal-ring");
     var cardEl = document.querySelector(".card");
-    cardEl.classList.remove("role-gold", "role-silver", "role-rose");
+    cardEl.classList.remove("role-gold", "role-silver", "role-rose", "role-blue");
     if (role) {
       if (wax) wax.setAttribute("fill", role.seal);
       if (ring) ring.setAttribute("stroke", role.ring);

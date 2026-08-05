@@ -54,6 +54,8 @@ const indexGuests = (raw) => {
       role: String(g.role || ""),
       // Words written for this invitation alone, if any.
       ask: String(g.ask || "").slice(0, 400),
+      // A rehearsal invitation — answers are kept and shown, but never counted.
+      test: g.test === true,
     });
   }
   return map;
@@ -328,6 +330,9 @@ const ADMIN_HTML = `<!doctype html><html lang="en"><meta charset="utf-8">
   .names { margin-top:.2rem; font-size:.8rem; color:var(--muted); }
   .names.unset { font-style:italic; color:#C6B39A; }   /* 8.3:1, no opacity */
   .nosurname { color:var(--gold); text-decoration:none; margin-left:.25rem; cursor:help; }
+  .chip { display:inline-block; margin-left:.4rem; padding:.05rem .4rem; font-size:.66rem;
+          letter-spacing:.16em; border:1px solid var(--gold); color:var(--gold); vertical-align:middle; }
+  tr.testrow td { background:rgba(253,203,106,.07); }
   tr.partial td { background:rgba(255,176,155,.09); }
   .part { color:var(--warn); font-size:.8rem; font-style:italic; white-space:nowrap; }
   tr.no td { color:var(--muted); }
@@ -460,6 +465,8 @@ function linkFor(code) { return location.origin + "/?c=" + encodeURIComponent(co
 function cardFor(code) { return location.origin + "/invite?c=" + encodeURIComponent(code); }
 // Everyone on an invitation, printed under the household name for accounting.
 function flag(g) { return g.needsSurname ? '<abbr class=nosurname title="No last name on file">**</abbr>' : ""; }
+// A rehearsal invitation. Marked everywhere it appears, and in none of the sums.
+function testChip(g) { return g.test ? ' <span class=chip>TEST</span>' : ""; }
 function namesOf(g) {
   return (g.members || []).length
     ? "<div class=names>" + g.members.map(esc).join(" &nbsp;·&nbsp; ") + "</div>"
@@ -498,7 +505,10 @@ function load() {
       fig(t.notComing, "said no") +
       fig(t.awaiting, "not heard from", t.awaiting > 0) +
       (t.partial ? fig(t.partial, "families coming in part", true) : "") +
-      "</div>";
+      "</div>" +
+      (GUESTS.some(function (g) { return g.test; })
+        ? "<p class=muted><span class=chip>TEST</span> rows are listed but left out of every " +
+          "figure above, so trying the form can't move the catering numbers.</p>" : "");
     out.innerHTML = "<table><tr><th>Household</th><th>Code</th><th>Coming</th><th>Ceremony</th>" +
       "<th>Reception</th><th>Veg</th><th>Who's coming</th><th>Email</th><th>Note</th><th>When</th></tr>" +
       data.rsvps.map(function (r) {
@@ -508,7 +518,8 @@ function load() {
             (a.reception && a.vegetarian ? " <i>veg</i>" : "");
         }).join(" &nbsp;·&nbsp; ") || "<span class=muted>nobody</span>";
         var partial = r.party > 0 && r.party < r.seats;
-        return "<tr" + (partial ? " class=partial" : "") + "><td>" + esc(r.name) +
+        return "<tr" + (r.test ? " class=testrow" : partial ? " class=partial" : "") +
+          "><td>" + esc(r.name) + testChip(r) +
           "</td><td class=code>" + esc(r.code) +
           "</td><td class=num><b>" + esc(r.party) + "</b> of " + esc(r.seats) +
           (partial ? " <span class=part>" + (r.seats - r.party) + " not coming</span>" : "") +
@@ -519,7 +530,7 @@ function load() {
           "</td><td class=num>" + esc(String(r.at).slice(0, 16).replace("T", " ")) + "</td></tr>";
       }).join("") +
       data.awaiting.map(function (g) {
-        return "<tr class=no><td>" + esc(g.name) + flag(g) + namesOf(g) +
+        return "<tr class=" + (g.test ? "testrow" : "no") + "><td>" + esc(g.name) + testChip(g) + flag(g) + namesOf(g) +
           "</td><td class=code>" + esc(g.code) +
           "</td><td class=num><b>?</b> of " + esc(g.party) +
           "</td><td colspan=7>no reply yet — " + esc(g.party) +
@@ -552,7 +563,8 @@ function renderLinks() {
       var status = !g.replied ? "<span class=muted>no reply</span>"
         : g.events === "none" ? "<span class=muted>cannot attend</span>"
         : "<b>" + (EVENTS[g.events] || esc(g.events)) + "</b>";
-      return "<tr><td>" + esc(g.name) + flag(g) + namesOf(g) + "</td><td class=num>" + esc(g.party) + "</td><td>" +
+      return "<tr" + (g.test ? " class=testrow" : "") + "><td>" + esc(g.name) + testChip(g) + flag(g) + namesOf(g) +
+        "</td><td class=num>" + esc(g.party) + "</td><td>" +
         (SCOPE[g.invite] || esc(g.invite)) + "</td>" +
         "<td class=muted>" + (g.contact ? esc(g.contact) : "—") + "</td>" +
         "<td class=code>" + esc(g.code) + "</td>" +
@@ -613,7 +625,7 @@ function renderRail() {
     var li = document.createElement("li");
     var b = document.createElement("button");
     b.type = "button";
-    b.innerHTML = "<span class=who>" + esc(g.name) + flag(g) + "</span><br><span class=meta>" +
+    b.innerHTML = "<span class=who>" + esc(g.name) + testChip(g) + flag(g) + "</span><br><span class=meta>" +
       g.party + (g.party > 1 ? " people" : " person") + " · " +
       ((g.members || []).length ? g.members.map(esc).join(", ") : "names not set") + "</span>";
     b.addEventListener("click", function () { showCard(i); });
@@ -817,17 +829,24 @@ return http.createServer(async (req, res) => {
     if (req.method === "GET" && (url.pathname === "/api/rsvps" || url.pathname === "/api/rsvps.csv")) {
       if (!authorized(req)) return send(401, { error: "unauthorized" });
       const all = await store.all();
-      const rsvps = Object.values(all).sort((a, b) => String(a.name).localeCompare(String(b.name)));
+      // Test invitations are listed but never counted, so trying the form out
+      // can't move the catering numbers.
+      const isTest = (code) => (byCode.get(norm(code)) || {}).test === true;
+      const rsvps = Object.values(all)
+        .map((r) => ({ ...r, test: isTest(r.code) }))
+        .sort((a, b) => String(a.name).localeCompare(String(b.name)));
       if (url.pathname.endsWith(".csv")) {
         return send(200, toCsv(rsvps), "text/csv; charset=utf-8",
           { "Content-Disposition": 'attachment; filename="rsvps.csv"' });
       }
       const awaiting = [...byCode.values()]
         .filter((g) => !all[g.code])
-        .map(({ code, name, invite, party, members }) =>
-          ({ code, name, invite, party, members, needsSurname: needsSurname(name) }));
+        .map(({ code, name, invite, party, members, test }) =>
+          ({ code, name, invite, party, members, test, needsSurname: needsSurname(name) }));
       return send(200, {
-        invited: byCode.size, totals: totals(rsvps, awaiting), rsvps, awaiting,
+        invited: [...byCode.values()].filter((g) => !g.test).length,
+        totals: totals(rsvps.filter((r) => !r.test), awaiting.filter((g) => !g.test)),
+        rsvps, awaiting,
         storage: { kind: store.kind, detail: store.detail, durable: store.durable },
       }, "application/json", { "Cache-Control": "no-store" });
     }
@@ -840,7 +859,7 @@ return http.createServer(async (req, res) => {
       const guests = [...byCode.values()]
         .map((g) => ({
           code: g.code, name: g.name, party: g.party, invite: g.invite,
-          contact: g.contact, members: g.members, role: g.role,
+          contact: g.contact, members: g.members, role: g.role, test: g.test,
           needsSurname: needsSurname(g.name),
           replied: Boolean(all[g.code]),
           events: all[g.code] ? all[g.code].events : null,

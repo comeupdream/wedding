@@ -65,6 +65,9 @@ const fromExport = (rows) => {
       role: get("role"),
       // Optional words for this invitation, overriding the role's default.
       ask: get("ask"),
+      // A rehearsal invitation: real in every way except that it is left out
+      // of the headcounts, so trying the form can't skew the catering.
+      test: /^(y|yes|true|1|test)$/i.test(get("test")),
     });
   }
   return out;
@@ -160,7 +163,7 @@ export const merge = (existing, incoming, randomInt) => {
       added.push(g.name);
       return { code: makeCode(taken, randomInt), name: g.name, party: g.party,
                invite: g.invite, contact: g.contact, members: g.members,
-               role: g.role || "", ask: g.ask || "" };
+               role: g.role || "", ask: g.ask || "", test: !!g.test };
     }
     const diffs = [];
     if (prev.party !== g.party) diffs.push(`seats ${prev.party} → ${g.party}`);
@@ -172,7 +175,8 @@ export const merge = (existing, incoming, randomInt) => {
     else unchanged.push(g.name);
     return { code: prev.code, name: g.name, party: g.party,
              invite: prev.invite || g.invite, contact: g.contact, members: g.members,
-             role: g.role || prev.role || "", ask: g.ask || prev.ask || "" };
+             role: g.role || prev.role || "", ask: g.ask || prev.ask || "",
+             test: g.test === undefined ? !!prev.test : !!g.test };
   });
 
   const removed = existing.filter((g) => !incoming.some((i) => i.name === g.name)).map((g) => g.name);
