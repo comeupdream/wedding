@@ -10,7 +10,8 @@
    "Abha's Mom",
    "Ashwin"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "8231",
@@ -24,7 +25,8 @@
    "Sebastian",
    "Lindsay"
   ],
-  "role": "maid-of-honor"
+  "role": "maid-of-honor",
+  "ask": ""
  },
  {
   "code": "5069",
@@ -33,7 +35,8 @@
   "invite": "both",
   "contact": "kharams@hotmail.com",
   "members": [],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "3530",
@@ -45,7 +48,8 @@
    "Amit",
    "Audra"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "8995",
@@ -59,7 +63,8 @@
    "Sarah",
    "Shelly"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "4845",
@@ -71,7 +76,8 @@
    "Archana",
    "Rajeev"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "2341",
@@ -80,7 +86,8 @@
   "invite": "both",
   "contact": "bholi0910@gmail.com",
   "members": [],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "2551",
@@ -89,7 +96,8 @@
   "invite": "both",
   "contact": "",
   "members": [],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "6578",
@@ -98,7 +106,8 @@
   "invite": "both",
   "contact": "",
   "members": [],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "8831",
@@ -107,7 +116,8 @@
   "invite": "both",
   "contact": "",
   "members": [],
-  "role": "groomsman"
+  "role": "groomsman",
+  "ask": ""
  },
  {
   "code": "2570",
@@ -116,7 +126,8 @@
   "invite": "both",
   "contact": "ccwjr@comcast.net",
   "members": [],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "1723",
@@ -125,7 +136,8 @@
   "invite": "both",
   "contact": "",
   "members": [],
-  "role": "bridesmaid"
+  "role": "bridesmaid",
+  "ask": ""
  },
  {
   "code": "6996",
@@ -139,7 +151,8 @@
    "Nitika",
    "Loveena"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "3987",
@@ -151,7 +164,8 @@
    "Gaby",
    "Dylan"
   ],
-  "role": "maid-of-honor"
+  "role": "maid-of-honor",
+  "ask": ""
  },
  {
   "code": "2022",
@@ -163,7 +177,8 @@
    "Gita",
    "Sudhir"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "4337",
@@ -176,7 +191,8 @@
    "Maheer",
    "Roshni"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "1484",
@@ -185,7 +201,8 @@
   "invite": "both",
   "contact": "Jassslach@yahoo.com",
   "members": [],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "5995",
@@ -197,7 +214,8 @@
    "Jon",
    "Francine"
   ],
-  "role": "best-man"
+  "role": "best-man",
+  "ask": ""
  },
  {
   "code": "2668",
@@ -209,7 +227,8 @@
    "Kamlesh",
    "Ashok"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "4728",
@@ -221,7 +240,8 @@
    "Kulsoom",
    "Luciano"
   ],
-  "role": "bridesmaid"
+  "role": "bridesmaid",
+  "ask": ""
  },
  {
   "code": "9430",
@@ -230,7 +250,8 @@
   "invite": "both",
   "contact": "Leenachug@hotmail.com",
   "members": [],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "7455",
@@ -242,7 +263,8 @@
    "Linda",
    "Shawn"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "1023",
@@ -251,7 +273,8 @@
   "invite": "both",
   "contact": "",
   "members": [],
-  "role": "maid-of-honor"
+  "role": "maid-of-honor",
+  "ask": "Lynda — you have been beside me for *your* whole life, whether you liked it or not. Will you be one of my maids of honour?"
  },
  {
   "code": "5985",
@@ -260,7 +283,8 @@
   "invite": "both",
   "contact": "",
   "members": [],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "4259",
@@ -269,7 +293,8 @@
   "invite": "both",
   "contact": "",
   "members": [],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "4424",
@@ -281,7 +306,8 @@
    "Nita",
    "Harish"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "6760",
@@ -290,7 +316,8 @@
   "invite": "both",
   "contact": "",
   "members": [],
-  "role": "bridesmaid"
+  "role": "bridesmaid",
+  "ask": ""
  },
  {
   "code": "5511",
@@ -302,7 +329,8 @@
    "Pandit Abhay",
    "Daughter"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "3935",
@@ -314,7 +342,8 @@
    "Pinki",
    "Sudhir"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "2775",
@@ -326,7 +355,8 @@
    "Pradeep",
    "Gulnar"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "9254",
@@ -335,7 +365,8 @@
   "invite": "both",
   "contact": "What's App Brother's group",
   "members": [],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "8133",
@@ -344,7 +375,8 @@
   "invite": "both",
   "contact": "RajniTrehan10@gmail.com",
   "members": [],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "2939",
@@ -358,7 +390,8 @@
    "Kabir",
    "Divita"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "4844",
@@ -367,7 +400,8 @@
   "invite": "both",
   "contact": "Rajmadhok17@gmail.com",
   "members": [],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "9625",
@@ -379,7 +413,8 @@
    "Ravi",
    "Geeta"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "2030",
@@ -388,7 +423,8 @@
   "invite": "both",
   "contact": "",
   "members": [],
-  "role": "groomsman"
+  "role": "groomsman",
+  "ask": ""
  },
  {
   "code": "5908",
@@ -397,7 +433,8 @@
   "invite": "both",
   "contact": "What's App Brother's group",
   "members": [],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "6117",
@@ -406,7 +443,8 @@
   "invite": "both",
   "contact": "",
   "members": [],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "7901",
@@ -418,7 +456,8 @@
    "Siddarth",
    "Pari"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "4062",
@@ -427,7 +466,8 @@
   "invite": "both",
   "contact": "",
   "members": [],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "8383",
@@ -436,7 +476,8 @@
   "invite": "both",
   "contact": "makarla@gmail.com",
   "members": [],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "1155",
@@ -450,7 +491,8 @@
    "Dexter",
    "Taylor"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "4392",
@@ -464,7 +506,8 @@
    "Mia",
    "Anthony"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "7510",
@@ -478,7 +521,8 @@
    "Asher",
    "Simran"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "1358",
@@ -490,7 +534,8 @@
    "Toffee",
    "Harry"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "8228",
@@ -504,7 +549,8 @@
    "Samay",
    "Samay's wife"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "9568",
@@ -513,7 +559,8 @@
   "invite": "both",
   "contact": "invite via What's app family group and phone call",
   "members": [],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "7008",
@@ -522,7 +569,8 @@
   "invite": "both",
   "contact": "What's App Brother's group",
   "members": [],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "5449",
@@ -531,7 +579,8 @@
   "invite": "both",
   "contact": "",
   "members": [],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "7072",
@@ -543,7 +592,8 @@
    "Yuly",
    "Rudy"
   ],
-  "role": ""
+  "role": "",
+  "ask": ""
  },
  {
   "code": "9208",
@@ -552,6 +602,7 @@
   "invite": "both",
   "contact": "",
   "members": [],
-  "role": ""
+  "role": "",
+  "ask": ""
  }
 ]

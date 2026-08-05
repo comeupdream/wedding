@@ -123,6 +123,9 @@
   }
 
   /* ---------- the wax seal ---------- */
+  /* The UA stylesheet's [hidden] rule doesn't reach elements inside an SVG,
+     so the sheen needs saying explicitly or it shows on every seal. */
+  #seal-shine[hidden] { display: none; }
   .seal {
     position: absolute;
     left: 50%;
@@ -144,6 +147,38 @@
     box-shadow: 0 1.4rem 3rem rgba(0, 0, 0, 0.45);
     padding: clamp(2rem, 6vw, 3.4rem) clamp(1.4rem, 6vw, 3.4rem);
     text-align: center;
+  }
+  /* Sparkles sit behind the words and only around the margins, so nothing
+     ever twinkles underneath text. They shimmer as the card arrives and then
+     settle — finite, so there is no perpetual motion to need a pause control. */
+  .sparkles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .sparkles i {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    opacity: 0;
+    background:
+      radial-gradient(circle, currentColor 0 18%, transparent 62%),
+      linear-gradient(currentColor, currentColor) center/100% 1px no-repeat,
+      linear-gradient(currentColor, currentColor) center/1px 100% no-repeat;
+    animation: twinkle 2.6s ease-in-out 3 both;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; transform: scale(.5) rotate(0deg); }
+    50%      { opacity: .85; transform: scale(1) rotate(45deg); }
+  }
+  .card > *:not(.sparkles) { position: relative; z-index: 1; }
+  .card.role-gold .sparkles { color: #C79A2A; }
+  .card.role-silver .sparkles { color: #9AA1A8; }
+  .card.role-rose .sparkles { color: #B9647F; }
+  @media (prefers-reduced-motion: reduce) {
+    .sparkles i { animation: none; opacity: .5; transform: none; }
   }
   .card::after {
     content: "";
@@ -253,6 +288,7 @@
     text-transform: uppercase;
     color: var(--maple);
   }
+  .ask em { font-style: italic; }
   .closing {
     margin: 0.9rem 0 0;
     font-size: 0.82rem;
@@ -323,11 +359,30 @@
         </radialGradient>
         <!-- Standing at the wedding is shown in the wax: gold for the best
              man, silver for the groomsmen, ordinary red for everyone else. -->
-        <radialGradient id="gold" cx="38%" cy="32%" r="72%">
-          <stop offset="0%" stop-color="#D9A93F"/>
-          <stop offset="55%" stop-color="#9A7016"/>
-          <stop offset="100%" stop-color="#6A4A0C"/>
+        <radialGradient id="gold" cx="36%" cy="28%" r="78%">
+          <stop offset="0%"   stop-color="#FBE9A8"/>
+          <stop offset="18%"  stop-color="#EBC65C"/>
+          <stop offset="46%"  stop-color="#C79A2A"/>
+          <stop offset="74%"  stop-color="#96701A"/>
+          <stop offset="100%" stop-color="#5F430A"/>
         </radialGradient>
+        <!-- The sheen across the top-left, where a pressed seal catches light. -->
+        <radialGradient id="sheen" cx="34%" cy="24%" r="42%">
+          <stop offset="0%"   stop-color="#FFF6D4" stop-opacity=".72"/>
+          <stop offset="60%"  stop-color="#FFF6D4" stop-opacity=".14"/>
+          <stop offset="100%" stop-color="#FFF6D4" stop-opacity="0"/>
+        </radialGradient>
+        <!-- Mica: sparse bright grains suspended in the wax. Turbulence gives
+             the scatter; the matrix keeps only the brightest peaks. -->
+        <filter id="mica" x="0" y="0" width="100%" height="100%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/>
+          <feColorMatrix in="n" type="matrix" result="m"
+            values="0 0 0 0 1  0 0 0 0 0.93  0 0 0 0 0.72  7 -3 -3 0 -3.1"/>
+          <feComposite in="m" in2="SourceGraphic" operator="in"/>
+        </filter>
+        <clipPath id="sealclip">
+          <path d="M50 3c13 0 22 6 31 13s16 16 15 30-9 24-18 32-21 19-33 17-25-11-33-20S1 55 3 42 14 20 24 13 37 3 50 3Z"/>
+        </clipPath>
         <radialGradient id="silver" cx="38%" cy="32%" r="72%">
           <stop offset="0%" stop-color="#CFD3D8"/>
           <stop offset="55%" stop-color="#8C9298"/>
@@ -340,7 +395,11 @@
         </radialGradient>
       </defs>
       <!-- a hand-pressed edge: a circle nudged out of round -->
-      <path fill="url(#wax)" d="M50 3c13 0 22 6 31 13s16 16 15 30-9 24-18 32-21 19-33 17-25-11-33-20S1 55 3 42 14 20 24 13 37 3 50 3Z"/>
+      <path id="seal-wax" fill="url(#wax)" d="M50 3c13 0 22 6 31 13s16 16 15 30-9 24-18 32-21 19-33 17-25-11-33-20S1 55 3 42 14 20 24 13 37 3 50 3Z"/>
+      <g clip-path="url(#sealclip)" id="seal-shine" hidden>
+        <rect x="0" y="0" width="100" height="100" fill="url(#sheen)"/>
+        <rect x="0" y="0" width="100" height="100" filter="url(#mica)" opacity=".55"/>
+      </g>
       <circle cx="50" cy="50" r="33" fill="none" stroke="#5B1409" stroke-opacity=".45" stroke-width="1.6" id="seal-ring"/>
       <text x="50" y="50" text-anchor="middle" dominant-baseline="central"
             font-family="Didot, 'Bodoni MT', Georgia, serif" font-size="40" fill="#FBEDDC" fill-opacity=".93">W</text>
@@ -348,6 +407,7 @@
   </button>
 
   <article class="card" id="card" hidden tabindex="-1" aria-labelledby="card-names">
+    <span class="sparkles" id="sparkles" aria-hidden="true"></span>
     <p class="eyebrow">Together with their families</p>
     <h2 class="names" id="card-names">Sharon<span class="amp">&amp;</span>Zachary</h2>
     <p class="invited" id="invited-line">request the pleasure of your company</p>
@@ -434,7 +494,7 @@
     };
     var ask = document.getElementById("ask");
     var role = ROLES[g.role];
-    var wax = document.querySelector(".seal path");
+    var wax = document.getElementById("seal-wax");
     var ring = document.getElementById("seal-ring");
     var cardEl = document.querySelector(".card");
     cardEl.classList.remove("role-gold", "role-silver", "role-rose");
@@ -442,15 +502,29 @@
       if (wax) wax.setAttribute("fill", role.seal);
       if (ring) ring.setAttribute("stroke", role.ring);
       // Address them by the first name on the invitation.
-      ask.textContent = role.ask((named[0] || g.name).split(/[\s,&]/)[0]);
+      // Words written for this guest win over the role's default. *stars* mark
+      // emphasis; everything else is escaped, so the text stays plain data.
+      var words = g.ask || role.ask((named[0] || g.name).split(/[\s,&]/)[0]);
+      ask.innerHTML = words
+        .replace(/[&<>]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]; })
+        .replace(/\*([^*]+)\*/g, "<em>$1</em>");
       ask.hidden = false;
       cardEl.classList.add("role-" + role.tone);
       waxShades = role.shades;
+      var shine = document.getElementById("seal-shine");
+      if (shine) {
+        if (role.tone === "gold") shine.removeAttribute("hidden");
+        else shine.setAttribute("hidden", "");
+      }
+      sparkle(18);
     } else {
       waxShades = WAX_RED;
       if (wax) wax.setAttribute("fill", "url(#wax)");
       if (ring) ring.setAttribute("stroke", "#5B1409");
       ask.hidden = true;
+      var plain = document.getElementById("seal-shine");
+      if (plain) plain.setAttribute("hidden", "");
+      document.getElementById("sparkles").innerHTML = "";
     }
     document.getElementById("closing").textContent = seats > 1
       ? seats + " seats have been reserved in your name."
@@ -615,6 +689,24 @@
     // ...and the puff of leaves that comes out with it.
     for (var k = 0; k < 16; k++) bits.push(leaf(cx, cy + r * 0.4));
     run();
+  }
+
+  // Scattered around the margins, never across the middle where the words are.
+  function sparkle(n) {
+    var box = document.getElementById("sparkles");
+    box.innerHTML = "";
+    for (var i = 0; i < n; i++) {
+      var s = document.createElement("i");
+      var edge = Math.random() < 0.5;
+      var x = edge ? rand(2, 14) + (Math.random() < 0.5 ? 0 : 84) : rand(4, 96);
+      var y = edge ? rand(4, 96) : rand(2, 12) + (Math.random() < 0.5 ? 0 : 86);
+      s.style.left = x + "%";
+      s.style.top = y + "%";
+      var size = rand(3, 7);
+      s.style.width = s.style.height = size + "px";
+      s.style.animationDelay = rand(0, 2200) + "ms";
+      box.appendChild(s);
+    }
   }
 
   function open() {

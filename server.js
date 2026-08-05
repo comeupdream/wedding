@@ -52,6 +52,8 @@ const indexGuests = (raw) => {
       members: Array.isArray(g.members) ? g.members.map(String).slice(0, 20) : [],
       // A standing at the wedding, if any. Only "best-man" is special so far.
       role: String(g.role || ""),
+      // Words written for this invitation alone, if any.
+      ask: String(g.ask || "").slice(0, 400),
     });
   }
   return map;
@@ -792,6 +794,7 @@ return http.createServer(async (req, res) => {
         events: SCOPES[guest.invite].events,
         members: guest.members,
         role: guest.role,
+        ask: guest.ask,
         meals: MEALS,
         rsvp: existing,
       }, "application/json", { "Cache-Control": "no-store" });
