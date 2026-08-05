@@ -340,9 +340,13 @@ const ADMIN_HTML = `<!doctype html><html lang="en"><meta charset="utf-8">
     <p class="lede">Upload the planning workbook, or any sheet with a <b>name</b> column.
       You'll see exactly what changes before anything is saved. Passwords already
       handed out are kept, so links you've sent keep working.</p>
+    <p class="lede">The live list is held in the database, so deploying new code
+      does <b>not</b> change it. To pull in the list that came with this deploy —
+      after a merge of families, say — use <b>Use the list from this deploy</b>.</p>
     <div class="bar">
       <input type="file" id="file" accept=".xlsx,.csv,.txt">
       <button id="check">Check this file</button>
+      <button id="use-seed" class="ghost">Use the list from this deploy</button>
       <button id="apply" class="hide">Apply these changes</button>
       <span class="ok" id="import-msg"></span>
     </div>
@@ -514,32 +518,38 @@ document.getElementById("links-csv").addEventListener("click", function () {
 
 // ---- uploading a new guest list ----
 var chosen = null;
-function importPost(apply) {
-  var f = document.getElementById("file").files[0];
+var pending = null;   // what the Apply button will send
+function send(body, apply) {
   var msg = document.getElementById("import-msg");
-  if (!f) { msg.textContent = "Choose a file first."; return; }
   msg.textContent = apply ? "Saving…" : "Reading…";
+  fetch("/api/guests/import", {
+    method: "POST",
+    headers: Object.assign({ "Content-Type": "application/json" }, auth()),
+    body: JSON.stringify(Object.assign({}, body, { apply: !!apply }))
+  }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+    .then(function (res) {
+      if (!res.ok) { msg.textContent = res.j.error || "That didn't work."; return; }
+      pending = body;
+      showDiff(res.j);
+      msg.textContent = res.j.applied
+        ? "Saved — " + res.j.invitations + " invitations are live."
+        : "Nothing saved yet.";
+      document.getElementById("apply").classList.toggle("hide", res.j.applied);
+      if (res.j.applied) load();
+    })
+    .catch(function () { msg.textContent = "Couldn't reach the server."; });
+}
+function importPost(apply) {
+  if (apply) { if (pending) send(pending, true); return; }
+  var f = document.getElementById("file").files[0];
+  if (!f) { document.getElementById("import-msg").textContent = "Choose a file first."; return; }
   var reader = new FileReader();
-  reader.onload = function () {
-    var b64 = String(reader.result).split(",")[1];
-    fetch("/api/guests/import", {
-      method: "POST",
-      headers: Object.assign({ "Content-Type": "application/json" }, auth()),
-      body: JSON.stringify({ file: b64, filename: f.name, apply: !!apply })
-    }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
-      .then(function (res) {
-        if (!res.ok) { msg.textContent = res.j.error || "That didn't work."; return; }
-        showDiff(res.j);
-        msg.textContent = res.j.applied
-          ? "Saved — " + res.j.invitations + " invitations are live."
-          : "Nothing saved yet.";
-        document.getElementById("apply").classList.toggle("hide", res.j.applied);
-        if (res.j.applied) load();
-      })
-      .catch(function () { msg.textContent = "Couldn't reach the server."; });
-  };
+  reader.onload = function () { send({ file: String(reader.result).split(",")[1], filename: f.name }, false); };
   reader.readAsDataURL(f);
 }
+document.getElementById("use-seed").addEventListener("click", function () {
+  send({ seed: true }, false);
+});
 function listBlock(title, items, note) {
   if (!items.length) return "";
   return "<section><h3>" + title + " (" + items.length + ")</h3>" +
@@ -733,12 +743,20 @@ return http.createServer(async (req, res) => {
     if (req.method === "POST" && url.pathname === "/api/guests/import") {
       if (!authorized(req)) return send(401, { error: "unauthorized" });
       const b = JSON.parse((await readBody(req)) || "{}");
-      if (typeof b.file !== "string" || !b.file) return send(400, { error: "no file" });
       let parsed;
-      try {
-        parsed = readUpload(Buffer.from(b.file, "base64"), String(b.filename || ""));
-      } catch (err) {
-        return send(400, { error: "Couldn't read that file — " + err.message });
+      if (b.seed) {
+        // The list that shipped with this deploy. The database is the source of
+        // truth once anything is uploaded, so a redeploy can't change it on its
+        // own — this is how you pull the repo's version in deliberately.
+        parsed = { guests: seedGuests(), skipped: [], source: "list shipped with this deploy" };
+      } else if (typeof b.file === "string" && b.file) {
+        try {
+          parsed = readUpload(Buffer.from(b.file, "base64"), String(b.filename || ""));
+        } catch (err) {
+          return send(400, { error: "Couldn't read that file — " + err.message });
+        }
+      } else {
+        return send(400, { error: "no file" });
       }
       const dupes = parsed.guests.map((g) => g.name)
         .filter((n, i, a) => a.indexOf(n) !== i);

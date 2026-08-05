@@ -40,7 +40,18 @@ answers once. 62 invitations, 104 seats.
 
 ### Updating the guest list
 
-**In `/admin` → Guest list.** Choose a spreadsheet, press **Check this file**,
+**In `/admin` → Guest list.** The live list is held in the database, so
+**deploying new code does not change it** — that's what keeps an upload from
+being wiped by the next deploy. Two ways to change it:
+
+- **Use the list from this deploy** pulls in whatever `guest-codes.json` ships
+  with the running build. This is what you want after families are merged in the
+  repo and the site still shows the old ones.
+- Upload a spreadsheet, for anything else.
+
+Either way you see the diff first and nothing is written until you apply.
+
+Choose a spreadsheet, press **Check this file**,
 and you get the full diff before anything is saved: what's new, what changed,
 what would lose its invitation, what was on the sheet but skipped. Only **Apply
 these changes** writes. It takes the planning workbook (`.xlsx`) directly, or
