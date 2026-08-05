@@ -196,6 +196,61 @@
     color: rgba(251, 243, 228, 0.6);
     margin: 0;
   }
+  /* ---------- who's coming, per person ---------- */
+  .party-lede {
+    font-size: 0.95rem;
+    color: rgba(251, 243, 228, 0.78);
+    margin-bottom: 1.1rem;
+  }
+  /* Columns come from --cols, which the form narrows for a ceremony-only
+     invite. Kept in CSS rather than inline so the phone layout below wins. */
+  .party-head, .party-row {
+    display: grid;
+    grid-template-columns: var(--cols, 1fr 6.5rem 6.5rem 6.5rem);
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .party-head span {
+    font-size: 0.66rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--sky-glow);
+    text-align: center;
+  }
+  .party-row {
+    padding: 0.7rem 0;
+    border-top: 1px solid rgba(251, 243, 228, 0.16);
+  }
+  .party-row input[type="text"] {
+    padding: 0.55rem 0.7rem;
+    font-size: 0.98rem;
+  }
+  .party-row .who { font-size: 1rem; }
+  .party-row .tick { display: flex; justify-content: center; }
+  .party-row input[type="checkbox"] {
+    width: 1.3rem;
+    height: 1.3rem;
+    accent-color: var(--maple);
+    cursor: pointer;
+  }
+  .party-row.out .who { opacity: 0.5; }
+  @media (max-width: 34rem) {
+    .party-head { display: none; }
+    .party-row {
+      grid-template-columns: 1fr;   /* one stacked row per person on a phone */
+      gap: 0.5rem;
+      padding: 1rem 0;
+    }
+    .party-row .tick {
+      justify-content: flex-start;
+      gap: 0.6rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--sky-glow);
+    }
+    .party-row .tick::after { content: attr(data-label); }
+  }
   .rsvp-greeting {
     text-align: center;
     font-family: var(--script);
@@ -621,12 +676,13 @@
         <div class="event-when"><span>The evening</span><b>Reception</b></div>
         <div>
           <h3>Dinner &amp; Reception</h3>
-          <p>Cocktail hour, then dinner and a full evening of it — two desserts
-             and cake, open bar, and a DJ until the stars are out.</p>
+          <p>Cocktail hour with chaat and pani puri, then a full evening of it:
+             steak and glazed salmon alongside an Indian buffet, two desserts and
+             cake, open bar, and a DJ until the stars are out.</p>
         </div>
       </article>
     </div>
-    <p class="events-note">The full schedule and the dinner menu are still being
+    <p class="events-note">The full schedule and the final menu are still being
        finalized — we'll post both here well before the day.</p>
   </div>
 </section>
@@ -672,36 +728,20 @@
     </div>
     <form id="rsvp-form" novalidate hidden>
       <p class="rsvp-greeting" id="rsvp-greeting"></p>
-      <div class="field-row">
-        <div class="field">
-          <label for="f-events">Joining us for</label>
-          <select id="f-events" name="events">
-            <option value="both">Ceremony &amp; reception</option>
-            <option value="ceremony">Ceremony only</option>
-            <option value="reception">Reception only</option>
-            <option value="none">Unable to attend</option>
-          </select>
+      <div id="party-wrap">
+        <p class="party-lede" id="party-lede"></p>
+        <div class="party-head" id="party-head">
+          <span></span>
+          <span class="col-ceremony">Ceremony</span>
+          <span class="col-reception">Reception</span>
+          <span class="col-veg">Vegetarian</span>
         </div>
-        <div class="field">
-          <label for="f-party">Guests attending</label>
-          <input id="f-party" name="party" type="number" min="1" value="1">
-        </div>
+        <div id="party-rows"></div>
+        <p class="field-hint" id="party-hint"></p>
       </div>
-      <div class="field-row">
-        <div class="field">
-          <label for="f-email">Email</label>
-          <input id="f-email" name="email" type="email" autocomplete="email" required>
-        </div>
-        <div class="field" id="dinner-wrap">
-          <label for="f-meal" id="meal-label">Dinner preference</label>
-          <select id="f-meal" name="meal">
-            <option value="standard">Standard dinner</option>
-            <option value="vegetarian">Vegetarian</option>
-          </select>
-          <input id="f-veg" name="vegetarian" type="number" min="0" step="1" value="0" hidden>
-          <p class="field-hint" id="meal-hint" hidden>How many in your party need a
-             vegetarian meal?</p>
-        </div>
+      <div class="field">
+        <label for="f-email">Email</label>
+        <input id="f-email" name="email" type="email" autocomplete="email" required>
       </div>
       <div class="field">
         <label for="f-note">A note for the couple (optional)</label>
@@ -903,15 +943,12 @@
     var form = document.getElementById("rsvp-form");
     var greeting = document.getElementById("rsvp-greeting");
     var confirmMsg = document.getElementById("rsvp-confirm");
-    var eventsSel = document.getElementById("f-events");
-    var partyInput = document.getElementById("f-party");
     var emailInput = document.getElementById("f-email");
     var noteInput = document.getElementById("f-note");
-    var dinnerWrap = document.getElementById("dinner-wrap");
-    var mealSel = document.getElementById("f-meal");
-    var mealLabel = document.getElementById("meal-label");
-    var mealHint = document.getElementById("meal-hint");
-    var vegInput = document.getElementById("f-veg");
+    var partyRows = document.getElementById("party-rows");
+    var partyLede = document.getElementById("party-lede");
+    var partyHead = document.getElementById("party-head");
+    var partyHint = document.getElementById("party-hint");
     if (!gate || !form) return;
 
     var current = null;
@@ -923,26 +960,98 @@
       codeInput.select();
     }
 
-    // The invite decides what a guest may answer for: a ceremony-only invite
-    // never offers the reception.
-    function setEventOptions(allowed) {
-      Array.prototype.forEach.call(eventsSel.options, function (o) {
-        o.hidden = allowed.indexOf(o.value) < 0;
-        o.disabled = o.hidden;
-      });
-      var visible = Array.prototype.filter.call(eventsSel.options, function (o) { return !o.hidden; });
-      eventsSel.value = visible.length ? visible[0].value : "none";
+    // The invite decides which columns exist: a ceremony-only invitation never
+    // shows a reception tick, so nobody can accept an event they weren't asked to.
+    var scope = { ceremony: true, reception: true };
+    function setScope(allowed) {
+      scope.ceremony = allowed.indexOf("ceremony") >= 0 || allowed.indexOf("both") >= 0;
+      scope.reception = allowed.indexOf("reception") >= 0 || allowed.indexOf("both") >= 0;
+      partyHead.querySelector(".col-ceremony").hidden = !scope.ceremony;
+      partyHead.querySelector(".col-reception").hidden = !scope.reception;
+      partyHead.querySelector(".col-veg").hidden = !scope.reception;
+      var cols = ["1fr"];
+      if (scope.ceremony) cols.push("6.5rem");
+      if (scope.reception) cols.push("6.5rem", "6.5rem");
+      // Set as a custom property, not an inline grid: the phone media query
+      // has to be able to collapse these rows to a single column.
+      document.getElementById("party-wrap").style.setProperty("--cols", cols.join(" "));
     }
 
-    // One dinner choice for a single guest; a headcount for a family.
-    function setMealMode(seats) {
-      var many = seats > 1;
-      mealSel.hidden = many;
-      vegInput.hidden = !many;
-      mealHint.hidden = !many;
-      mealLabel.setAttribute("for", many ? "f-veg" : "f-meal");
-      mealLabel.textContent = many ? "Vegetarian meals" : "Dinner preference";
-      vegInput.max = seats;
+    // One row per seat. Named guests are printed; unnamed seats get a text box
+    // so a household can tell us who is actually coming.
+    function buildRows(seats, members, saved) {
+      partyRows.innerHTML = "";
+      for (var i = 0; i < seats; i++) {
+        var known = (members && members[i]) || "";
+        var prev = saved && saved[i];
+        var row = document.createElement("div");
+        row.className = "party-row";
+
+        var who = document.createElement("div");
+        who.className = "who";
+        if (known) {
+          who.textContent = known;
+          who.dataset.name = known;
+        } else {
+          var input = document.createElement("input");
+          input.type = "text";
+          input.placeholder = "Guest " + (i + 1) + "'s name";
+          input.setAttribute("aria-label", "Name of guest " + (i + 1));
+          input.value = prev ? prev.name : "";
+          who.appendChild(input);
+        }
+        row.appendChild(who);
+
+        ["ceremony", "reception", "vegetarian"].forEach(function (kind) {
+          var cell = document.createElement("label");
+          cell.className = "tick";
+          cell.dataset.label = kind === "vegetarian" ? "Vegetarian" : kind;
+          var box = document.createElement("input");
+          box.type = "checkbox";
+          box.dataset.kind = kind;
+          // Default a fresh invitation to yes for the events they're invited to.
+          box.checked = prev ? Boolean(prev[kind]) : (kind !== "vegetarian" && scope[kind]);
+          cell.appendChild(box);
+          cell.hidden = kind === "ceremony" ? !scope.ceremony : !scope.reception;
+          row.appendChild(cell);
+        });
+        partyRows.appendChild(row);
+      }
+      syncRows();
+    }
+
+    // Grey out a person who isn't coming, and hide a meal question that can't apply.
+    function syncRows() {
+      Array.prototype.forEach.call(partyRows.children, function (row) {
+        var boxes = row.querySelectorAll("input[type=checkbox]");
+        var by = {};
+        Array.prototype.forEach.call(boxes, function (b) { by[b.dataset.kind] = b; });
+        var coming = (by.ceremony && by.ceremony.checked) || (by.reception && by.reception.checked);
+        row.classList.toggle("out", !coming);
+        if (by.vegetarian) {
+          var eats = by.reception && by.reception.checked;
+          by.vegetarian.disabled = !eats;
+          if (!eats) by.vegetarian.checked = false;
+        }
+      });
+    }
+    partyRows.addEventListener("change", syncRows);
+
+    function collect() {
+      return Array.prototype.map.call(partyRows.children, function (row, i) {
+        var who = row.querySelector(".who");
+        var typed = who.querySelector("input");
+        var by = {};
+        Array.prototype.forEach.call(row.querySelectorAll("input[type=checkbox]"), function (b) {
+          by[b.dataset.kind] = b.checked;
+        });
+        return {
+          name: (typed ? typed.value.trim() : who.dataset.name) || ("Guest " + (i + 1)),
+          ceremony: Boolean(by.ceremony),
+          reception: Boolean(by.reception),
+          vegetarian: Boolean(by.vegetarian)
+        };
+      });
     }
 
     function unlocked(code, g) {
@@ -950,26 +1059,25 @@
       codeError.hidden = true;
       gate.hidden = true;
       form.hidden = false;
-      greeting.textContent = "Welcome, " + g.name + " — we saved " + g.party +
-        (g.party > 1 ? " seats" : " seat") + " for you.";
-      partyInput.value = g.party;
-      partyInput.max = g.party;
-      setEventOptions(g.events || ["both", "ceremony", "reception", "none"]);
-      setMealMode(g.party);
+      setScope(g.events || ["both", "ceremony", "reception", "none"]);
+      buildRows(g.party, g.members || [], g.rsvp ? g.rsvp.attendees : null);
+      var many = g.party > 1;
+      greeting.textContent = (g.rsvp ? "Welcome back, " : "Welcome, ") + g.name;
+      partyLede.textContent = g.rsvp
+        ? "Here's what you sent us — change anything and send it again."
+        : many
+          ? "We've saved " + g.party + " seats for you. Tick who's joining us, for each part of the day."
+          : "Tick what you'll be joining us for.";
+      partyHint.textContent = many
+        ? "One row per seat — leave a row unticked for anyone who can't make it."
+        : "Untick both if you can't make it.";
       if (g.rsvp) {
-        // They've answered before — show it back so they can amend it.
-        eventsSel.value = g.rsvp.events;
-        partyInput.value = g.rsvp.party || g.party;
         emailInput.value = g.rsvp.email || "";
         noteInput.value = g.rsvp.note || "";
-        vegInput.value = g.rsvp.vegetarian || 0;
-        mealSel.value = g.rsvp.vegetarian > 0 ? "vegetarian" : "standard";
-        greeting.textContent = "Welcome back, " + g.name + " — here's what you sent us. " +
-          "Change anything you like and send it again.";
       }
-      syncFields();
       form.scrollIntoView({ block: "center" });
-      eventsSel.focus();
+      var first = partyRows.querySelector("input");
+      if (first) first.focus();
     }
 
     function tryUnlock(code, silent) {
@@ -1005,28 +1113,13 @@
       if (e.key === "Enter") { e.preventDefault(); tryUnlock(); }
     });
 
-    function syncFields() {
-      var v = eventsSel.value;
-      var coming = v !== "none";
-      dinnerWrap.hidden = !coming || v === "ceremony";
-      partyInput.disabled = !coming;
-    }
-    eventsSel.addEventListener("change", syncFields);
-    syncFields();
-
     form.addEventListener("submit", function (e) {
       e.preventDefault();
       if (!emailInput.value.trim() || emailInput.value.indexOf("@") < 0) { emailInput.focus(); return; }
-      var seats = parseInt(partyInput.value, 10) || 1;
-      var veg = dinnerWrap.hidden ? 0
-        : (vegInput.hidden ? (mealSel.value === "vegetarian" ? 1 : 0)
-                           : Math.min(seats, Math.max(0, parseInt(vegInput.value, 10) || 0)));
       var entry = {
         code: current ? current.code : "",
-        events: eventsSel.value,
-        party: partyInput.value,
+        attendees: collect(),
         email: emailInput.value.trim(),
-        vegetarian: veg,
         note: noteInput.value.trim()
       };
       var sendBtn = form.querySelector(".submit");

@@ -31,7 +31,7 @@ npm test                        # end-to-end check of the whole RSVP flow
 
 Every invitation has its own **four-digit password**. One invitation covers a
 whole household — the seat count is on the guest record, so a family of four
-answers once. 69 invitations, 104 seats.
+answers once. 62 invitations, 104 seats.
 
 ### Updating the guest list from the workbook
 
@@ -103,11 +103,21 @@ npm run links -- --base https://your-site.onrender.com --who "Herpal,Durga"
 Formats: `table` (default), `csv` for a mail merge, `md`, `txt` for pasting into
 a message.
 
-### Dinner
+### How a household answers
 
-One food option, asked only of guests staying for the reception: **vegetarian**.
-A single guest picks standard or vegetarian; a household is asked how many of
-their party need a vegetarian meal. The `/admin` dashboard totals both.
+One invitation, one row per seat. Each person ticks **Ceremony**, **Reception**,
+both, or neither — so a family can split however they need, and the ceremony and
+reception headcounts are counted separately rather than inferred from one
+dropdown. Where the workbook names the people, the rows are prefilled; where it
+doesn't, the household types who's coming.
+
+**Vegetarian** is the one food question, asked per person and only of those
+staying for the reception. `/admin` totals it alongside the two headcounts, and
+the CSV spells each household out — `Amy (ceremony + reception, vegetarian);
+Chris (ceremony)` — so the caterer needs nothing else.
+
+A ceremony-only invitation never shows a reception tick, and the server rejects
+one even if the request is forged.
 
 ## Collecting RSVPs
 

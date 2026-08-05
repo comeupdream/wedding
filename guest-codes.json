@@ -1,485 +1,533 @@
 [
  {
-  "code": "8928",
-  "name": "Pandit Abhay and Daughter to perform wedding",
-  "party": 2,
+  "code": "4153",
+  "name": "Abba Aunty Family (Abha Aunty, Abha's Mom & Ashwin)",
+  "party": 3,
   "invite": "both",
-  "contact": "315-560-0853"
- },
- {
-  "code": "5985",
-  "name": "Mother – Rashmi",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "3317",
-  "name": "Sister – Amy",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "7709",
-  "name": "Amy's Husband – Chris",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "8233",
-  "name": "Sister – Ashley",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "5646",
-  "name": "Ashley's Husband – Joe",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "3600",
-  "name": "Linda",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "3435",
-  "name": "Shawn",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "8962",
-  "name": "Mia",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "2243",
-  "name": "Dexter",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "8819",
-  "name": "Taylor",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "5410",
-  "name": "Anthony",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "5396",
-  "name": "Pradeep",
-  "party": 1,
-  "invite": "both",
-  "contact": "invite via What's app family group"
- },
- {
-  "code": "8852",
-  "name": "Gulnar",
-  "party": 1,
-  "invite": "both",
-  "contact": "Gulnar006@gmail.com"
- },
- {
-  "code": "2397",
-  "name": "Sudhir",
-  "party": 1,
-  "invite": "both",
-  "contact": "invite via What's app family group and phone call"
- },
- {
-  "code": "4151",
-  "name": "Pinki",
-  "party": 1,
-  "invite": "both",
-  "contact": "invite via What's app family group and phone call"
- },
- {
-  "code": "1313",
-  "name": "Vikram",
-  "party": 1,
-  "invite": "both",
-  "contact": "invite via What's app family group and phone call"
- },
- {
-  "code": "9625",
-  "name": "Ravi & Geeta Varma",
-  "party": 2,
-  "invite": "both",
-  "contact": "vsgr1956@gmail.com"
- },
- {
-  "code": "8371",
-  "name": "Kamlesh Varma & Ashok Varma",
-  "party": 2,
-  "invite": "both",
-  "contact": "kamsvarma@gmail.com"
- },
- {
-  "code": "5434",
-  "name": "Amit Varma and Wife Audra",
-  "party": 2,
-  "invite": "both",
-  "contact": "amit.varma01@gmail.com"
- },
- {
-  "code": "2234",
-  "name": "Nita Batra and Harish Batra",
-  "party": 2,
-  "invite": "both",
-  "contact": "Nitabatranita@gmail.com"
- },
- {
-  "code": "6812",
-  "name": "Raju Madhok from Minot",
-  "party": 1,
-  "invite": "both",
-  "contact": "Rajmadhok17@gmail.com"
- },
- {
-  "code": "8481",
-  "name": "Vinay",
-  "party": 1,
-  "invite": "both",
-  "contact": "What's App Brother's group"
- },
- {
-  "code": "3168",
-  "name": "Rahul",
-  "party": 1,
-  "invite": "both",
-  "contact": "What's App Brother's group"
- },
- {
-  "code": "7347",
-  "name": "Sid",
-  "party": 1,
-  "invite": "both",
-  "contact": "What's App Brother's group"
- },
- {
-  "code": "1217",
-  "name": "Saurabh",
-  "party": 1,
-  "invite": "both",
-  "contact": "What's App Brother's group"
- },
- {
-  "code": "7395",
-  "name": "Sarika & Neil Lamont",
-  "party": 2,
-  "invite": "both",
-  "contact": "Varma.Sarika@gmail.com"
- },
- {
-  "code": "5940",
-  "name": "Pari Sekhri (Sid's Wife)",
-  "party": 1,
-  "invite": "both",
-  "contact": "What's App Brother's group"
- },
- {
-  "code": "1162",
-  "name": "Asher",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "1001",
-  "name": "Simran",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "2343",
-  "name": "Zed",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "1621",
-  "name": "Brianna",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "2551",
-  "name": "Brian",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "4062",
-  "name": "Sincere",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "6269",
-  "name": "Nick",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "8561",
-  "name": "Jon (Best Man)",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "5001",
-  "name": "Carson",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "5717",
-  "name": "Sam",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "1756",
-  "name": "Herpal Family (Herpal, Maheer, Roshni plus spouses)",
-  "party": 5,
-  "invite": "both",
-  "contact": "Hsmalik1@yahoo.com"
- },
- {
-  "code": "7080",
-  "name": "Raju & Herleen Family (Raju, Herleen, Kabir, Divita",
-  "party": 4,
-  "invite": "both",
-  "contact": "Harleen.sodhi2@gmail.com"
- },
- {
-  "code": "3852",
-  "name": "Toffee and Harry Bawa (Raju's sister and husband)",
-  "party": 2,
-  "invite": "both",
-  "contact": "dhanguru_nanak@hotmail.com"
- },
- {
-  "code": "2350",
-  "name": "Durga Family (Durga Aunty, Ritika, Nitika & Loveena)",
-  "party": 4,
-  "invite": "both",
-  "contact": "Dkumar323@yahoo.com"
- },
- {
-  "code": "5709",
-  "name": "Tony & Alka Family (Tony, Alka, Samay, Samay's wife)",
-  "party": 4,
-  "invite": "both",
-  "contact": "Alkasappal@gmail.com"
- },
- {
-  "code": "2988",
-  "name": "Gita Chopra and Sudhir Uncle",
-  "party": 2,
-  "invite": "both",
-  "contact": "goregous37@gmail.com"
- },
- {
-  "code": "9430",
-  "name": "Leena and Rakesh Chug",
-  "party": 2,
-  "invite": "both",
-  "contact": "Leenachug@hotmail.com"
- },
- {
-  "code": "8133",
-  "name": "Rajni Trehan",
-  "party": 1,
-  "invite": "both",
-  "contact": "RajniTrehan10@gmail.com"
- },
- {
-  "code": "9344",
-  "name": "Archana and Rajeev",
-  "party": 2,
-  "invite": "both",
-  "contact": "Arcraj@aol.com"
- },
- {
-  "code": "2341",
-  "name": "Bholi Dhillon",
-  "party": 2,
-  "invite": "both",
-  "contact": "bholi0910@gmail.com"
- },
- {
-  "code": "1484",
-  "name": "Jassi Slatch",
-  "party": 2,
-  "invite": "both",
-  "contact": "Jassslach@yahoo.com"
+  "contact": "Abhasharma@aol.com",
+  "members": [
+   "Abha Aunty",
+   "Abha's Mom",
+   "Ashwin"
+  ]
  },
  {
   "code": "5069",
   "name": "Aman Khera",
   "party": 2,
   "invite": "both",
-  "contact": "kharams@hotmail.com"
+  "contact": "kharams@hotmail.com",
+  "members": []
+ },
+ {
+  "code": "5434",
+  "name": "Amit Varma and Wife Audra",
+  "party": 2,
+  "invite": "both",
+  "contact": "amit.varma01@gmail.com",
+  "members": []
  },
  {
   "code": "1758",
   "name": "Appu Aunty & Ken plus Family (Sarah, Shelly)",
   "party": 4,
   "invite": "both",
-  "contact": "Janetribble21@gmail.com; Sgosaie91@gmail.com; Sarahgosaie94@gmail.com"
+  "contact": "Janetribble21@gmail.com; Sgosaie91@gmail.com; Sarahgosaie94@gmail.com",
+  "members": []
  },
  {
-  "code": "4153",
-  "name": "Abba Aunty Family (Abha Aunty, Abha's Mom & Ashwin)",
-  "party": 3,
+  "code": "9344",
+  "name": "Archana and Rajeev",
+  "party": 2,
   "invite": "both",
-  "contact": "Abhasharma@aol.com"
+  "contact": "Arcraj@aol.com",
+  "members": []
  },
  {
-  "code": "3251",
-  "name": "Sreedhar Uncle and Family",
-  "party": 3,
+  "code": "1162",
+  "name": "Asher",
+  "party": 1,
   "invite": "both",
-  "contact": "makarla@gmail.com"
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "2341",
+  "name": "Bholi Dhillon",
+  "party": 2,
+  "invite": "both",
+  "contact": "bholi0910@gmail.com",
+  "members": []
+ },
+ {
+  "code": "2551",
+  "name": "Brian",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "1621",
+  "name": "Brianna",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "5001",
+  "name": "Carson",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": []
  },
  {
   "code": "6065",
   "name": "Charles",
   "party": 1,
   "invite": "both",
-  "contact": "ccwjr@comcast.net"
- },
- {
-  "code": "3253",
-  "name": "Shruti neighbor and family",
-  "party": 3,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "7640",
-  "name": "Mother – Yuly",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "6828",
-  "name": "Father – Rudy",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "2930",
-  "name": "Sister – Lynda",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "6722",
-  "name": "Lynda's Husband – Dylan",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "8698",
-  "name": "Sister – Alexia",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "5357",
-  "name": "Sister – Gaby",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "4958",
-  "name": "Gaby's Husband – David",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "8199",
-  "name": "Sebastian",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
- },
- {
-  "code": "8638",
-  "name": "Lindsay",
-  "party": 1,
-  "invite": "both",
-  "contact": ""
+  "contact": "ccwjr@comcast.net",
+  "members": []
  },
  {
   "code": "6098",
   "name": "Charnae",
   "party": 1,
   "invite": "both",
-  "contact": ""
+  "contact": "",
+  "members": []
  },
  {
-  "code": "5338",
-  "name": "Olivia",
-  "party": 1,
+  "code": "2350",
+  "name": "Durga Family (Durga Aunty, Ritika, Nitika & Loveena)",
+  "party": 4,
   "invite": "both",
-  "contact": ""
+  "contact": "Dkumar323@yahoo.com",
+  "members": [
+   "Durga Aunty",
+   "Ritika",
+   "Nitika",
+   "Loveena"
+  ]
  },
  {
-  "code": "5449",
-  "name": "Yamilette",
+  "code": "6828",
+  "name": "Father – Rudy",
   "party": 1,
   "invite": "both",
-  "contact": ""
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "4958",
+  "name": "Gaby's Husband – David",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "2988",
+  "name": "Gita Chopra and Sudhir Uncle",
+  "party": 2,
+  "invite": "both",
+  "contact": "goregous37@gmail.com",
+  "members": []
+ },
+ {
+  "code": "8852",
+  "name": "Gulnar",
+  "party": 1,
+  "invite": "both",
+  "contact": "Gulnar006@gmail.com",
+  "members": []
+ },
+ {
+  "code": "1756",
+  "name": "Herpal Family (Herpal, Maheer, Roshni plus spouses)",
+  "party": 5,
+  "invite": "both",
+  "contact": "Hsmalik1@yahoo.com",
+  "members": []
+ },
+ {
+  "code": "1484",
+  "name": "Jassi Slatch",
+  "party": 2,
+  "invite": "both",
+  "contact": "Jassslach@yahoo.com",
+  "members": []
+ },
+ {
+  "code": "8561",
+  "name": "Jon (Best Man)",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "8371",
+  "name": "Kamlesh Varma & Ashok Varma",
+  "party": 2,
+  "invite": "both",
+  "contact": "kamsvarma@gmail.com",
+  "members": []
  },
  {
   "code": "3316",
   "name": "Kulsoom",
   "party": 1,
   "invite": "both",
-  "contact": ""
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "9430",
+  "name": "Leena and Rakesh Chug",
+  "party": 2,
+  "invite": "both",
+  "contact": "Leenachug@hotmail.com",
+  "members": []
+ },
+ {
+  "code": "1754",
+  "name": "Linda & Shawn",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Linda",
+   "Shawn"
+  ]
+ },
+ {
+  "code": "8638",
+  "name": "Lindsay",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": []
  },
  {
   "code": "6104",
   "name": "Loey",
   "party": 1,
   "invite": "both",
-  "contact": ""
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "6722",
+  "name": "Lynda's Husband – Dylan",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "5985",
+  "name": "Mother – Rashmi",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "7640",
+  "name": "Mother – Yuly",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "6269",
+  "name": "Nick",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "2234",
+  "name": "Nita Batra and Harish Batra",
+  "party": 2,
+  "invite": "both",
+  "contact": "Nitabatranita@gmail.com",
+  "members": []
+ },
+ {
+  "code": "5338",
+  "name": "Olivia",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "8928",
+  "name": "Pandit Abhay and Daughter to perform wedding",
+  "party": 2,
+  "invite": "both",
+  "contact": "315-560-0853",
+  "members": []
+ },
+ {
+  "code": "5940",
+  "name": "Pari Sekhri (Sid's Wife)",
+  "party": 1,
+  "invite": "both",
+  "contact": "What's App Brother's group",
+  "members": []
+ },
+ {
+  "code": "4151",
+  "name": "Pinki",
+  "party": 1,
+  "invite": "both",
+  "contact": "invite via What's app family group and phone call",
+  "members": []
+ },
+ {
+  "code": "5396",
+  "name": "Pradeep",
+  "party": 1,
+  "invite": "both",
+  "contact": "invite via What's app family group",
+  "members": []
+ },
+ {
+  "code": "3168",
+  "name": "Rahul",
+  "party": 1,
+  "invite": "both",
+  "contact": "What's App Brother's group",
+  "members": []
+ },
+ {
+  "code": "8133",
+  "name": "Rajni Trehan",
+  "party": 1,
+  "invite": "both",
+  "contact": "RajniTrehan10@gmail.com",
+  "members": []
+ },
+ {
+  "code": "7080",
+  "name": "Raju & Herleen Family (Raju, Herleen, Kabir, Divita",
+  "party": 4,
+  "invite": "both",
+  "contact": "Harleen.sodhi2@gmail.com",
+  "members": [
+   "Raju",
+   "Herleen",
+   "Kabir",
+   "Divita"
+  ]
+ },
+ {
+  "code": "6812",
+  "name": "Raju Madhok from Minot",
+  "party": 1,
+  "invite": "both",
+  "contact": "Rajmadhok17@gmail.com",
+  "members": []
+ },
+ {
+  "code": "9625",
+  "name": "Ravi & Geeta Varma",
+  "party": 2,
+  "invite": "both",
+  "contact": "vsgr1956@gmail.com",
+  "members": []
+ },
+ {
+  "code": "5717",
+  "name": "Sam",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "7395",
+  "name": "Sarika & Neil Lamont",
+  "party": 2,
+  "invite": "both",
+  "contact": "Varma.Sarika@gmail.com",
+  "members": []
+ },
+ {
+  "code": "1217",
+  "name": "Saurabh",
+  "party": 1,
+  "invite": "both",
+  "contact": "What's App Brother's group",
+  "members": []
+ },
+ {
+  "code": "8199",
+  "name": "Sebastian",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "3253",
+  "name": "Shruti neighbor and family",
+  "party": 3,
+  "invite": "both",
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "7347",
+  "name": "Sid",
+  "party": 1,
+  "invite": "both",
+  "contact": "What's App Brother's group",
+  "members": []
+ },
+ {
+  "code": "1001",
+  "name": "Simran",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "4062",
+  "name": "Sincere",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "8698",
+  "name": "Sister – Alexia",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "5357",
+  "name": "Sister – Gaby",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "2930",
+  "name": "Sister – Lynda",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "3251",
+  "name": "Sreedhar Uncle and Family",
+  "party": 3,
+  "invite": "both",
+  "contact": "makarla@gmail.com",
+  "members": []
+ },
+ {
+  "code": "2397",
+  "name": "Sudhir",
+  "party": 1,
+  "invite": "both",
+  "contact": "invite via What's app family group and phone call",
+  "members": []
+ },
+ {
+  "code": "1155",
+  "name": "The Dodsons",
+  "party": 4,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Amy",
+   "Chris",
+   "Dexter",
+   "Taylor"
+  ]
+ },
+ {
+  "code": "4392",
+  "name": "The Felices",
+  "party": 4,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Ashley",
+   "Joe",
+   "Mia",
+   "Anthony"
+  ]
+ },
+ {
+  "code": "3852",
+  "name": "Toffee and Harry Bawa (Raju's sister and husband)",
+  "party": 2,
+  "invite": "both",
+  "contact": "dhanguru_nanak@hotmail.com",
+  "members": [
+   "Toffee",
+   "Harry"
+  ]
+ },
+ {
+  "code": "5709",
+  "name": "Tony & Alka Family (Tony, Alka, Samay, Samay's wife)",
+  "party": 4,
+  "invite": "both",
+  "contact": "Alkasappal@gmail.com",
+  "members": [
+   "Tony",
+   "Alka",
+   "Samay",
+   "Samay's wife"
+  ]
+ },
+ {
+  "code": "1313",
+  "name": "Vikram",
+  "party": 1,
+  "invite": "both",
+  "contact": "invite via What's app family group and phone call",
+  "members": []
+ },
+ {
+  "code": "8481",
+  "name": "Vinay",
+  "party": 1,
+  "invite": "both",
+  "contact": "What's App Brother's group",
+  "members": []
+ },
+ {
+  "code": "5449",
+  "name": "Yamilette",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": []
+ },
+ {
+  "code": "2343",
+  "name": "Zed",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": []
  }
 ]

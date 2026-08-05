@@ -37,6 +37,9 @@ const loadGuests = () => {
       // How to reach them — email, phone, "via the WhatsApp group". Carried from
       // the spreadsheet so the admin export is a ready-to-send list.
       contact: String(g.contact || ""),
+      // Named people on the invitation, where we know them. A household answers
+      // per person, so these prefill the form; blanks are typed in by the guest.
+      members: Array.isArray(g.members) ? g.members.map(String).slice(0, 20) : [],
     });
   }
   return map;
@@ -131,22 +134,43 @@ const readBody = (req) => new Promise((resolve, reject) => {
 });
 
 // ---------- RSVP shaping ----------
+// A household answers per person: each named guest says whether they're coming
+// to the ceremony, the reception, both, or neither. A single guest is just the
+// same thing with one row, so one shape covers both.
 export const buildRsvp = (guest, b, now = new Date()) => {
-  const allowed = SCOPES[guest.invite].events;
-  const events = allowed.includes(b.events) ? b.events : allowed[0];
-  const attending = events === "none"
-    ? 0
-    : Math.max(1, Math.min(guest.party, parseInt(b.party, 10) || guest.party));
-  const vegetarian = Math.max(0, Math.min(attending, parseInt(b.vegetarian, 10) || 0));
+  const scope = SCOPES[guest.invite].events;
+  const mayCeremony = scope.includes("ceremony") || scope.includes("both");
+  const mayReception = scope.includes("reception") || scope.includes("both");
+
+  const given = Array.isArray(b.attendees) ? b.attendees.slice(0, guest.party) : null;
+  const attendees = (given || []).map((a, i) => ({
+    name: String((a && a.name) || guest.members[i] || `Guest ${i + 1}`).trim().slice(0, 80),
+    ceremony: mayCeremony && Boolean(a && a.ceremony),
+    reception: mayReception && Boolean(a && a.reception),
+    vegetarian: Boolean(a && a.vegetarian),
+  }));
+
+  const coming = attendees.filter((a) => a.ceremony || a.reception);
+  const ceremony = attendees.filter((a) => a.ceremony).length;
+  const reception = attendees.filter((a) => a.reception).length;
+  // A one-word summary of the household's answer, for the dashboard and CSV.
+  const events = !coming.length ? "none"
+    : ceremony && reception ? "both"
+    : ceremony ? "ceremony" : "reception";
+
   return {
     code: guest.code,
     name: guest.name,
     invite: guest.invite,
     events,
-    party: attending,
+    attendees,
+    party: coming.length,
     seats: guest.party,
-    vegetarian,
-    standard: attending - vegetarian,
+    ceremony,
+    reception,
+    // Meals are a reception count — nobody eats dinner at a ceremony-only RSVP.
+    vegetarian: attendees.filter((a) => a.reception && a.vegetarian).length,
+    standard: attendees.filter((a) => a.reception && !a.vegetarian).length,
     email: String(b.email || "").trim().slice(0, 200),
     note: String(b.note || "").trim().slice(0, 2000),
     at: now.toISOString(),
@@ -154,24 +178,38 @@ export const buildRsvp = (guest, b, now = new Date()) => {
 };
 
 export const totals = (rows) => {
-  const t = { responses: rows.length, ceremony: 0, reception: 0, declined: 0, vegetarian: 0, standard: 0 };
+  const t = { responses: rows.length, guests: 0, ceremony: 0, reception: 0, declined: 0, vegetarian: 0, standard: 0 };
   for (const r of rows) {
     if (r.events === "none") { t.declined += 1; continue; }
-    if (r.events === "both" || r.events === "ceremony") t.ceremony += r.party;
-    if (r.events === "both" || r.events === "reception") t.reception += r.party;
+    t.guests += r.party;
+    t.ceremony += r.ceremony;
+    t.reception += r.reception;
     t.vegetarian += r.vegetarian;
     t.standard += r.standard;
   }
   return t;
 };
 
-const CSV_COLS = ["code", "name", "invite", "events", "party", "seats", "vegetarian", "standard", "email", "note", "at"];
+const CSV_COLS = ["code", "name", "invite", "events", "party", "seats", "ceremony", "reception",
+  "vegetarian", "standard", "who", "email", "note", "at"];
 const csvCell = (v) => {
   const s = String(v ?? "");
   return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
 };
-const toCsv = (rows) =>
-  [CSV_COLS.join(","), ...rows.map((r) => CSV_COLS.map((c) => csvCell(r[c])).join(","))].join("\n") + "\n";
+// "Amy (ceremony + reception, vegetarian); Chris (reception)" — the household's
+// answer in one readable cell, so the caterer doesn't need a second file.
+const describe = (a) => {
+  const at = [a.ceremony && "ceremony", a.reception && "reception"].filter(Boolean).join(" + ");
+  const veg = a.reception && a.vegetarian ? ", vegetarian" : "";
+  return `${a.name} (${at || "not coming"}${veg})`;
+};
+const toCsv = (rows) => [
+  CSV_COLS.join(","),
+  ...rows.map((r) => {
+    const who = (r.attendees || []).map(describe).join("; ");
+    return CSV_COLS.map((c) => csvCell(c === "who" ? who : r[c])).join(",");
+  }),
+].join("\n") + "\n";
 
 // ---------- admin dashboard ----------
 // ---------- admin dashboard ----------
@@ -276,17 +314,26 @@ function load() {
       t.reception + "</b> at the reception &nbsp;·&nbsp; <b>" + t.vegetarian +
       "</b> vegetarian / <b>" + t.standard + "</b> standard meals &nbsp;·&nbsp; <b>" +
       t.declined + "</b> cannot attend &nbsp;·&nbsp; <b>" + data.awaiting.length + "</b> awaiting reply</div>";
-    out.innerHTML = "<table><tr><th>Guest</th><th>Code</th><th>Invited to</th><th>Joining for</th>" +
-      "<th>Seats</th><th>Veg</th><th>Email</th><th>Note</th><th>When</th></tr>" +
+    out.innerHTML = "<table><tr><th>Guest</th><th>Code</th><th>Cer.</th><th>Rec.</th>" +
+      "<th>Veg</th><th>Who's coming</th><th>Email</th><th>Note</th><th>When</th></tr>" +
       data.rsvps.map(function (r) {
-        return "<tr><td>" + esc(r.name) + "</td><td>" + esc(r.code) + "</td><td>" + esc(r.invite) +
-          "</td><td>" + (EVENTS[r.events] || esc(r.events)) + "</td><td>" + esc(r.party) + " of " + esc(r.seats) +
-          "</td><td>" + esc(r.vegetarian) + "</td><td>" + esc(r.email) + "</td><td>" + esc(r.note) +
+        // Each person, with what they said yes to.
+        var who = (r.attendees || []).map(function (a) {
+          var at = [a.ceremony ? "C" : "", a.reception ? "R" : ""].join("");
+          var tag = at ? " <b>" + at + "</b>" : " <span class=muted>—</span>";
+          return esc(a.name) + tag + (a.reception && a.vegetarian ? " <i>veg</i>" : "");
+        }).join(" &nbsp;·&nbsp; ") || "<span class=muted>nobody</span>";
+        return "<tr><td>" + esc(r.name) + "</td><td>" + esc(r.code) +
+          "</td><td>" + esc(r.ceremony) + " of " + esc(r.seats) +
+          "</td><td>" + esc(r.reception) + " of " + esc(r.seats) +
+          "</td><td>" + esc(r.vegetarian) + "</td><td>" + who +
+          "</td><td>" + esc(r.email) + "</td><td>" + esc(r.note) +
           "</td><td>" + esc(String(r.at).slice(0, 16).replace("T", " ")) + "</td></tr>";
       }).join("") +
       data.awaiting.map(function (g) {
-        return "<tr class=no><td>" + esc(g.name) + "</td><td>" + esc(g.code) + "</td><td>" + esc(g.invite) +
-          "</td><td colspan=6 class=muted>no reply yet</td></tr>";
+        return "<tr class=no><td>" + esc(g.name) + "</td><td>" + esc(g.code) +
+          "</td><td colspan=7 class=muted>no reply yet — " + esc(g.party) +
+          (g.party > 1 ? " seats" : " seat") + " held</td></tr>";
       }).join("") + "</table>";
     renderLinks();
   }).catch(function (e) { msg.textContent = e.message; out.innerHTML = ""; sum.innerHTML = ""; });
@@ -429,6 +476,7 @@ return http.createServer(async (req, res) => {
         party: guest.party,
         invite: guest.invite,
         events: SCOPES[guest.invite].events,
+        members: guest.members,
         meals: MEALS,
         rsvp: existing,
       }, "application/json", { "Cache-Control": "no-store" });

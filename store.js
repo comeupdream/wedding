@@ -75,23 +75,31 @@ create table if not exists rsvp_log (
   entry jsonb not null,
   at    timestamptz not null default now()
 );
+-- Added when households moved to answering per person. Written as ALTERs so an
+-- existing database picks them up on the next boot without a migration step.
+alter table rsvps add column if not exists ceremony  integer not null default 0;
+alter table rsvps add column if not exists reception integer not null default 0;
+alter table rsvps add column if not exists attendees jsonb   not null default '[]'::jsonb;
 `;
 
 const UPSERT = `
-insert into rsvps (code, name, invite, events, party, seats, vegetarian, standard, email, note, at, first_at)
-values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $11)
+insert into rsvps (code, name, invite, events, party, seats, ceremony, reception,
+                   vegetarian, standard, attendees, email, note, at, first_at)
+values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $14)
 on conflict (code) do update set
   name = excluded.name, invite = excluded.invite, events = excluded.events,
-  party = excluded.party, seats = excluded.seats, vegetarian = excluded.vegetarian,
-  standard = excluded.standard, email = excluded.email, note = excluded.note,
-  at = excluded.at
+  party = excluded.party, seats = excluded.seats, ceremony = excluded.ceremony,
+  reception = excluded.reception, vegetarian = excluded.vegetarian,
+  standard = excluded.standard, attendees = excluded.attendees,
+  email = excluded.email, note = excluded.note, at = excluded.at
 returning *;
 `;
 
 // Row -> the same shape the file store returns, so callers can't tell them apart.
 const fromRow = (r) => ({
   code: r.code, name: r.name, invite: r.invite, events: r.events,
-  party: r.party, seats: r.seats, vegetarian: r.vegetarian, standard: r.standard,
+  party: r.party, seats: r.seats, ceremony: r.ceremony, reception: r.reception,
+  vegetarian: r.vegetarian, standard: r.standard, attendees: r.attendees || [],
   email: r.email, note: r.note,
   at: r.at.toISOString(), firstAt: r.first_at.toISOString(),
 });
@@ -124,7 +132,8 @@ const pgStore = async (url) => {
     async save(entry) {
       const { rows } = await pool.query(UPSERT, [
         entry.code, entry.name, entry.invite, entry.events, entry.party, entry.seats,
-        entry.vegetarian, entry.standard, entry.email, entry.note, entry.at,
+        entry.ceremony, entry.reception, entry.vegetarian, entry.standard,
+        JSON.stringify(entry.attendees || []), entry.email, entry.note, entry.at,
       ]);
       // Append-only history, so an amended answer never erases what came before.
       await pool.query("insert into rsvp_log (code, entry) values ($1, $2)", [entry.code, entry]);

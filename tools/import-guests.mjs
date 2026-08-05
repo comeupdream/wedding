@@ -59,11 +59,16 @@ if (col("name") < 0) die("the CSV needs a `name` column");
 const incoming = rows.map((r) => {
   const get = (n) => (col(n) >= 0 ? String(r[col(n)] ?? "").trim() : "");
   const invite = get("invite").toLowerCase();
+  const party = Math.max(1, parseInt(get("party"), 10) || 1);
+  // Named members let the RSVP form greet a household by name and take an
+  // answer per person. Unknown members stay blank — guests fill them in.
+  const members = get("members").split(";").map((s) => s.trim()).filter(Boolean).slice(0, party);
   return {
     name: get("name"),
-    party: Math.max(1, parseInt(get("party"), 10) || 1),
+    party,
     invite: SCOPES.includes(invite) ? invite : "both",
     contact: get("contact"),
+    members,
   };
 }).filter((g) => g.name);
 
@@ -98,10 +103,14 @@ const merged = incoming.map((g) => {
   const diffs = [];
   if (prev.party !== g.party) diffs.push(`seats ${prev.party} -> ${g.party}`);
   if ((prev.contact || "") !== g.contact) diffs.push("contact");
+  if ((prev.members || []).join("; ") !== g.members.join("; ")) diffs.push("members");
   if (diffs.length) changed.push(`${g.name}: ${diffs.join(", ")}`); else kept.push(g.name);
   // Keep the password and the invite scope already set — those are decisions
   // made outside the spreadsheet, and regenerating them would break sent links.
-  return { code: prev.code, name: g.name, party: g.party, invite: prev.invite || g.invite, contact: g.contact };
+  return {
+    code: prev.code, name: g.name, party: g.party,
+    invite: prev.invite || g.invite, contact: g.contact, members: g.members,
+  };
 });
 
 const removed = existing.filter((g) => !incoming.some((i) => i.name === g.name)).map((g) => g.name);
