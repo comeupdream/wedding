@@ -152,7 +152,9 @@
     border: 1px solid rgba(150, 48, 31, 0.28);
     pointer-events: none;
   }
-  .card.role-card::after { border-color: rgba(154, 112, 22, 0.5); }
+  .card.role-gold::after { border-color: rgba(154, 112, 22, 0.5); }
+  .card.role-silver::after { border-color: rgba(110, 118, 126, 0.55); }
+  .card.role-silver .ask { color: #4A5057; }   /* 7.6:1 on the vellum card */
   .eyebrow {
     margin: 0 0 1.4rem;
     font-size: 0.72rem;
@@ -222,7 +224,7 @@
     font-family: var(--display);
     font-size: clamp(1.05rem, 3.4vw, 1.3rem);
     line-height: 1.5;
-    color: var(--gold-deep, #6A4A0C);
+    color: #6A4A0C;   /* 7.2:1 on the vellum card */
   }
   .cta {
     display: inline-flex;
@@ -317,11 +319,17 @@
           <stop offset="55%" stop-color="#7E2517"/>
           <stop offset="100%" stop-color="#5C1409"/>
         </radialGradient>
-        <!-- The best man's envelope is sealed in gold rather than wax red. -->
+        <!-- Standing at the wedding is shown in the wax: gold for the best
+             man, silver for the groomsmen, ordinary red for everyone else. -->
         <radialGradient id="gold" cx="38%" cy="32%" r="72%">
           <stop offset="0%" stop-color="#D9A93F"/>
           <stop offset="55%" stop-color="#9A7016"/>
           <stop offset="100%" stop-color="#6A4A0C"/>
+        </radialGradient>
+        <radialGradient id="silver" cx="38%" cy="32%" r="72%">
+          <stop offset="0%" stop-color="#CFD3D8"/>
+          <stop offset="55%" stop-color="#8C9298"/>
+          <stop offset="100%" stop-color="#5A6067"/>
         </radialGradient>
       </defs>
       <!-- a hand-pressed edge: a circle nudged out of round -->
@@ -378,18 +386,40 @@
     document.getElementById("guests").textContent = g.name;
     document.getElementById("scope").textContent = SCOPES[g.invite] || SCOPES.both;
 
-    // A standing at the wedding gets its own seal and its own ask.
+    // A standing at the wedding gets its own seal and its own ask. The first
+    // name comes from the invitation itself, so nothing is hard-coded per guest.
+    var ROLES = {
+      "best-man": {
+        seal: "url(#gold)", ring: "#5A3E09", tone: "gold",
+        ask: function (n) {
+          return n + " — of everyone I could ask, it could only be you. " +
+            "Would you do me the honour of standing beside me as my best man?";
+        }
+      },
+      "groomsman": {
+        seal: "url(#silver)", ring: "#464C52", tone: "silver",
+        ask: function (n) {
+          return n + " — the day wouldn't feel like mine without you in it. " +
+            "Will you stand with me as one of my groomsmen?";
+        }
+      }
+    };
     var ask = document.getElementById("ask");
-    if (g.role === "best-man") {
-      var wax = document.querySelector(".seal path");
-      if (wax) wax.setAttribute("fill", "url(#gold)");
-      var ring = document.getElementById("seal-ring");
-      if (ring) ring.setAttribute("stroke", "#5A3E09");
+    var role = ROLES[g.role];
+    var wax = document.querySelector(".seal path");
+    var ring = document.getElementById("seal-ring");
+    var cardEl = document.querySelector(".card");
+    cardEl.classList.remove("role-gold", "role-silver");
+    if (role) {
+      if (wax) wax.setAttribute("fill", role.seal);
+      if (ring) ring.setAttribute("stroke", role.ring);
+      // Address them by the first name on the invitation.
+      ask.textContent = role.ask((named[0] || g.name).split(/[\s,&]/)[0]);
       ask.hidden = false;
-      ask.textContent = "Jon — it would mean the world to me to have you beside me " +
-        "as my best man. Will you stand with me?";
-      document.querySelector(".card").classList.add("role-card");
+      cardEl.classList.add("role-" + role.tone);
     } else {
+      if (wax) wax.setAttribute("fill", "url(#wax)");
+      if (ring) ring.setAttribute("stroke", "#5B1409");
       ask.hidden = true;
     }
     document.getElementById("closing").textContent = seats > 1

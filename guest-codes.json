@@ -1,7 +1,7 @@
 [
  {
-  "code": "4153",
-  "name": "Abba Aunty Family (Abha Aunty, Abha's Mom & Ashwin)",
+  "code": "8664",
+  "name": "Abha Aunty & Family",
   "party": 3,
   "invite": "both",
   "contact": "Abhasharma@aol.com",
@@ -36,30 +36,41 @@
   "role": ""
  },
  {
-  "code": "5434",
-  "name": "Amit Varma and Wife Audra",
+  "code": "3530",
+  "name": "Amit & Audra Varma",
   "party": 2,
   "invite": "both",
   "contact": "amit.varma01@gmail.com",
-  "members": [],
+  "members": [
+   "Amit",
+   "Audra"
+  ],
   "role": ""
  },
  {
-  "code": "1758",
-  "name": "Appu Aunty & Ken plus Family (Sarah, Shelly)",
+  "code": "4665",
+  "name": "Appu Aunty & Ken",
   "party": 4,
   "invite": "both",
   "contact": "Janetribble21@gmail.com; Sgosaie91@gmail.com; Sarahgosaie94@gmail.com",
-  "members": [],
+  "members": [
+   "Appu Aunty",
+   "Ken",
+   "Sarah",
+   "Shelly"
+  ],
   "role": ""
  },
  {
-  "code": "9344",
-  "name": "Archana and Rajeev",
+  "code": "4845",
+  "name": "Archana & Rajeev",
   "party": 2,
   "invite": "both",
   "contact": "Arcraj@aol.com",
-  "members": [],
+  "members": [
+   "Archana",
+   "Rajeev"
+  ],
   "role": ""
  },
  {
@@ -96,7 +107,7 @@
   "invite": "both",
   "contact": "",
   "members": [],
-  "role": ""
+  "role": "groomsman"
  },
  {
   "code": "6065",
@@ -117,8 +128,8 @@
   "role": ""
  },
  {
-  "code": "2350",
-  "name": "Durga Family (Durga Aunty, Ritika, Nitika & Loveena)",
+  "code": "1884",
+  "name": "Durga Aunty & Family",
   "party": 4,
   "invite": "both",
   "contact": "Dkumar323@yahoo.com",
@@ -143,21 +154,28 @@
   "role": ""
  },
  {
-  "code": "2988",
-  "name": "Gita Chopra and Sudhir Uncle",
+  "code": "2022",
+  "name": "Gita & Sudhir Chopra",
   "party": 2,
   "invite": "both",
   "contact": "goregous37@gmail.com",
-  "members": [],
+  "members": [
+   "Gita",
+   "Sudhir"
+  ],
   "role": ""
  },
  {
-  "code": "1756",
-  "name": "Herpal Family (Herpal, Maheer, Roshni plus spouses)",
+  "code": "4337",
+  "name": "Herpal & Family",
   "party": 5,
   "invite": "both",
   "contact": "Hsmalik1@yahoo.com",
-  "members": [],
+  "members": [
+   "Herpal",
+   "Maheer",
+   "Roshni"
+  ],
   "role": ""
  },
  {
@@ -182,12 +200,15 @@
   "role": "best-man"
  },
  {
-  "code": "8371",
-  "name": "Kamlesh Varma & Ashok Varma",
+  "code": "2668",
+  "name": "Kamlesh & Ashok Varma",
   "party": 2,
   "invite": "both",
   "contact": "kamsvarma@gmail.com",
-  "members": [],
+  "members": [
+   "Kamlesh",
+   "Ashok"
+  ],
   "role": ""
  },
  {
@@ -251,12 +272,15 @@
   "role": ""
  },
  {
-  "code": "2234",
-  "name": "Nita Batra and Harish Batra",
+  "code": "4424",
+  "name": "Nita & Harish Batra",
   "party": 2,
   "invite": "both",
   "contact": "Nitabatranita@gmail.com",
-  "members": [],
+  "members": [
+   "Nita",
+   "Harish"
+  ],
   "role": ""
  },
  {
@@ -269,12 +293,15 @@
   "role": ""
  },
  {
-  "code": "8928",
-  "name": "Pandit Abhay and Daughter to perform wedding",
+  "code": "5511",
+  "name": "Pandit Abhay & Daughter",
   "party": 2,
   "invite": "both",
   "contact": "315-560-0853",
-  "members": [],
+  "members": [
+   "Pandit Abhay",
+   "Daughter"
+  ],
   "role": ""
  },
  {
@@ -320,8 +347,8 @@
   "role": ""
  },
  {
-  "code": "7080",
-  "name": "Raju & Herleen Family (Raju, Herleen, Kabir, Divita",
+  "code": "2939",
+  "name": "Raju & Herleen Sodhi",
   "party": 4,
   "invite": "both",
   "contact": "Harleen.sodhi2@gmail.com",
@@ -334,8 +361,8 @@
   "role": ""
  },
  {
-  "code": "6812",
-  "name": "Raju Madhok from Minot",
+  "code": "4844",
+  "name": "Raju Madhok",
   "party": 1,
   "invite": "both",
   "contact": "Rajmadhok17@gmail.com",
@@ -348,7 +375,10 @@
   "party": 2,
   "invite": "both",
   "contact": "vsgr1956@gmail.com",
-  "members": [],
+  "members": [
+   "Ravi",
+   "Geeta"
+  ],
   "role": ""
  },
  {
@@ -358,7 +388,7 @@
   "invite": "both",
   "contact": "",
   "members": [],
-  "role": ""
+  "role": "groomsman"
  },
  {
   "code": "5908",
@@ -370,8 +400,8 @@
   "role": ""
  },
  {
-  "code": "3253",
-  "name": "Shruti neighbor and family",
+  "code": "6117",
+  "name": "Shruti & Family",
   "party": 3,
   "invite": "both",
   "contact": "",
@@ -400,8 +430,8 @@
   "role": ""
  },
  {
-  "code": "3251",
-  "name": "Sreedhar Uncle and Family",
+  "code": "4204",
+  "name": "Sreedhar Uncle & Family",
   "party": 3,
   "invite": "both",
   "contact": "makarla@gmail.com",
@@ -451,8 +481,8 @@
   "role": ""
  },
  {
-  "code": "3852",
-  "name": "Toffee and Harry Bawa (Raju's sister and husband)",
+  "code": "1358",
+  "name": "Toffee & Harry Bawa",
   "party": 2,
   "invite": "both",
   "contact": "dhanguru_nanak@hotmail.com",

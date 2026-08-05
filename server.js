@@ -25,6 +25,16 @@ export const MEALS = ["standard", "vegetarian"];
 
 export const norm = (s) => String(s ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
 
+// A household with no surname on it — "Pinki & Sudhir", "Mia". Judged by the
+// last person named: if that segment is a single word, no surname was given.
+// It's a nudge for the guest list, never anything a guest sees.
+export const needsSurname = (name) => {
+  const last = String(name).split(/\s*(?:&|,| and )\s*/i).filter(Boolean).pop() || "";
+  const words = last.trim().split(/\s+/).filter(Boolean);
+  if (/^(family|daughter|friends?)$/i.test(words[words.length - 1] || "")) return true;
+  return words.length < 2;
+};
+
 const indexGuests = (raw) => {
   const map = new Map();
   for (const g of raw) {
@@ -315,6 +325,7 @@ const ADMIN_HTML = `<!doctype html><html lang="en"><meta charset="utf-8">
   .link { font-family:ui-monospace,Menlo,monospace; font-size:.76rem; word-break:break-all; color:var(--muted); }
   .names { margin-top:.2rem; font-size:.8rem; color:var(--muted); }
   .names.unset { font-style:italic; color:#C6B39A; }   /* 8.3:1, no opacity */
+  .nosurname { color:var(--gold); text-decoration:none; margin-left:.25rem; cursor:help; }
   tr.partial td { background:rgba(255,176,155,.09); }
   .part { color:var(--warn); font-size:.8rem; font-style:italic; white-space:nowrap; }
   tr.no td { color:var(--muted); }
@@ -446,6 +457,7 @@ var SCOPE = { both: "Ceremony &amp; reception", ceremony: "Ceremony only", recep
 function linkFor(code) { return location.origin + "/?c=" + encodeURIComponent(code) + "#rsvp"; }
 function cardFor(code) { return location.origin + "/invite?c=" + encodeURIComponent(code); }
 // Everyone on an invitation, printed under the household name for accounting.
+function flag(g) { return g.needsSurname ? '<abbr class=nosurname title="No last name on file">**</abbr>' : ""; }
 function namesOf(g) {
   return (g.members || []).length
     ? "<div class=names>" + g.members.map(esc).join(" &nbsp;·&nbsp; ") + "</div>"
@@ -505,7 +517,7 @@ function load() {
           "</td><td class=num>" + esc(String(r.at).slice(0, 16).replace("T", " ")) + "</td></tr>";
       }).join("") +
       data.awaiting.map(function (g) {
-        return "<tr class=no><td>" + esc(g.name) + namesOf(g) +
+        return "<tr class=no><td>" + esc(g.name) + flag(g) + namesOf(g) +
           "</td><td class=code>" + esc(g.code) +
           "</td><td class=num><b>?</b> of " + esc(g.party) +
           "</td><td colspan=7>no reply yet — " + esc(g.party) +
@@ -530,14 +542,15 @@ function shown() {
 function renderLinks() {
   var rows = shown();
   document.getElementById("links").innerHTML =
-    "<p class=muted>" + rows.length + " invitation(s) — one link per household.</p>" +
+    "<p class=muted>" + rows.length + " invitation(s) — one link per household. " +
+    "<abbr class=nosurname title='No last name on file'>**</abbr> marks a household with no last name yet.</p>" +
     "<table><tr><th>Household</th><th>Seats</th><th>Invited to</th><th>Send to</th><th>Password</th>" +
     "<th>Invitation link</th><th>Actions</th><th>Status</th></tr>" +
     rows.map(function (g) {
       var status = !g.replied ? "<span class=muted>no reply</span>"
         : g.events === "none" ? "<span class=muted>cannot attend</span>"
         : "<b>" + (EVENTS[g.events] || esc(g.events)) + "</b>";
-      return "<tr><td>" + esc(g.name) + namesOf(g) + "</td><td class=num>" + esc(g.party) + "</td><td>" +
+      return "<tr><td>" + esc(g.name) + flag(g) + namesOf(g) + "</td><td class=num>" + esc(g.party) + "</td><td>" +
         (SCOPE[g.invite] || esc(g.invite)) + "</td>" +
         "<td class=muted>" + (g.contact ? esc(g.contact) : "—") + "</td>" +
         "<td class=code>" + esc(g.code) + "</td>" +
@@ -598,7 +611,7 @@ function renderRail() {
     var li = document.createElement("li");
     var b = document.createElement("button");
     b.type = "button";
-    b.innerHTML = "<span class=who>" + esc(g.name) + "</span><br><span class=meta>" +
+    b.innerHTML = "<span class=who>" + esc(g.name) + flag(g) + "</span><br><span class=meta>" +
       g.party + (g.party > 1 ? " people" : " person") + " · " +
       ((g.members || []).length ? g.members.map(esc).join(", ") : "names not set") + "</span>";
     b.addEventListener("click", function () { showCard(i); });
@@ -808,7 +821,8 @@ return http.createServer(async (req, res) => {
       }
       const awaiting = [...byCode.values()]
         .filter((g) => !all[g.code])
-        .map(({ code, name, invite, party, members }) => ({ code, name, invite, party, members }));
+        .map(({ code, name, invite, party, members }) =>
+          ({ code, name, invite, party, members, needsSurname: needsSurname(name) }));
       return send(200, {
         invited: byCode.size, totals: totals(rsvps, awaiting), rsvps, awaiting,
         storage: { kind: store.kind, detail: store.detail, durable: store.durable },
@@ -824,6 +838,7 @@ return http.createServer(async (req, res) => {
         .map((g) => ({
           code: g.code, name: g.name, party: g.party, invite: g.invite,
           contact: g.contact, members: g.members, role: g.role,
+          needsSurname: needsSurname(g.name),
           replied: Boolean(all[g.code]),
           events: all[g.code] ? all[g.code].events : null,
         }))
