@@ -151,11 +151,13 @@ const serveStatic = (req, res, filePath) => {
   fs.createReadStream(resolved).pipe(res);
 };
 
-const readBody = (req) => new Promise((resolve, reject) => {
+const SMALL_BODY = 10_000;          // an unlock or an RSVP
+const UPLOAD_BODY = 12_000_000;     // a spreadsheet, base64-encoded
+const readBody = (req, max = SMALL_BODY) => new Promise((resolve, reject) => {
   let body = "";
   req.on("data", (c) => {
     body += c;
-    if (body.length > 10_000) { reject(new Error("body too large")); req.destroy(); }
+    if (body.length > max) { reject(new Error("body too large")); req.destroy(); }
   });
   req.on("end", () => resolve(body));
   req.on("error", reject);
@@ -333,6 +335,8 @@ const ADMIN_HTML = `<!doctype html><html lang="en"><meta charset="utf-8">
   .chip { display:inline-block; margin-left:.4rem; padding:.05rem .4rem; font-size:.66rem;
           letter-spacing:.16em; border:1px solid var(--gold); color:var(--gold); vertical-align:middle; }
   tr.testrow td { background:rgba(253,203,106,.07); }
+  tr.orphanrow td { background:rgba(255,176,155,.1); }
+  .chip.warnchip { border-color:var(--warn); color:var(--warn); }
   tr.partial td { background:rgba(255,176,155,.09); }
   .part { color:var(--warn); font-size:.8rem; font-style:italic; white-space:nowrap; }
   tr.no td { color:var(--muted); }
@@ -401,7 +405,7 @@ const ADMIN_HTML = `<!doctype html><html lang="en"><meta charset="utf-8">
       <button class="ghost" data-filter="coming">Coming</button>
       <button class="ghost" data-filter="noreply">No reply yet</button>
       <button id="copy-all">Copy these links</button>
-      <button id="links-csv">Download links CSV</button>
+      <button id="links-csv">Download list &amp; links CSV</button>
       <span class="ok" id="link-msg"></span>
     </div>
     <div id="links"></div>
@@ -467,6 +471,10 @@ function cardFor(code) { return location.origin + "/invite?c=" + encodeURICompon
 function flag(g) { return g.needsSurname ? '<abbr class=nosurname title="No last name on file">**</abbr>' : ""; }
 // A rehearsal invitation. Marked everywhere it appears, and in none of the sums.
 function testChip(g) { return g.test ? ' <span class=chip>TEST</span>' : ""; }
+// An answer whose invitation is gone. Kept visible, never counted.
+function orphanChip(r) {
+  return r.orphan ? ' <span class="chip warnchip">NO LONGER INVITED</span>' : "";
+}
 function namesOf(g) {
   return (g.members || []).length
     ? "<div class=names>" + g.members.map(esc).join(" &nbsp;·&nbsp; ") + "</div>"
@@ -508,7 +516,12 @@ function load() {
       "</div>" +
       (GUESTS.some(function (g) { return g.test; })
         ? "<p class=muted><span class=chip>TEST</span> rows are listed but left out of every " +
-          "figure above, so trying the form can't move the catering numbers.</p>" : "");
+          "figure above, so trying the form can't move the catering numbers.</p>" : "") +
+      (data.rsvps.some(function (r) { return r.orphan; })
+        ? "<p class=muted><span class='chip warnchip'>NO LONGER INVITED</span> means this " +
+          "household answered, then left the guest list. Their answer is kept here but not " +
+          "counted. If that was a rename, re-upload with their password in a <b>password</b> " +
+          "column and they'll be joined back up.</p>" : "");
     out.innerHTML = "<table><tr><th>Household</th><th>Code</th><th>Coming</th><th>Ceremony</th>" +
       "<th>Reception</th><th>Veg</th><th>Who's coming</th><th>Email</th><th>Note</th><th>When</th></tr>" +
       data.rsvps.map(function (r) {
@@ -518,8 +531,8 @@ function load() {
             (a.reception && a.vegetarian ? " <i>veg</i>" : "");
         }).join(" &nbsp;·&nbsp; ") || "<span class=muted>nobody</span>";
         var partial = r.party > 0 && r.party < r.seats;
-        return "<tr" + (r.test ? " class=testrow" : partial ? " class=partial" : "") +
-          "><td>" + esc(r.name) + testChip(r) +
+        return "<tr" + (r.test ? " class=testrow" : r.orphan ? " class=orphanrow" : partial ? " class=partial" : "") +
+          "><td>" + esc(r.name) + testChip(r) + orphanChip(r) +
           "</td><td class=code>" + esc(r.code) +
           "</td><td class=num><b>" + esc(r.party) + "</b> of " + esc(r.seats) +
           (partial ? " <span class=part>" + (r.seats - r.party) + " not coming</span>" : "") +
@@ -609,12 +622,16 @@ document.getElementById("links-csv").addEventListener("click", function () {
     var s = String(v == null ? "" : v);
     return /[",\\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
   };
+  // Column names the importer reads, so this file can be edited and uploaded
+  // straight back — the password column is what keeps an invitation attached
+  // through a rename. The two link columns are extra, and ignored on the way in.
   var rows = shown().map(function (g) {
-    return [g.name, (g.members || []).join("; "), g.code, g.party, SCOPE[g.invite] || g.invite,
-            g.contact || "", cardFor(g.code), linkFor(g.code)].map(cell).join(",");
+    return [g.name, g.code, g.party, g.invite, g.contact || "", (g.members || []).join("; "),
+            g.role || "", g.test ? "yes" : "", cardFor(g.code), linkFor(g.code)].map(cell).join(",");
   });
   download("invitation-links.csv",
-    "household,members,password,seats,invited,send_to,invitation_link,rsvp_link\\n" + rows.join("\\n") + "\\n", "text/csv");
+    "name,password,party,invite,contact,members,role,test,invitation_link,rsvp_link\\n" +
+    rows.join("\\n") + "\\n", "text/csv");
 });
 
 // ---- preview tab: the whole list, scrollable, card beside it ----
@@ -689,6 +706,11 @@ function showDiff(d) {
     "<div class=diff>" +
     listBlock("New invitations", d.added, "Each gets a fresh password.") +
     listBlock("Changed", d.changed) +
+    listBlock("Already replied — would lose their invitation", d.removedAnswered,
+      "These households have answered. Applying this would break the link you sent them " +
+      "and leave their reply uncounted. If you renamed them, add a password column to the " +
+      "sheet (the links CSV has one) and they will be kept.") +
+    listBlock("Renamed", d.renamed, "Matched by password, so their invitation is unchanged.") +
     listBlock("No longer on the list", d.removed,
       "These lose their invitation. Check for renames before applying.") +
     listBlock("On the sheet but not invited", d.skipped) +
@@ -832,8 +854,9 @@ return http.createServer(async (req, res) => {
       // Test invitations are listed but never counted, so trying the form out
       // can't move the catering numbers.
       const isTest = (code) => (byCode.get(norm(code)) || {}).test === true;
+      const known = (code) => byCode.has(norm(code));
       const rsvps = Object.values(all)
-        .map((r) => ({ ...r, test: isTest(r.code) }))
+        .map((r) => ({ ...r, test: isTest(r.code), orphan: !known(r.code) }))
         .sort((a, b) => String(a.name).localeCompare(String(b.name)));
       if (url.pathname.endsWith(".csv")) {
         return send(200, toCsv(rsvps), "text/csv; charset=utf-8",
@@ -845,7 +868,9 @@ return http.createServer(async (req, res) => {
           ({ code, name, invite, party, members, test, needsSurname: needsSurname(name) }));
       return send(200, {
         invited: [...byCode.values()].filter((g) => !g.test).length,
-        totals: totals(rsvps.filter((r) => !r.test), awaiting.filter((g) => !g.test)),
+        // Orphans — answers whose invitation was removed or renamed away — are
+        // shown but not counted, so nobody is counted twice.
+        totals: totals(rsvps.filter((r) => !r.test && !r.orphan), awaiting.filter((g) => !g.test)),
         rsvps, awaiting,
         storage: { kind: store.kind, detail: store.detail, durable: store.durable },
       }, "application/json", { "Cache-Control": "no-store" });
@@ -873,7 +898,7 @@ return http.createServer(async (req, res) => {
     // second call, so a wrong file can't quietly rewrite the guest list.
     if (req.method === "POST" && url.pathname === "/api/guests/import") {
       if (!authorized(req)) return send(401, { error: "unauthorized" });
-      const b = JSON.parse((await readBody(req)) || "{}");
+      const b = JSON.parse((await readBody(req, UPLOAD_BODY)) || "{}");
       let parsed;
       if (b.seed) {
         // The list that shipped with this deploy. The database is the source of
@@ -894,12 +919,14 @@ return http.createServer(async (req, res) => {
       if (dupes.length) {
         return send(400, { error: `The same name appears twice: ${[...new Set(dupes)].join(", ")}` });
       }
-      const plan = merge(guestList, parsed.guests, (lo, hi) => crypto.randomInt(lo, hi));
+      const answered = new Set(Object.keys(await store.all()));
+      const plan = merge(guestList, parsed.guests, (lo, hi) => crypto.randomInt(lo, hi), answered);
       const preview = {
         source: parsed.source,
         invitations: plan.list.length,
         seats: plan.list.reduce((n, g) => n + g.party, 0),
         added: plan.added, changed: plan.changed, removed: plan.removed,
+        removedAnswered: plan.removedAnswered, renamed: plan.renamed,
         unchanged: plan.unchanged.length,
         skipped: parsed.skipped,
         noCount: parsed.guests.filter((g) => g.noCount).map((g) => g.name),

@@ -53,10 +53,14 @@ const fromExport = (rows) => {
     const get = (n) => (col(n) >= 0 ? clean(r[col(n)]) : "");
     const name = get("name");
     if (!name) continue;
+    // A password column lets a sheet round-trip: the household keeps its
+    // invitation even if you rename it, so links already sent still work.
+    const code = get("password") || get("code");
     const party = Math.max(1, asInt(get("party")) || 1);
     const invite = get("invite").toLowerCase();
     out.push({
       name,
+      code: /^\d{3,8}$/.test(code) ? code : "",
       party,
       invite: SCOPES.includes(invite) ? invite : "both",
       contact: get("contact"),
@@ -152,13 +156,17 @@ export const makeCode = (taken, randomInt) => {
  * Fold an uploaded list into the one already in use.
  * Passwords and invite scopes already set are kept, so links stay valid.
  */
-export const merge = (existing, incoming, randomInt) => {
+export const merge = (existing, incoming, randomInt, answered = new Set()) => {
   const byName = new Map(existing.map((g) => [g.name, g]));
+  const byCode = new Map(existing.map((g) => [String(g.code), g]));
   const taken = new Set(existing.map((g) => String(g.code)).filter((c) => /^\d{4}$/.test(c)));
-  const added = [], changed = [], unchanged = [];
+  const added = [], changed = [], unchanged = [], renamed = [];
 
   const list = incoming.map((g) => {
-    const prev = byName.get(g.name);
+    // The password wins over the name, so a household can be renamed without
+    // losing the invitation that was already sent to it.
+    const prev = (g.code && byCode.get(String(g.code))) || byName.get(g.name);
+    if (prev && prev.name !== g.name) renamed.push(`${prev.name} → ${g.name}`);
     if (!prev) {
       added.push(g.name);
       return { code: makeCode(taken, randomInt), name: g.name, party: g.party,
@@ -179,6 +187,11 @@ export const merge = (existing, incoming, randomInt) => {
              test: g.test === undefined ? !!prev.test : !!g.test };
   });
 
-  const removed = existing.filter((g) => !incoming.some((i) => i.name === g.name)).map((g) => g.name);
-  return { list, added, changed, removed, unchanged };
+  const kept = new Set(list.map((g) => String(g.code)));
+  const gone = existing.filter((g) => !kept.has(String(g.code)));
+  const removed = gone.map((g) => g.name);
+  // Losing a household that has already replied is the one destructive case:
+  // their answer is orphaned and the link they were sent stops working.
+  const removedAnswered = gone.filter((g) => answered.has(String(g.code))).map((g) => g.name);
+  return { list, added, changed, removed, removedAnswered, renamed, unchanged };
 };

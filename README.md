@@ -61,6 +61,24 @@ Passwords already handed out are kept, so links you've sent keep working, and
 anyone new gets a fresh one. An invite scope you set by hand is kept too, since
 the workbook has no column for it.
 
+**Answers already given are never touched by an upload.** RSVPs live in their
+own table, keyed by password; re-uploading, adding guests or changing seat
+counts leaves them exactly as they were.
+
+The one case to know about is **renaming a household that has already replied**.
+Matching is by password first and name second, so:
+
+- Edit the **Download list & links CSV** file and upload that back — it carries a
+  `password` column, the rename is recognised, and the invitation, the link you
+  sent and the reply all stay attached.
+- Rename in a sheet with no password column and it reads as one household
+  leaving and another arriving: a new password, so the card you posted stops
+  working, and the old reply is orphaned. The preview says so before you apply,
+  under *Already replied — would lose their invitation*.
+
+An orphaned reply is still shown in the dashboard, marked **NO LONGER INVITED**,
+and left out of every total so nobody is counted twice.
+
 Four rows in the workbook are deliberately not invitations: Sharon and Zachary
 themselves, and the two "estimate, up to 5" placeholders for the bride's
 extended family. Give those real names in the sheet and they'll import. Any row
