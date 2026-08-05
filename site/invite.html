@@ -97,12 +97,18 @@
     left: 0;
     right: 0;
     bottom: 14%;
+    padding: 0 7%;
     text-align: center;
+    text-wrap: balance;
+    line-height: 1.15;
     font-family: var(--script);
     font-size: clamp(1.5rem, 5vw, 2.3rem);
     color: var(--ink);
     z-index: 2;
   }
+  /* Households are named things like "Alexia, David, Sebastian & Lindsay" —
+     a script face at full size would run off the paper. */
+  .env-to.long { font-size: clamp(1.1rem, 3.6vw, 1.7rem); }
   .env-hint {
     position: absolute;
     left: 0;
@@ -227,8 +233,15 @@
     border: 1px solid var(--maple-deep);
   }
   .cta:hover { background: var(--maple-deep); }
+  .byline {
+    margin: 1rem 0 0;
+    font-size: 0.74rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--maple);
+  }
   .closing {
-    margin: 1.6rem 0 0;
+    margin: 0.9rem 0 0;
     font-size: 0.82rem;
     color: var(--ink-soft);
   }
@@ -314,6 +327,7 @@
     <p class="where">Lydia Mountain <span aria-hidden="true">·</span> Virginia</p>
     <p><span class="scope" id="scope"></span></p>
     <p><a class="cta" id="rsvp-link" href="/#rsvp">RSVP</a></p>
+    <p class="byline">Kindly reply by the first of September</p>
     <p class="closing" id="closing"></p>
   </article>
 </main>
@@ -339,8 +353,13 @@
   function fill(g) {
     var seats = g.party || 1;
     var named = (g.members || []).filter(Boolean);
-    document.getElementById("env-to").textContent = g.name;
-    document.getElementById("guests").textContent = named.length ? list(named) : g.name;
+    var to = document.getElementById("env-to");
+    var addressed = g.name.replace(/\s*\([^)]*\)\s*$/, "");
+    to.textContent = addressed;
+    to.classList.toggle("long", addressed.length > 22);
+    // The card names the household, not each person — the per-person list lives
+    // in the admin guest list and on the RSVP form.
+    document.getElementById("guests").textContent = g.name;
     document.getElementById("scope").textContent = SCOPES[g.invite] || SCOPES.both;
     document.getElementById("closing").textContent = seats > 1
       ? seats + " seats have been reserved in your name."

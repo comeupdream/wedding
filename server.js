@@ -189,16 +189,32 @@ export const buildRsvp = (guest, b, now = new Date()) => {
   };
 };
 
-export const totals = (rows) => {
-  const t = { responses: rows.length, guests: 0, ceremony: 0, reception: 0, declined: 0, vegetarian: 0, standard: 0 };
+// Everything here is a headcount of people, never of invitations. A family of
+// four where two can come is two coming and two not — not "one RSVP".
+export const totals = (rows, awaiting = []) => {
+  const t = {
+    responses: rows.length,          // invitations answered
+    invitations: rows.length + awaiting.length,
+    seats: 0,                        // people invited, across every invitation
+    coming: 0,                       // people coming to at least one event
+    ceremony: 0, reception: 0,
+    notComing: 0,                    // people who answered no, inside or outside a family
+    vegetarian: 0, standard: 0,
+    awaiting: 0,                     // people on invitations with no reply yet
+    awaitingInvitations: awaiting.length,
+    partial: 0,                      // households where some are coming and some aren't
+  };
   for (const r of rows) {
-    if (r.events === "none") { t.declined += 1; continue; }
-    t.guests += r.party;
+    t.seats += r.seats;
+    t.coming += r.party;
     t.ceremony += r.ceremony;
     t.reception += r.reception;
+    t.notComing += r.seats - r.party;
     t.vegetarian += r.vegetarian;
     t.standard += r.standard;
+    if (r.party > 0 && r.party < r.seats) t.partial += 1;
   }
+  for (const g of awaiting) { t.seats += g.party; t.awaiting += g.party; }
   return t;
 };
 
@@ -246,6 +262,11 @@ const ADMIN_HTML = `<!doctype html><html lang="en"><meta charset="utf-8">
   th{background:#F3E6CE} .muted{color:#57403A;font-style:italic}
   .totals{margin-top:1.2rem;padding:.8rem 1rem;background:#F3E6CE;border:1px solid #d8c4a5}
   .totals b{font-size:1.1rem} .no{color:#6B4F47}
+  .totals + .totals{margin-top:.4rem}
+  tr.partial td{background:#FAF0DC}
+  .part{color:#8A2A1B;font-size:.82rem;font-style:italic;white-space:nowrap}
+  .members{margin-top:.2rem;font-size:.8rem;color:#57403A}
+  .members.muted{font-style:italic}
   .warn{margin-top:1.2rem;padding:.8rem 1rem;background:#F7DFD6;border:1px solid #8A2A1B;font-size:.9rem;color:#2B1A17}
   .tabs{margin:1.4rem 0 .4rem;display:flex;gap:.5rem}
   .bar{margin:1rem 0;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
@@ -370,11 +391,19 @@ function load() {
         " inside the running container. Set DATABASE_URL, or download the CSV " +
         "before you deploy again.</div>"
       : "";
-    sum.innerHTML = warn + "<div class=totals><b>" + t.ceremony + "</b> at the ceremony &nbsp;·&nbsp; <b>" +
+    // Every figure is a headcount of people. A family of four with two coming
+    // is two coming and two not, never "one RSVP".
+    sum.innerHTML = warn +
+      "<div class=totals><b>" + t.ceremony + "</b> people at the ceremony &nbsp;·&nbsp; <b>" +
       t.reception + "</b> at the reception &nbsp;·&nbsp; <b>" + t.vegetarian +
-      "</b> vegetarian / <b>" + t.standard + "</b> standard meals &nbsp;·&nbsp; <b>" +
-      t.declined + "</b> cannot attend &nbsp;·&nbsp; <b>" + data.awaiting.length + "</b> awaiting reply</div>";
-    out.innerHTML = "<table><tr><th>Guest</th><th>Code</th><th>Cer.</th><th>Rec.</th>" +
+      "</b> vegetarian / <b>" + t.standard + "</b> standard meals</div>" +
+      "<div class=totals><b>" + t.coming + "</b> of <b>" + t.seats + "</b> invited people are coming" +
+      " &nbsp;·&nbsp; <b>" + t.notComing + "</b> said no" +
+      " &nbsp;·&nbsp; <b>" + t.awaiting + "</b> not heard from" +
+      " <span class=muted>(" + t.awaitingInvitations + " of " + t.invitations + " invitations)</span>" +
+      (t.partial ? " &nbsp;·&nbsp; <b>" + t.partial + "</b> famil" + (t.partial === 1 ? "y" : "ies") +
+        " coming in part" : "") + "</div>";
+    out.innerHTML = "<table><tr><th>Guest</th><th>Code</th><th>Coming</th><th>Cer.</th><th>Rec.</th>" +
       "<th>Veg</th><th>Who's coming</th><th>Email</th><th>Note</th><th>When</th></tr>" +
       data.rsvps.map(function (r) {
         // Each person, with what they said yes to.
@@ -383,7 +412,11 @@ function load() {
           var tag = at ? " <b>" + at + "</b>" : " <span class=muted>—</span>";
           return esc(a.name) + tag + (a.reception && a.vegetarian ? " <i>veg</i>" : "");
         }).join(" &nbsp;·&nbsp; ") || "<span class=muted>nobody</span>";
-        return "<tr><td>" + esc(r.name) + "</td><td>" + esc(r.code) +
+        var partial = r.party > 0 && r.party < r.seats;
+        var coming = "<b>" + esc(r.party) + "</b> of " + esc(r.seats) +
+          (partial ? " <span class=part>" + (r.seats - r.party) + " not coming</span>" : "");
+        return "<tr" + (partial ? " class=partial" : "") + "><td>" + esc(r.name) + "</td><td>" + esc(r.code) +
+          "</td><td>" + coming +
           "</td><td>" + esc(r.ceremony) + " of " + esc(r.seats) +
           "</td><td>" + esc(r.reception) + " of " + esc(r.seats) +
           "</td><td>" + esc(r.vegetarian) + "</td><td>" + who +
@@ -392,8 +425,9 @@ function load() {
       }).join("") +
       data.awaiting.map(function (g) {
         return "<tr class=no><td>" + esc(g.name) + "</td><td>" + esc(g.code) +
+          "</td><td><b>?</b> of " + esc(g.party) +
           "</td><td colspan=7 class=muted>no reply yet — " + esc(g.party) +
-          (g.party > 1 ? " seats" : " seat") + " held</td></tr>";
+          (g.party > 1 ? " people" : " person") + " unaccounted for</td></tr>";
       }).join("") + "</table>";
     renderLinks();
   }).catch(function (e) { msg.textContent = e.message; out.innerHTML = ""; sum.innerHTML = ""; });
@@ -420,7 +454,10 @@ function renderLinks() {
       var status = !g.replied ? "<span class=muted>no reply</span>"
         : g.events === "none" ? "<span class=muted>cannot attend</span>"
         : "<b>" + (EVENTS[g.events] || esc(g.events)) + "</b>";
-      return "<tr><td>" + esc(g.name) + "</td><td>" + esc(g.party) + "</td><td>" +
+      var who = (g.members || []).length
+        ? "<div class=members>" + g.members.map(esc).join(" &nbsp;·&nbsp; ") + "</div>"
+        : "<div class=members muted>names not set</div>";
+      return "<tr><td>" + esc(g.name) + who + "</td><td>" + esc(g.party) + "</td><td>" +
         (SCOPE[g.invite] || esc(g.invite)) + "</td>" +
         "<td class=muted>" + (g.contact ? esc(g.contact) : "—") + "</td>" +
         "<td class=code>" + esc(g.code) + "</td>" +
@@ -670,7 +707,7 @@ return http.createServer(async (req, res) => {
         .filter((g) => !all[g.code])
         .map(({ code, name, invite, party }) => ({ code, name, invite, party }));
       return send(200, {
-        invited: byCode.size, totals: totals(rsvps), rsvps, awaiting,
+        invited: byCode.size, totals: totals(rsvps, awaiting), rsvps, awaiting,
         storage: { kind: store.kind, detail: store.detail, durable: store.durable },
       }, "application/json", { "Cache-Control": "no-store" });
     }

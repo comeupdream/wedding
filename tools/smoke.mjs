@@ -124,6 +124,32 @@ const suite = async (label, store) => {
   r = await post("/api/rsvp", { code: "0000", attendees: [] });
   check("RSVP with an unknown password is rejected", r.status === 404);
 
+  // A household where only some can come: the totals must say two people, and
+  // must not quietly count the missing one as attending or as unanswered.
+  await post("/api/rsvp", { code: "4821", email: "d@example.com", attendees: [
+    { name: "Amy", ceremony: true, reception: true },
+    { name: "Chris", ceremony: true, reception: true },
+    { name: "Dexter", ceremony: false, reception: false },
+  ] });
+  r = await fetch(base + "/api/rsvps", { headers: { Authorization: "Bearer s3cret" } });
+  const split = (await r.json());
+  const dodsons = split.rsvps.find((x) => x.code === "4821");
+  check("a part-attending family reports who is coming", dodsons.party === 2 && dodsons.seats === 3,
+    JSON.stringify(dodsons));
+  check("the one who can't come is counted as not coming",
+    split.totals.notComing === 2, JSON.stringify(split.totals));
+  check("a part-attending family is flagged as partial", split.totals.partial === 1,
+    JSON.stringify(split.totals));
+  check("the ceremony headcount is people, not invitations",
+    split.totals.ceremony === 2, JSON.stringify(split.totals));
+
+  // Put it back so the export checks below see the original answer.
+  await post("/api/rsvp", { code: "4821", email: "dodson@example.com", attendees: [
+    { name: "Amy", ceremony: true, reception: true, vegetarian: true },
+    { name: "Chris", ceremony: true, reception: false },
+    { name: "Dexter", ceremony: false, reception: true },
+  ] });
+
   // A cached copy of the old form posts no attendees list. That must fail loudly
   // rather than be read as "nobody is coming".
   r = await post("/api/rsvp", { code: "4821", events: "both", party: 3, vegetarian: 1, email: "x@example.com" });
@@ -141,11 +167,18 @@ const suite = async (label, store) => {
   r = await fetch(base + "/api/rsvps", { headers: { Authorization: "Bearer s3cret" } });
   const data = await r.json();
   check("export lists both responses", r.status === 200 && data.rsvps.length === 2, JSON.stringify(data.totals));
-  check("totals count the ceremony headcount", data.totals.ceremony === 2, JSON.stringify(data.totals));
-  check("totals count the reception headcount", data.totals.reception === 2, JSON.stringify(data.totals));
+  const t = data.totals;
+  check("totals count the ceremony headcount", t.ceremony === 2, JSON.stringify(t));
+  check("totals count the reception headcount", t.reception === 2, JSON.stringify(t));
   check("totals count meals from reception guests only",
-    data.totals.vegetarian === 1 && data.totals.standard === 1, JSON.stringify(data.totals));
-  check("totals count declines", data.totals.declined === 1, JSON.stringify(data.totals));
+    t.vegetarian === 1 && t.standard === 1, JSON.stringify(t));
+  // The Dodsons are 3 seats with 3 coming; Gita Aunty is 1 seat and declined.
+  check("seats counts every invited person, not every invitation", t.seats === 4, JSON.stringify(t));
+  check("coming is a headcount of people", t.coming === 3, JSON.stringify(t));
+  check("a decline is counted as a person, not an invitation", t.notComing === 1, JSON.stringify(t));
+  check("nobody is left unaccounted for once all have answered", t.awaiting === 0, JSON.stringify(t));
+  check("the headcounts add up to the seats invited",
+    t.coming + t.notComing + t.awaiting === t.seats, JSON.stringify(t));
   check("nobody is left awaiting a reply", data.awaiting.length === 0);
   check("export reports which store is in use", data.storage.kind === store.kind && data.storage.durable === store.durable,
     JSON.stringify(data.storage));
@@ -288,7 +321,7 @@ if (dbUrl) {
   const pool = new pg.Pool({ connectionString: dbUrl });
   const { rows } = await pool.query("select count(*)::int as n from rsvp_log where code = '4821'");
   console.log("\npostgres internals");
-  check("every submission is kept in the audit log", rows[0].n === 4, `${rows[0].n} rows`);
+  check("every submission is kept in the audit log", rows[0].n === 6, `${rows[0].n} rows`);
   const cols = await pool.query(
     "select column_name from information_schema.columns where table_name = 'rsvps' order by ordinal_position");
   check("the rsvps table has the expected columns",
