@@ -176,6 +176,11 @@ keyboard — breaks the seal: the wax splits into shards struck out from its
 centre and a puff of maple leaves and a couple of small hearts drifts out and
 falls, all drawn on a canvas rather than played from a file, so no two openings
 look the same. It runs about 2.2 seconds, clears its own canvas, and stops.
+A household can be addressed one way and written out another: the envelope
+says **The Hausenflecks**, the invitation inside says **Gaby & Dylan
+Hausenfleck**. That second form is the `formal` column in `guests.csv` — leave
+it blank and the card just uses the name on the envelope.
+
 Behind it the flap lifts and the card rises into the envelope's place, showing: both names, everyone on that invitation by name,
 the date, what they're invited to, how many seats are held, and a button through
 to the RSVP form that carries their password. Someone who opens it with a bad

@@ -11,6 +11,7 @@
   ],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": true
  },
  {
@@ -26,6 +27,7 @@
   ],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -42,6 +44,7 @@
   ],
   "role": "maid-of-honor",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -53,6 +56,7 @@
   "members": [],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -67,6 +71,7 @@
   ],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -83,6 +88,7 @@
   ],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -97,6 +103,7 @@
   ],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -108,6 +115,7 @@
   "members": [],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -119,6 +127,7 @@
   "members": [],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -130,6 +139,7 @@
   "members": [],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -141,6 +151,7 @@
   "members": [],
   "role": "groomsman",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -152,6 +163,7 @@
   "members": [],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -163,6 +175,7 @@
   "members": [],
   "role": "bridesmaid",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -179,11 +192,12 @@
   ],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
   "code": "3987",
-  "name": "Gaby & Dylan",
+  "name": "The Hausenflecks",
   "party": 2,
   "invite": "both",
   "contact": "",
@@ -193,6 +207,7 @@
   ],
   "role": "maid-of-honor",
   "ask": "",
+  "formal": "Gaby & Dylan Hausenfleck",
   "test": false
  },
  {
@@ -207,6 +222,7 @@
   ],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -222,6 +238,7 @@
   ],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -233,6 +250,7 @@
   "members": [],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -247,6 +265,7 @@
   ],
   "role": "best-man",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -261,6 +280,7 @@
   ],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -275,6 +295,7 @@
   ],
   "role": "bridesmaid",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -286,6 +307,7 @@
   "members": [],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -300,6 +322,7 @@
   ],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -311,6 +334,7 @@
   "members": [],
   "role": "maid-of-honor",
   "ask": "Lynda — you have been beside me for *your* whole life, whether you liked it or not. Will you be one of my maids of honour?",
+  "formal": "",
   "test": false
  },
  {
@@ -322,6 +346,7 @@
   "members": [],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -336,6 +361,7 @@
   ],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -347,6 +373,7 @@
   "members": [],
   "role": "bridesmaid",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -361,6 +388,7 @@
   ],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -375,6 +403,7 @@
   ],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -389,6 +418,7 @@
   ],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -400,6 +430,7 @@
   "members": [],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -411,6 +442,7 @@
   "members": [],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -427,6 +459,7 @@
   ],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -438,6 +471,7 @@
   "members": [],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -451,6 +485,7 @@
   ],
   "role": "groom-mother",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -465,6 +500,7 @@
   ],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -476,6 +512,7 @@
   "members": [],
   "role": "groomsman",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -487,6 +524,7 @@
   "members": [],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -498,6 +536,7 @@
   "members": [],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -512,6 +551,7 @@
   ],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -523,6 +563,7 @@
   "members": [],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -534,6 +575,7 @@
   "members": [],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -550,6 +592,7 @@
   ],
   "role": "groom-sister",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -566,6 +609,7 @@
   ],
   "role": "groom-sister",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -582,6 +626,7 @@
   ],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -596,6 +641,7 @@
   ],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -612,6 +658,7 @@
   ],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -623,6 +670,7 @@
   "members": [],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -634,6 +682,7 @@
   "members": [],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -645,6 +694,7 @@
   "members": [],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -659,6 +709,7 @@
   ],
   "role": "bride-parents",
   "ask": "",
+  "formal": "",
   "test": false
  },
  {
@@ -670,6 +721,7 @@
   "members": [],
   "role": "",
   "ask": "",
+  "formal": "",
   "test": false
  }
 ]

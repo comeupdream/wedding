@@ -477,8 +477,11 @@
     to.textContent = addressed;
     to.classList.toggle("long", addressed.length > 22);
     // The card names the household, not each person — the per-person list lives
-    // in the admin guest list and on the RSVP form.
-    document.getElementById("guests").textContent = g.name;
+    // in the admin guest list and on the RSVP form. Where a household is
+    // addressed one way and written out another — "The Hausenflecks" on the
+    // envelope, "Gaby & Dylan Hausenfleck" on the invitation — the card takes
+    // the written-out form.
+    document.getElementById("guests").textContent = g.formal || g.name;
     document.getElementById("scope").textContent = SCOPES[g.invite] || SCOPES.both;
 
     // A standing at the wedding gets its own seal and its own ask. The first

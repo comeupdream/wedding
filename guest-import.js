@@ -65,6 +65,9 @@ const fromExport = (rows) => {
       invite: SCOPES.includes(invite) ? invite : "both",
       contact: get("contact"),
       members: get("members").split(";").map(clean).filter(Boolean).slice(0, party),
+      // How the household is written out inside the card, when that differs
+      // from the name on the envelope.
+      formal: get("formal"),
       // An optional standing at the wedding — "best-man" gets its own card.
       role: get("role"),
       // Optional words for this invitation, overriding the role's default.
@@ -171,7 +174,8 @@ export const merge = (existing, incoming, randomInt, answered = new Set()) => {
       added.push(g.name);
       return { code: makeCode(taken, randomInt), name: g.name, party: g.party,
                invite: g.invite, contact: g.contact, members: g.members,
-               role: g.role || "", ask: g.ask || "", test: !!g.test };
+               role: g.role || "", ask: g.ask || "", formal: g.formal || "",
+               test: !!g.test };
     }
     const diffs = [];
     if (prev.party !== g.party) diffs.push(`seats ${prev.party} → ${g.party}`);
@@ -179,11 +183,13 @@ export const merge = (existing, incoming, randomInt, answered = new Set()) => {
     if ((prev.members || []).join("; ") !== g.members.join("; ")) diffs.push("names");
     if ((prev.role || "") !== (g.role || "")) diffs.push("role");
     if ((prev.ask || "") !== (g.ask || "")) diffs.push("wording");
+    if ((prev.formal || "") !== (g.formal || "")) diffs.push("card name");
     if (diffs.length) changed.push(`${g.name}: ${diffs.join(", ")}`);
     else unchanged.push(g.name);
     return { code: prev.code, name: g.name, party: g.party,
              invite: prev.invite || g.invite, contact: g.contact, members: g.members,
              role: g.role || prev.role || "", ask: g.ask || prev.ask || "",
+             formal: g.formal || prev.formal || "",
              test: g.test === undefined ? !!prev.test : !!g.test };
   });
 

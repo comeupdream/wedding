@@ -53,6 +53,10 @@ const indexGuests = (raw) => {
       // Named people on the invitation, where we know them. A household answers
       // per person, so these prefill the form; blanks are typed in by the guest.
       members: Array.isArray(g.members) ? g.members.map(String).slice(0, 20) : [],
+      // How the household is written out inside the card, when that differs
+      // from the envelope: "The Hausenflecks" on the outside, "Gaby & Dylan
+      // Hausenfleck" on the invitation itself. Blank means use the name.
+      formal: String(g.formal || ""),
       // A standing at the wedding, if any. Only "best-man" is special so far.
       role: String(g.role || ""),
       // Words written for this invitation alone, if any.
@@ -677,10 +681,11 @@ document.getElementById("links-csv").addEventListener("click", function () {
   // through a rename. The two link columns are extra, and ignored on the way in.
   var rows = shown().map(function (g) {
     return [g.name, g.code, g.party, g.invite, g.contact || "", (g.members || []).join("; "),
-            g.role || "", g.test ? "yes" : "", cardFor(g.code), linkFor(g.code)].map(cell).join(",");
+            g.role || "", g.formal || "", g.test ? "yes" : "",
+            cardFor(g.code), linkFor(g.code)].map(cell).join(",");
   });
   download("invitation-links.csv",
-    "name,password,party,invite,contact,members,role,test,invitation_link,rsvp_link\\n" +
+    "name,password,party,invite,contact,members,role,formal,test,invitation_link,rsvp_link\\n" +
     rows.join("\\n") + "\\n", "text/csv");
 });
 
@@ -940,6 +945,7 @@ return http.createServer(async (req, res) => {
       const existing = (await store.all())[guest.code] || null;
       return send(200, {
         name: guest.name,
+        formal: guest.formal,
         party: guest.party,
         invite: guest.invite,
         events: SCOPES[guest.invite].events,
