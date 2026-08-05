@@ -61,6 +61,8 @@ const fromExport = (rows) => {
       invite: SCOPES.includes(invite) ? invite : "both",
       contact: get("contact"),
       members: get("members").split(";").map(clean).filter(Boolean).slice(0, party),
+      // An optional standing at the wedding — "best-man" gets its own card.
+      role: get("role"),
     });
   }
   return out;
@@ -155,16 +157,18 @@ export const merge = (existing, incoming, randomInt) => {
     if (!prev) {
       added.push(g.name);
       return { code: makeCode(taken, randomInt), name: g.name, party: g.party,
-               invite: g.invite, contact: g.contact, members: g.members };
+               invite: g.invite, contact: g.contact, members: g.members, role: g.role || "" };
     }
     const diffs = [];
     if (prev.party !== g.party) diffs.push(`seats ${prev.party} → ${g.party}`);
     if ((prev.contact || "") !== g.contact) diffs.push("contact");
     if ((prev.members || []).join("; ") !== g.members.join("; ")) diffs.push("names");
+    if ((prev.role || "") !== (g.role || "")) diffs.push("role");
     if (diffs.length) changed.push(`${g.name}: ${diffs.join(", ")}`);
     else unchanged.push(g.name);
     return { code: prev.code, name: g.name, party: g.party,
-             invite: prev.invite || g.invite, contact: g.contact, members: g.members };
+             invite: prev.invite || g.invite, contact: g.contact, members: g.members,
+             role: g.role || prev.role || "" };
   });
 
   const removed = existing.filter((g) => !incoming.some((i) => i.name === g.name)).map((g) => g.name);

@@ -152,6 +152,7 @@
     border: 1px solid rgba(150, 48, 31, 0.28);
     pointer-events: none;
   }
+  .card.role-card::after { border-color: rgba(154, 112, 22, 0.5); }
   .eyebrow {
     margin: 0 0 1.4rem;
     font-size: 0.72rem;
@@ -214,6 +215,14 @@
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--maple);
+  }
+  .ask {
+    margin: 1.7rem auto 0;
+    max-width: 26rem;
+    font-family: var(--display);
+    font-size: clamp(1.05rem, 3.4vw, 1.3rem);
+    line-height: 1.5;
+    color: var(--gold-deep, #6A4A0C);
   }
   .cta {
     display: inline-flex;
@@ -308,10 +317,16 @@
           <stop offset="55%" stop-color="#7E2517"/>
           <stop offset="100%" stop-color="#5C1409"/>
         </radialGradient>
+        <!-- The best man's envelope is sealed in gold rather than wax red. -->
+        <radialGradient id="gold" cx="38%" cy="32%" r="72%">
+          <stop offset="0%" stop-color="#D9A93F"/>
+          <stop offset="55%" stop-color="#9A7016"/>
+          <stop offset="100%" stop-color="#6A4A0C"/>
+        </radialGradient>
       </defs>
       <!-- a hand-pressed edge: a circle nudged out of round -->
       <path fill="url(#wax)" d="M50 3c13 0 22 6 31 13s16 16 15 30-9 24-18 32-21 19-33 17-25-11-33-20S1 55 3 42 14 20 24 13 37 3 50 3Z"/>
-      <circle cx="50" cy="50" r="33" fill="none" stroke="#5B1409" stroke-opacity=".45" stroke-width="1.6"/>
+      <circle cx="50" cy="50" r="33" fill="none" stroke="#5B1409" stroke-opacity=".45" stroke-width="1.6" id="seal-ring"/>
       <text x="50" y="50" text-anchor="middle" dominant-baseline="central"
             font-family="Didot, 'Bodoni MT', Georgia, serif" font-size="40" fill="#FBEDDC" fill-opacity=".93">W</text>
     </svg>
@@ -326,6 +341,7 @@
     <p class="when">Saturday, the tenth of October<br>Two thousand twenty-six</p>
     <p class="where">Lydia Mountain <span aria-hidden="true">·</span> Virginia</p>
     <p><span class="scope" id="scope"></span></p>
+    <p class="ask" id="ask" hidden></p>
     <p><a class="cta" id="rsvp-link" href="/#rsvp">RSVP</a></p>
     <p class="byline">Kindly reply by the first of September</p>
     <p class="closing" id="closing"></p>
@@ -361,6 +377,21 @@
     // in the admin guest list and on the RSVP form.
     document.getElementById("guests").textContent = g.name;
     document.getElementById("scope").textContent = SCOPES[g.invite] || SCOPES.both;
+
+    // A standing at the wedding gets its own seal and its own ask.
+    var ask = document.getElementById("ask");
+    if (g.role === "best-man") {
+      var wax = document.querySelector(".seal path");
+      if (wax) wax.setAttribute("fill", "url(#gold)");
+      var ring = document.getElementById("seal-ring");
+      if (ring) ring.setAttribute("stroke", "#5A3E09");
+      ask.hidden = false;
+      ask.textContent = "Jon — it would mean the world to me to have you beside me " +
+        "as my best man. Will you stand with me?";
+      document.querySelector(".card").classList.add("role-card");
+    } else {
+      ask.hidden = true;
+    }
     document.getElementById("closing").textContent = seats > 1
       ? seats + " seats have been reserved in your name."
       : "A seat has been reserved in your name.";

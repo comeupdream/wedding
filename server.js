@@ -40,6 +40,8 @@ const indexGuests = (raw) => {
       // Named people on the invitation, where we know them. A household answers
       // per person, so these prefill the form; blanks are typed in by the guest.
       members: Array.isArray(g.members) ? g.members.map(String).slice(0, 20) : [],
+      // A standing at the wedding, if any. Only "best-man" is special so far.
+      role: String(g.role || ""),
     });
   }
   return map;
@@ -247,79 +249,130 @@ const toCsv = (rows) => [
 const ADMIN_HTML = `<!doctype html><html lang="en"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>RSVPs — Sharon &amp; Zachary</title>
+<title>Admin — Sharon &amp; Zachary</title>
+<link rel="stylesheet" href="/assets/fonts.css">
 <style>
-  /* Colours measured against #FBF3E4: every one clears 7:1, WCAG AAA. */
-  body{font-family:Georgia,serif;background:#FBF3E4;color:#3A2420;max-width:78rem;margin:2rem auto;padding:0 1rem}
-  h1{font-size:1.4rem;margin-bottom:.8rem}
-  input,button,select{font:inherit;padding:.5rem .8rem;border:1px solid #8A2A1B;min-height:2.75rem}
-  button{background:#8A2A1B;color:#FFF6E8;cursor:pointer}
-  button.ghost{background:transparent;color:#8A2A1B}
-  button.ghost.on{background:#8A2A1B;color:#FFF6E8}
-  button.mini{padding:.35rem .6rem;font-size:.78rem;min-height:2.25rem}
-  table{border-collapse:collapse;width:100%;margin-top:1rem;font-size:.92rem}
-  th,td{border:1px solid #d8c4a5;padding:.45rem .6rem;text-align:left;vertical-align:top}
-  th{background:#F3E6CE} .muted{color:#57403A;font-style:italic}
-  .totals{margin-top:1.2rem;padding:.8rem 1rem;background:#F3E6CE;border:1px solid #d8c4a5}
-  .totals b{font-size:1.1rem} .no{color:#6B4F47}
-  .totals + .totals{margin-top:.4rem}
-  tr.partial td{background:#FAF0DC}
-  .part{color:#8A2A1B;font-size:.82rem;font-style:italic;white-space:nowrap}
-  .members{margin-top:.2rem;font-size:.8rem;color:#57403A}
-  .members.muted{font-style:italic}
-  .warn{margin-top:1.2rem;padding:.8rem 1rem;background:#F7DFD6;border:1px solid #8A2A1B;font-size:.9rem;color:#2B1A17}
-  .tabs{margin:1.4rem 0 .4rem;display:flex;gap:.5rem}
-  .bar{margin:1rem 0;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
-  .lede{max-width:44rem;color:#57403A}
-  .diff{margin-top:1rem;display:grid;gap:.9rem}
-  .diff section{border:1px solid #d8c4a5;padding:.7rem 1rem;background:#F3E6CE}
-  .diff h3{margin:0 0 .4rem;font-size:.95rem}
-  .diff ul{margin:0;padding-left:1.2rem} .diff li{margin:.15rem 0}
-  .tally{display:flex;gap:1.4rem;flex-wrap:wrap;margin-top:.8rem;font-size:.95rem}
-  .link{font-family:ui-monospace,Menlo,monospace;font-size:.8rem;word-break:break-all;color:#57403A}
-  .code{font-family:ui-monospace,Menlo,monospace;font-size:1rem;letter-spacing:.08em}
-  .hide{display:none}
-  .ok{color:#1F5129;font-style:italic}
-  dialog{border:1px solid #8A2A1B;background:#FBF3E4;color:#3A2420;padding:0;max-width:min(46rem,94vw);width:100%}
-  dialog::backdrop{background:rgba(46,26,46,.72)}
-  :focus-visible{outline:3px solid #8A2A1B;outline-offset:2px}
-  .dlg-head{display:flex;gap:1rem;align-items:center;justify-content:space-between;padding:.7rem 1rem;border-bottom:1px solid #d8c4a5}
-  .dlg-head h2{font-size:1rem;margin:0}
-  .dlg-body{padding:0;background:#2E1A2E}
-  .dlg-body iframe{display:block;width:100%;height:min(70vh,40rem);border:0}
-  .dlg-foot{display:flex;gap:.5rem;flex-wrap:wrap;padding:.7rem 1rem;border-top:1px solid #d8c4a5}
+  /* Same world as the invitation: plum ground, vellum type, gold and wax.
+     Every colour below is measured against its own background and clears 7:1,
+     so the dashboard is WCAG AAA like the rest of the site. */
+  :root {
+    --ground: #2A1726;   --panel: #372036;   --line: rgba(251,243,228,.18);
+    --cream: #FBF3E4;    /* 15.3:1 on ground */
+    --muted: #D9C9B4;    /* 10.4:1 */
+    --gold:  #FDCB6A;    /* 11.2:1 */
+    --warn:  #FFB09B;    /*  9.6:1 */
+    --ok:    #A6E3B4;    /* 11.4:1 */
+    --wax:   #8A2A1B;    /* 8.1:1 against its own cream label */
+    --script: "Parisienne", "Snell Roundhand", cursive;
+    --body: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--ground); color:var(--cream); font-family:var(--body);
+         font-size:15px; line-height:1.5; }
+  .shell { max-width:84rem; margin:0 auto; padding:2rem 1.2rem 5rem; }
+  h1 { margin:0; font-family:var(--script); font-weight:400; font-size:clamp(2rem,5vw,2.8rem); }
+  .kicker { margin:0 0 .3rem; font-size:.68rem; letter-spacing:.32em; text-transform:uppercase; color:var(--gold); }
+  h2 { font-size:1rem; margin:0 0 .6rem; font-weight:400; letter-spacing:.02em; }
+  .muted { color:var(--muted); }
+  .ok { color:var(--ok); font-style:italic; }
+  a { color:var(--gold); }
+
+  input, button, select { font:inherit; }
+  input[type=password], input[type=text] {
+    background:rgba(251,243,228,.06); color:var(--cream);
+    border:1px solid var(--line); padding:.6rem .8rem; min-height:2.75rem; }
+  input[type=file] { color:var(--muted); }
+  button {
+    background:var(--wax); color:#FFF6E8; cursor:pointer;
+    border:1px solid var(--gold); padding:.6rem 1rem; min-height:2.75rem;
+    letter-spacing:.06em; }
+  button:hover { background:#6E2115; }
+  button.ghost { background:transparent; color:var(--gold); border-color:var(--line); }
+  button.ghost:hover { background:rgba(253,203,106,.12); }
+  button.ghost.on { background:var(--wax); color:#FFF6E8; border-color:var(--gold); }
+  button.mini { padding:.3rem .6rem; min-height:2.25rem; font-size:.8rem; }
+  :focus-visible { outline:3px solid var(--gold); outline-offset:2px; }
+
+  .bar { display:flex; gap:.6rem; flex-wrap:wrap; align-items:center; margin:1.1rem 0; }
+  .tabs { display:flex; gap:.5rem; flex-wrap:wrap; margin:1.6rem 0 .2rem; }
+  .hide { display:none; }
+
+  /* headline numbers */
+  .figures { display:grid; grid-template-columns:repeat(auto-fit,minmax(9rem,1fr)); gap:1px;
+             background:var(--line); border:1px solid var(--line); margin-top:1.2rem; }
+  .fig { background:var(--panel); padding:.9rem 1rem; }
+  .fig b { display:block; font-size:1.7rem; line-height:1.1; font-variant-numeric:tabular-nums; }
+  .fig span { font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--muted); }
+  .fig.flag b { color:var(--warn); }
+
+  table { border-collapse:collapse; width:100%; margin-top:1rem; font-size:.92rem; }
+  th, td { border-bottom:1px solid var(--line); padding:.6rem .7rem; text-align:left; vertical-align:top; }
+  th { font-weight:400; font-size:.68rem; letter-spacing:.18em; text-transform:uppercase;
+       color:var(--gold); border-bottom-color:var(--gold); }
+  tbody tr:hover td { background:rgba(251,243,228,.04); }
+  td.num { font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .code { font-family:ui-monospace,Menlo,monospace; font-size:1.05rem; letter-spacing:.1em; color:var(--gold); }
+  .link { font-family:ui-monospace,Menlo,monospace; font-size:.76rem; word-break:break-all; color:var(--muted); }
+  .names { margin-top:.2rem; font-size:.8rem; color:var(--muted); }
+  .names.unset { font-style:italic; color:#C6B39A; }   /* 8.3:1, no opacity */
+  tr.partial td { background:rgba(255,176,155,.09); }
+  .part { color:var(--warn); font-size:.8rem; font-style:italic; white-space:nowrap; }
+  tr.no td { color:var(--muted); }
+  .warn { margin-top:1.2rem; padding:.8rem 1rem; border:1px solid var(--warn); color:var(--warn); }
+  .lede { max-width:46rem; color:var(--muted); }
+  .scroller { max-height:34rem; overflow:auto; border:1px solid var(--line); }
+
+  /* preview tab */
+  .preview-cols { display:grid; grid-template-columns:20rem 1fr; gap:1.6rem; align-items:start; margin-top:1rem; }
+  @media (max-width:62rem) { .preview-cols { grid-template-columns:1fr; } }
+  .rail { list-style:none; margin:0; padding:0; }
+  .rail li + li { border-top:1px solid var(--line); }
+  .rail button { display:block; width:100%; text-align:left; background:none; border:0;
+                 color:var(--cream); padding:.6rem .75rem; }
+  .rail button:hover { background:rgba(251,243,228,.06); }
+  .rail button[aria-current=true] { background:var(--wax); }
+  .rail .who { font-size:.95rem; }
+  .rail .meta { font-size:.74rem; color:var(--muted); }
+  .rail button[aria-current=true] .meta { color:#FFF6E8; }   /* 8.1:1 on the wax fill */
+  .card-frame { border:1px solid var(--line); background:#241522; }
+  .card-frame iframe { display:block; width:100%; height:min(78vh,46rem); border:0; }
+
+  .diff { margin-top:1rem; display:grid; gap:.9rem; }
+  .diff section { border:1px solid var(--line); background:var(--panel); padding:.8rem 1rem; }
+  .diff h3 { margin:0 0 .4rem; font-size:.92rem; font-weight:400; color:var(--gold); }
+  .diff ul { margin:0; padding-left:1.1rem; } .diff li { margin:.15rem 0; }
+  dialog { border:1px solid var(--gold); background:var(--ground); color:var(--cream);
+           padding:0; max-width:min(46rem,94vw); width:100%; }
+  dialog::backdrop { background:rgba(20,10,18,.8); }
+  .dlg-head { display:flex; gap:1rem; align-items:center; justify-content:space-between;
+              padding:.7rem 1rem; border-bottom:1px solid var(--line); }
+  .dlg-head h2 { margin:0; }
+  .dlg-body { background:#241522; }
+  .dlg-body iframe { display:block; width:100%; height:min(70vh,40rem); border:0; }
+  .dlg-foot { display:flex; gap:.5rem; flex-wrap:wrap; padding:.7rem 1rem; border-top:1px solid var(--line); }
 </style>
-<main>
-<h1>Sharon &amp; Zachary — admin</h1>
-<p><label for="pw">Admin password</label>
-<input id="pw" type="password" autocomplete="current-password"> <button id="go">Open</button>
+<main class="shell">
+<p class="kicker">Sharon &amp; Zachary</p>
+<h1>The wedding desk</h1>
+
+<p class="bar"><label for="pw" class="muted">Admin password</label>
+<input id="pw" type="password" autocomplete="current-password">
+<button id="go">Open</button>
 <span class="muted" id="msg" role="status"></span></p>
 
 <div id="app" class="hide">
   <div class="tabs">
-    <button class="ghost on" id="tab-rsvps">RSVPs</button>
+    <button class="ghost on" id="tab-rsvps">Replies</button>
     <button class="ghost" id="tab-links">Invitations &amp; links</button>
+    <button class="ghost" id="tab-preview">Preview</button>
     <button class="ghost" id="tab-list">Guest list</button>
   </div>
 
   <div id="panel-rsvps">
-    <div class="bar"><button id="csv">Download RSVP CSV</button><span class="muted" id="rsvp-msg"></span></div>
     <div id="sum"></div>
+    <div class="bar"><button id="csv">Download replies CSV</button></div>
     <div id="out"></div>
   </div>
-
-  <dialog id="preview" aria-labelledby="preview-title">
-    <div class="dlg-head">
-      <h2 id="preview-title">Invitation preview</h2>
-      <button class="mini" id="preview-close">Close</button>
-    </div>
-    <div class="dlg-body"><iframe id="preview-frame" title="Invitation preview"></iframe></div>
-    <div class="dlg-foot">
-      <button id="preview-open">Open in a new tab</button>
-      <button id="preview-copy">Copy this link</button>
-      <span class="ok" id="preview-msg"></span>
-    </div>
-  </dialog>
 
   <div id="panel-links" class="hide">
     <div class="bar">
@@ -336,14 +389,24 @@ const ADMIN_HTML = `<!doctype html><html lang="en"><meta charset="utf-8">
     <div id="links"></div>
   </div>
 
+  <div id="panel-preview" class="hide">
+    <p class="lede">Exactly what each household receives. Pick a name; the card
+      opens on click, seal and all.</p>
+    <div class="preview-cols">
+      <nav aria-label="Households"><div class="scroller"><ol class="rail" id="rail"></ol></div></nav>
+      <div class="card-frame"><iframe id="card-frame" title="Invitation preview"></iframe></div>
+    </div>
+  </div>
+
   <div id="panel-list" class="hide">
     <p class="lede">Upload the planning workbook, or any sheet with a <b>name</b> column.
       You'll see exactly what changes before anything is saved. Passwords already
       handed out are kept, so links you've sent keep working.</p>
     <p class="lede">The live list is held in the database, so deploying new code
       does <b>not</b> change it. To pull in the list that came with this deploy —
-      after a merge of families, say — use <b>Use the list from this deploy</b>.</p>
+      after merging families, say — use <b>Use the list from this deploy</b>.</p>
     <div class="bar">
+      <label for="file" class="muted">Spreadsheet</label>
       <input type="file" id="file" accept=".xlsx,.csv,.txt">
       <button id="check">Check this file</button>
       <button id="use-seed" class="ghost">Use the list from this deploy</button>
@@ -353,6 +416,19 @@ const ADMIN_HTML = `<!doctype html><html lang="en"><meta charset="utf-8">
     <div id="import-out"></div>
   </div>
 </div>
+
+<dialog id="preview" aria-labelledby="preview-title">
+  <div class="dlg-head">
+    <h2 id="preview-title">Invitation preview</h2>
+    <button class="mini" id="preview-close">Close</button>
+  </div>
+  <div class="dlg-body"><iframe id="preview-frame" title="Invitation preview"></iframe></div>
+  <div class="dlg-foot">
+    <button id="preview-open">Open in a new tab</button>
+    <button id="preview-copy">Copy this link</button>
+    <span class="ok" id="preview-msg"></span>
+  </div>
+</dialog>
 </main>
 <script>
 var pw = document.getElementById("pw"), msg = document.getElementById("msg");
@@ -367,12 +443,14 @@ function esc(s) {
 function auth() { return { Authorization: "Bearer " + pw.value }; }
 var EVENTS = { both: "Ceremony &amp; reception", ceremony: "Ceremony only", reception: "Reception only", none: "Cannot attend" };
 var SCOPE = { both: "Ceremony &amp; reception", ceremony: "Ceremony only", reception: "Reception only" };
-
-// ---- the personal link, exactly as a guest receives it ----
 function linkFor(code) { return location.origin + "/?c=" + encodeURIComponent(code) + "#rsvp"; }
-// The card is what you actually send: an envelope with their name on it, which
-// opens onto their invitation and leads through to the RSVP form.
 function cardFor(code) { return location.origin + "/invite?c=" + encodeURIComponent(code); }
+// Everyone on an invitation, printed under the household name for accounting.
+function namesOf(g) {
+  return (g.members || []).length
+    ? "<div class=names>" + g.members.map(esc).join(" &nbsp;·&nbsp; ") + "</div>"
+    : "<div class='names unset'>names not set</div>";
+}
 
 function load() {
   msg.textContent = "Loading…";
@@ -388,52 +466,53 @@ function load() {
     GUESTS = both[1].guests || [];
     app.classList.remove("hide");
     var t = data.totals;
-    msg.textContent = t.responses + " of " + data.invited + " invitations answered";
+    msg.textContent = t.responses + " of " + t.invitations + " invitations answered";
     var warn = data.storage && !data.storage.durable
       ? "<div class=warn><b>These answers won't survive the next deploy.</b> " +
         "No database is configured, so they're being kept in " + esc(data.storage.detail) +
-        " inside the running container. Set DATABASE_URL, or download the CSV " +
-        "before you deploy again.</div>"
+        " inside the running container. Set DATABASE_URL, or download the CSV first.</div>"
       : "";
-    // Every figure is a headcount of people. A family of four with two coming
-    // is two coming and two not, never "one RSVP".
-    sum.innerHTML = warn +
-      "<div class=totals><b>" + t.ceremony + "</b> people at the ceremony &nbsp;·&nbsp; <b>" +
-      t.reception + "</b> at the reception &nbsp;·&nbsp; <b>" + t.vegetarian +
-      "</b> vegetarian / <b>" + t.standard + "</b> standard meals</div>" +
-      "<div class=totals><b>" + t.coming + "</b> of <b>" + t.seats + "</b> invited people are coming" +
-      " &nbsp;·&nbsp; <b>" + t.notComing + "</b> said no" +
-      " &nbsp;·&nbsp; <b>" + t.awaiting + "</b> not heard from" +
-      " <span class=muted>(" + t.awaitingInvitations + " of " + t.invitations + " invitations)</span>" +
-      (t.partial ? " &nbsp;·&nbsp; <b>" + t.partial + "</b> famil" + (t.partial === 1 ? "y" : "ies") +
-        " coming in part" : "") + "</div>";
-    out.innerHTML = "<table><tr><th>Guest</th><th>Code</th><th>Coming</th><th>Cer.</th><th>Rec.</th>" +
-      "<th>Veg</th><th>Who's coming</th><th>Email</th><th>Note</th><th>When</th></tr>" +
+    // Every figure is a headcount of people, never of invitations.
+    function fig(n, label, flag) {
+      return "<div class='fig" + (flag ? " flag" : "") + "'><b>" + n + "</b><span>" + label + "</span></div>";
+    }
+    sum.innerHTML = warn + "<div class=figures>" +
+      fig(t.ceremony, "at the ceremony") +
+      fig(t.reception, "at the reception") +
+      fig(t.vegetarian + " / " + t.standard, "veg / standard") +
+      fig(t.coming + " of " + t.seats, "people coming") +
+      fig(t.notComing, "said no") +
+      fig(t.awaiting, "not heard from", t.awaiting > 0) +
+      (t.partial ? fig(t.partial, "families coming in part", true) : "") +
+      "</div>";
+    out.innerHTML = "<table><tr><th>Household</th><th>Code</th><th>Coming</th><th>Ceremony</th>" +
+      "<th>Reception</th><th>Veg</th><th>Who's coming</th><th>Email</th><th>Note</th><th>When</th></tr>" +
       data.rsvps.map(function (r) {
-        // Each person, with what they said yes to.
         var who = (r.attendees || []).map(function (a) {
           var at = [a.ceremony ? "C" : "", a.reception ? "R" : ""].join("");
-          var tag = at ? " <b>" + at + "</b>" : " <span class=muted>—</span>";
-          return esc(a.name) + tag + (a.reception && a.vegetarian ? " <i>veg</i>" : "");
+          return esc(a.name) + (at ? " <b>" + at + "</b>" : " <span class=muted>—</span>") +
+            (a.reception && a.vegetarian ? " <i>veg</i>" : "");
         }).join(" &nbsp;·&nbsp; ") || "<span class=muted>nobody</span>";
         var partial = r.party > 0 && r.party < r.seats;
-        var coming = "<b>" + esc(r.party) + "</b> of " + esc(r.seats) +
-          (partial ? " <span class=part>" + (r.seats - r.party) + " not coming</span>" : "");
-        return "<tr" + (partial ? " class=partial" : "") + "><td>" + esc(r.name) + "</td><td>" + esc(r.code) +
-          "</td><td>" + coming +
-          "</td><td>" + esc(r.ceremony) + " of " + esc(r.seats) +
-          "</td><td>" + esc(r.reception) + " of " + esc(r.seats) +
-          "</td><td>" + esc(r.vegetarian) + "</td><td>" + who +
+        return "<tr" + (partial ? " class=partial" : "") + "><td>" + esc(r.name) +
+          "</td><td class=code>" + esc(r.code) +
+          "</td><td class=num><b>" + esc(r.party) + "</b> of " + esc(r.seats) +
+          (partial ? " <span class=part>" + (r.seats - r.party) + " not coming</span>" : "") +
+          "</td><td class=num>" + esc(r.ceremony) + " of " + esc(r.seats) +
+          "</td><td class=num>" + esc(r.reception) + " of " + esc(r.seats) +
+          "</td><td class=num>" + esc(r.vegetarian) + "</td><td>" + who +
           "</td><td>" + esc(r.email) + "</td><td>" + esc(r.note) +
-          "</td><td>" + esc(String(r.at).slice(0, 16).replace("T", " ")) + "</td></tr>";
+          "</td><td class=num>" + esc(String(r.at).slice(0, 16).replace("T", " ")) + "</td></tr>";
       }).join("") +
       data.awaiting.map(function (g) {
-        return "<tr class=no><td>" + esc(g.name) + "</td><td>" + esc(g.code) +
-          "</td><td><b>?</b> of " + esc(g.party) +
-          "</td><td colspan=7 class=muted>no reply yet — " + esc(g.party) +
+        return "<tr class=no><td>" + esc(g.name) + namesOf(g) +
+          "</td><td class=code>" + esc(g.code) +
+          "</td><td class=num><b>?</b> of " + esc(g.party) +
+          "</td><td colspan=7>no reply yet — " + esc(g.party) +
           (g.party > 1 ? " people" : " person") + " unaccounted for</td></tr>";
       }).join("") + "</table>";
     renderLinks();
+    renderRail();
   }).catch(function (e) { msg.textContent = e.message; out.innerHTML = ""; sum.innerHTML = ""; });
 }
 
@@ -451,24 +530,21 @@ function shown() {
 function renderLinks() {
   var rows = shown();
   document.getElementById("links").innerHTML =
-    "<p class=muted>" + rows.length + " invitation(s) — one link per household, seats included.</p>" +
-    "<table><tr><th>Guest</th><th>Seats</th><th>Invited to</th><th>Send to</th><th>Password</th>" +
+    "<p class=muted>" + rows.length + " invitation(s) — one link per household.</p>" +
+    "<table><tr><th>Household</th><th>Seats</th><th>Invited to</th><th>Send to</th><th>Password</th>" +
     "<th>Invitation link</th><th>Actions</th><th>Status</th></tr>" +
     rows.map(function (g) {
       var status = !g.replied ? "<span class=muted>no reply</span>"
         : g.events === "none" ? "<span class=muted>cannot attend</span>"
         : "<b>" + (EVENTS[g.events] || esc(g.events)) + "</b>";
-      var who = (g.members || []).length
-        ? "<div class=members>" + g.members.map(esc).join(" &nbsp;·&nbsp; ") + "</div>"
-        : "<div class=members muted>names not set</div>";
-      return "<tr><td>" + esc(g.name) + who + "</td><td>" + esc(g.party) + "</td><td>" +
+      return "<tr><td>" + esc(g.name) + namesOf(g) + "</td><td class=num>" + esc(g.party) + "</td><td>" +
         (SCOPE[g.invite] || esc(g.invite)) + "</td>" +
         "<td class=muted>" + (g.contact ? esc(g.contact) : "—") + "</td>" +
         "<td class=code>" + esc(g.code) + "</td>" +
         "<td class=link>" + esc(cardFor(g.code)) + "</td>" +
-        "<td class=rowacts><button class='mini' data-preview='" + esc(g.code) +
+        "<td><button class='mini' data-preview='" + esc(g.code) +
         "' aria-label='Preview the invitation for " + esc(g.name) + "'>preview</button> " +
-        "<button class='mini' data-copy='" + esc(g.code) +
+        "<button class='mini ghost' data-copy='" + esc(g.code) +
         "' aria-label='Copy the invitation link for " + esc(g.name) + "'>copy</button></td>" +
         "<td>" + status + "</td></tr>";
     }).join("") + "</table>";
@@ -499,9 +575,7 @@ document.getElementById("copy-all").addEventListener("click", function () {
 function download(name, text, type) {
   var a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([text], { type: type }));
-  a.download = name;
-  a.click();
-  URL.revokeObjectURL(a.href);
+  a.download = name; a.click(); URL.revokeObjectURL(a.href);
 }
 document.getElementById("links-csv").addEventListener("click", function () {
   var cell = function (v) {
@@ -509,35 +583,58 @@ document.getElementById("links-csv").addEventListener("click", function () {
     return /[",\\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
   };
   var rows = shown().map(function (g) {
-    return [g.name, g.code, g.party, SCOPE[g.invite] || g.invite, g.contact || "",
-            cardFor(g.code), linkFor(g.code)].map(cell).join(",");
+    return [g.name, (g.members || []).join("; "), g.code, g.party, SCOPE[g.invite] || g.invite,
+            g.contact || "", cardFor(g.code), linkFor(g.code)].map(cell).join(",");
   });
   download("invitation-links.csv",
-    "name,password,seats,invited,send_to,invitation_link,rsvp_link\\n" + rows.join("\\n") + "\\n", "text/csv");
+    "household,members,password,seats,invited,send_to,invitation_link,rsvp_link\\n" + rows.join("\\n") + "\\n", "text/csv");
 });
 
+// ---- preview tab: the whole list, scrollable, card beside it ----
+function renderRail() {
+  var rail = document.getElementById("rail");
+  rail.innerHTML = "";
+  GUESTS.forEach(function (g, i) {
+    var li = document.createElement("li");
+    var b = document.createElement("button");
+    b.type = "button";
+    b.innerHTML = "<span class=who>" + esc(g.name) + "</span><br><span class=meta>" +
+      g.party + (g.party > 1 ? " people" : " person") + " · " +
+      ((g.members || []).length ? g.members.map(esc).join(", ") : "names not set") + "</span>";
+    b.addEventListener("click", function () { showCard(i); });
+    li.appendChild(b); rail.appendChild(li);
+  });
+  if (GUESTS.length) showCard(0);
+}
+function showCard(i) {
+  var rail = document.getElementById("rail");
+  Array.prototype.forEach.call(rail.querySelectorAll("button"), function (b, n) {
+    b.setAttribute("aria-current", n === i ? "true" : "false");
+  });
+  document.getElementById("card-frame").src = cardFor(GUESTS[i].code);
+}
+
 // ---- uploading a new guest list ----
-var chosen = null;
-var pending = null;   // what the Apply button will send
+var pending = null;
 function send(body, apply) {
-  var msg = document.getElementById("import-msg");
-  msg.textContent = apply ? "Saving…" : "Reading…";
+  var m = document.getElementById("import-msg");
+  m.textContent = apply ? "Saving…" : "Reading…";
   fetch("/api/guests/import", {
     method: "POST",
     headers: Object.assign({ "Content-Type": "application/json" }, auth()),
     body: JSON.stringify(Object.assign({}, body, { apply: !!apply }))
   }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
     .then(function (res) {
-      if (!res.ok) { msg.textContent = res.j.error || "That didn't work."; return; }
+      if (!res.ok) { m.textContent = res.j.error || "That didn't work."; return; }
       pending = body;
       showDiff(res.j);
-      msg.textContent = res.j.applied
+      m.textContent = res.j.applied
         ? "Saved — " + res.j.invitations + " invitations are live."
         : "Nothing saved yet.";
       document.getElementById("apply").classList.toggle("hide", res.j.applied);
       if (res.j.applied) load();
     })
-    .catch(function () { msg.textContent = "Couldn't reach the server."; });
+    .catch(function () { m.textContent = "Couldn't reach the server."; });
 }
 function importPost(apply) {
   if (apply) { if (pending) send(pending, true); return; }
@@ -547,9 +644,7 @@ function importPost(apply) {
   reader.onload = function () { send({ file: String(reader.result).split(",")[1], filename: f.name }, false); };
   reader.readAsDataURL(f);
 }
-document.getElementById("use-seed").addEventListener("click", function () {
-  send({ seed: true }, false);
-});
+document.getElementById("use-seed").addEventListener("click", function () { send({ seed: true }, false); });
 function listBlock(title, items, note) {
   if (!items.length) return "";
   return "<section><h3>" + title + " (" + items.length + ")</h3>" +
@@ -560,10 +655,10 @@ function listBlock(title, items, note) {
 }
 function showDiff(d) {
   document.getElementById("import-out").innerHTML =
-    "<div class=tally><span>Read from the <b>" + esc(d.source) + "</b></span>" +
-    "<span><b>" + d.invitations + "</b> invitations</span>" +
-    "<span><b>" + d.seats + "</b> seats</span>" +
-    "<span><b>" + d.unchanged + "</b> unchanged</span></div>" +
+    "<div class=figures><div class=fig><b>" + d.invitations + "</b><span>invitations</span></div>" +
+    "<div class=fig><b>" + d.seats + "</b><span>people</span></div>" +
+    "<div class=fig><b>" + d.unchanged + "</b><span>unchanged</span></div></div>" +
+    "<p class=muted>Read from the <b>" + esc(d.source) + "</b>.</p>" +
     "<div class=diff>" +
     listBlock("New invitations", d.added, "Each gets a fresh password.") +
     listBlock("Changed", d.changed) +
@@ -581,25 +676,21 @@ document.getElementById("file").addEventListener("change", function () {
   document.getElementById("import-out").innerHTML = "";
 });
 
-// ---- invitation preview ----
+// ---- the preview dialog, from the links tab ----
 var dlg = document.getElementById("preview");
 var frame = document.getElementById("preview-frame");
 var previewCode = null;
-function preview(code, name) {
-  previewCode = code;
-  document.getElementById("preview-title").textContent = "Invitation preview — " + name;
-  document.getElementById("preview-msg").textContent = "";
-  frame.src = cardFor(code);
-  if (dlg.showModal) dlg.showModal(); else window.open(cardFor(code), "_blank");
-}
 document.addEventListener("click", function (e) {
   var code = e.target.getAttribute && e.target.getAttribute("data-preview");
   if (!code) return;
   var g = GUESTS.filter(function (x) { return x.code === code; })[0];
-  preview(code, g ? g.name : code);
+  previewCode = code;
+  document.getElementById("preview-title").textContent = "Invitation — " + (g ? g.name : code);
+  document.getElementById("preview-msg").textContent = "";
+  frame.src = cardFor(code);
+  if (dlg.showModal) dlg.showModal(); else window.open(cardFor(code), "_blank");
 });
 document.getElementById("preview-close").addEventListener("click", function () { dlg.close(); });
-// Blank the iframe on close so the next preview always animates from sealed.
 dlg.addEventListener("close", function () { frame.src = "about:blank"; });
 document.getElementById("preview-open").addEventListener("click", function () {
   if (previewCode) window.open(cardFor(previewCode), "_blank", "noopener");
@@ -612,13 +703,14 @@ document.getElementById("preview-copy").addEventListener("click", function () {
 });
 
 // ---- tabs ----
+var TABS = ["rsvps", "links", "preview", "list"];
 function tab(which) {
-  ["rsvps", "links", "list"].forEach(function (k) {
+  TABS.forEach(function (k) {
     document.getElementById("panel-" + k).classList.toggle("hide", which !== k);
     document.getElementById("tab-" + k).classList.toggle("on", which === k);
   });
 }
-["rsvps", "links", "list"].forEach(function (k) {
+TABS.forEach(function (k) {
   document.getElementById("tab-" + k).addEventListener("click", function () { tab(k); });
 });
 
@@ -686,6 +778,7 @@ return http.createServer(async (req, res) => {
         invite: guest.invite,
         events: SCOPES[guest.invite].events,
         members: guest.members,
+        role: guest.role,
         meals: MEALS,
         rsvp: existing,
       }, "application/json", { "Cache-Control": "no-store" });
@@ -715,7 +808,7 @@ return http.createServer(async (req, res) => {
       }
       const awaiting = [...byCode.values()]
         .filter((g) => !all[g.code])
-        .map(({ code, name, invite, party }) => ({ code, name, invite, party }));
+        .map(({ code, name, invite, party, members }) => ({ code, name, invite, party, members }));
       return send(200, {
         invited: byCode.size, totals: totals(rsvps, awaiting), rsvps, awaiting,
         storage: { kind: store.kind, detail: store.detail, durable: store.durable },
@@ -729,7 +822,8 @@ return http.createServer(async (req, res) => {
       const all = await store.all();
       const guests = [...byCode.values()]
         .map((g) => ({
-          code: g.code, name: g.name, party: g.party, invite: g.invite, contact: g.contact,
+          code: g.code, name: g.name, party: g.party, invite: g.invite,
+          contact: g.contact, members: g.members, role: g.role,
           replied: Boolean(all[g.code]),
           events: all[g.code] ? all[g.code].events : null,
         }))
