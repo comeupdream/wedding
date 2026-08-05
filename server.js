@@ -6,6 +6,7 @@ import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { createStore } from "./store.js";
+import { readUpload, merge } from "./guest-import.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3000;
@@ -24,8 +25,7 @@ export const MEALS = ["standard", "vegetarian"];
 
 export const norm = (s) => String(s ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
 
-const loadGuests = () => {
-  const raw = JSON.parse(fs.readFileSync(GUESTS_FILE, "utf8"));
+const indexGuests = (raw) => {
   const map = new Map();
   for (const g of raw) {
     const invite = SCOPES[g.invite] ? g.invite : "both";
@@ -44,16 +44,28 @@ const loadGuests = () => {
   }
   return map;
 };
-let byCode = loadGuests();
-// `kill -HUP <pid>` picks up guest-list edits without dropping connections.
-process.on("SIGHUP", () => {
-  try {
-    byCode = loadGuests();
-    console.log(`reloaded ${byCode.size} guests`);
-  } catch (err) {
-    console.error("guest reload failed", err);
+
+// The live list, and the seed it starts from. The store is the source of truth
+// once anything has been uploaded; guest-codes.json only fills an empty store,
+// so a fresh database comes up with the list that's in the repo.
+const seedGuests = () => JSON.parse(fs.readFileSync(GUESTS_FILE, "utf8"));
+let guestList = [];
+let byCode = new Map();
+export const setGuests = (list) => {
+  guestList = list;
+  byCode = indexGuests(list);
+  return byCode.size;
+};
+export const loadGuests = async (store) => {
+  let list = await store.guests();
+  if (!list.length) {
+    list = seedGuests();
+    await store.putGuests(list);
+    console.log(`seeded ${list.length} guests from ${path.basename(GUESTS_FILE)}`);
   }
-});
+  return setGuests(list);
+};
+setGuests(seedGuests());   // so the module is usable before the store is ready
 
 // ---------- brute-force guard ----------
 // Passwords are four digits, so the throttle is the security boundary: a client
@@ -237,6 +249,12 @@ const ADMIN_HTML = `<!doctype html><html lang="en"><meta charset="utf-8">
   .warn{margin-top:1.2rem;padding:.8rem 1rem;background:#F7DFD6;border:1px solid #8A2A1B;font-size:.9rem;color:#2B1A17}
   .tabs{margin:1.4rem 0 .4rem;display:flex;gap:.5rem}
   .bar{margin:1rem 0;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+  .lede{max-width:44rem;color:#57403A}
+  .diff{margin-top:1rem;display:grid;gap:.9rem}
+  .diff section{border:1px solid #d8c4a5;padding:.7rem 1rem;background:#F3E6CE}
+  .diff h3{margin:0 0 .4rem;font-size:.95rem}
+  .diff ul{margin:0;padding-left:1.2rem} .diff li{margin:.15rem 0}
+  .tally{display:flex;gap:1.4rem;flex-wrap:wrap;margin-top:.8rem;font-size:.95rem}
   .link{font-family:ui-monospace,Menlo,monospace;font-size:.8rem;word-break:break-all;color:#57403A}
   .code{font-family:ui-monospace,Menlo,monospace;font-size:1rem;letter-spacing:.08em}
   .hide{display:none}
@@ -260,6 +278,7 @@ const ADMIN_HTML = `<!doctype html><html lang="en"><meta charset="utf-8">
   <div class="tabs">
     <button class="ghost on" id="tab-rsvps">RSVPs</button>
     <button class="ghost" id="tab-links">Invitations &amp; links</button>
+    <button class="ghost" id="tab-list">Guest list</button>
   </div>
 
   <div id="panel-rsvps">
@@ -294,6 +313,19 @@ const ADMIN_HTML = `<!doctype html><html lang="en"><meta charset="utf-8">
       <span class="ok" id="link-msg"></span>
     </div>
     <div id="links"></div>
+  </div>
+
+  <div id="panel-list" class="hide">
+    <p class="lede">Upload the planning workbook, or any sheet with a <b>name</b> column.
+      You'll see exactly what changes before anything is saved. Passwords already
+      handed out are kept, so links you've sent keep working.</p>
+    <div class="bar">
+      <input type="file" id="file" accept=".xlsx,.csv,.txt">
+      <button id="check">Check this file</button>
+      <button id="apply" class="hide">Apply these changes</button>
+      <span class="ok" id="import-msg"></span>
+    </div>
+    <div id="import-out"></div>
   </div>
 </div>
 </main>
@@ -443,6 +475,65 @@ document.getElementById("links-csv").addEventListener("click", function () {
     "name,password,seats,invited,send_to,invitation_link,rsvp_link\\n" + rows.join("\\n") + "\\n", "text/csv");
 });
 
+// ---- uploading a new guest list ----
+var chosen = null;
+function importPost(apply) {
+  var f = document.getElementById("file").files[0];
+  var msg = document.getElementById("import-msg");
+  if (!f) { msg.textContent = "Choose a file first."; return; }
+  msg.textContent = apply ? "Saving…" : "Reading…";
+  var reader = new FileReader();
+  reader.onload = function () {
+    var b64 = String(reader.result).split(",")[1];
+    fetch("/api/guests/import", {
+      method: "POST",
+      headers: Object.assign({ "Content-Type": "application/json" }, auth()),
+      body: JSON.stringify({ file: b64, filename: f.name, apply: !!apply })
+    }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (res) {
+        if (!res.ok) { msg.textContent = res.j.error || "That didn't work."; return; }
+        showDiff(res.j);
+        msg.textContent = res.j.applied
+          ? "Saved — " + res.j.invitations + " invitations are live."
+          : "Nothing saved yet.";
+        document.getElementById("apply").classList.toggle("hide", res.j.applied);
+        if (res.j.applied) load();
+      })
+      .catch(function () { msg.textContent = "Couldn't reach the server."; });
+  };
+  reader.readAsDataURL(f);
+}
+function listBlock(title, items, note) {
+  if (!items.length) return "";
+  return "<section><h3>" + title + " (" + items.length + ")</h3>" +
+    (note ? "<p class=muted>" + note + "</p>" : "") +
+    "<ul>" + items.map(function (x) {
+      return "<li>" + esc(Array.isArray(x) ? x[0] + " — " + x[1] : x) + "</li>";
+    }).join("") + "</ul></section>";
+}
+function showDiff(d) {
+  document.getElementById("import-out").innerHTML =
+    "<div class=tally><span>Read from the <b>" + esc(d.source) + "</b></span>" +
+    "<span><b>" + d.invitations + "</b> invitations</span>" +
+    "<span><b>" + d.seats + "</b> seats</span>" +
+    "<span><b>" + d.unchanged + "</b> unchanged</span></div>" +
+    "<div class=diff>" +
+    listBlock("New invitations", d.added, "Each gets a fresh password.") +
+    listBlock("Changed", d.changed) +
+    listBlock("No longer on the list", d.removed,
+      "These lose their invitation. Check for renames before applying.") +
+    listBlock("On the sheet but not invited", d.skipped) +
+    listBlock("No headcount on the sheet", d.noCount, "Treated as one seat.") +
+    "</div>";
+}
+document.getElementById("check").addEventListener("click", function () { importPost(false); });
+document.getElementById("apply").addEventListener("click", function () { importPost(true); });
+document.getElementById("file").addEventListener("change", function () {
+  document.getElementById("apply").classList.add("hide");
+  document.getElementById("import-msg").textContent = "";
+  document.getElementById("import-out").innerHTML = "";
+});
+
 // ---- invitation preview ----
 var dlg = document.getElementById("preview");
 var frame = document.getElementById("preview-frame");
@@ -475,13 +566,14 @@ document.getElementById("preview-copy").addEventListener("click", function () {
 
 // ---- tabs ----
 function tab(which) {
-  document.getElementById("panel-rsvps").classList.toggle("hide", which !== "rsvps");
-  document.getElementById("panel-links").classList.toggle("hide", which !== "links");
-  document.getElementById("tab-rsvps").classList.toggle("on", which === "rsvps");
-  document.getElementById("tab-links").classList.toggle("on", which === "links");
+  ["rsvps", "links", "list"].forEach(function (k) {
+    document.getElementById("panel-" + k).classList.toggle("hide", which !== k);
+    document.getElementById("tab-" + k).classList.toggle("on", which === k);
+  });
 }
-document.getElementById("tab-rsvps").addEventListener("click", function () { tab("rsvps"); });
-document.getElementById("tab-links").addEventListener("click", function () { tab("links"); });
+["rsvps", "links", "list"].forEach(function (k) {
+  document.getElementById("tab-" + k).addEventListener("click", function () { tab(k); });
+});
 
 document.getElementById("go").addEventListener("click", load);
 pw.addEventListener("keydown", function (e) { if (e.key === "Enter") load(); });
@@ -598,6 +690,42 @@ return http.createServer(async (req, res) => {
       return send(200, { guests }, "application/json", { "Cache-Control": "no-store" });
     }
 
+    // Upload a spreadsheet. Two steps on purpose: the first call reports what
+    // would change, the second applies it. Nothing is written without the
+    // second call, so a wrong file can't quietly rewrite the guest list.
+    if (req.method === "POST" && url.pathname === "/api/guests/import") {
+      if (!authorized(req)) return send(401, { error: "unauthorized" });
+      const b = JSON.parse((await readBody(req)) || "{}");
+      if (typeof b.file !== "string" || !b.file) return send(400, { error: "no file" });
+      let parsed;
+      try {
+        parsed = readUpload(Buffer.from(b.file, "base64"), String(b.filename || ""));
+      } catch (err) {
+        return send(400, { error: "Couldn't read that file — " + err.message });
+      }
+      const dupes = parsed.guests.map((g) => g.name)
+        .filter((n, i, a) => a.indexOf(n) !== i);
+      if (dupes.length) {
+        return send(400, { error: `The same name appears twice: ${[...new Set(dupes)].join(", ")}` });
+      }
+      const plan = merge(guestList, parsed.guests, (lo, hi) => crypto.randomInt(lo, hi));
+      const preview = {
+        source: parsed.source,
+        invitations: plan.list.length,
+        seats: plan.list.reduce((n, g) => n + g.party, 0),
+        added: plan.added, changed: plan.changed, removed: plan.removed,
+        unchanged: plan.unchanged.length,
+        skipped: parsed.skipped,
+        noCount: parsed.guests.filter((g) => g.noCount).map((g) => g.name),
+      };
+      if (!b.apply) return send(200, { ...preview, applied: false });
+      await store.putGuests(plan.list);
+      setGuests(plan.list);
+      console.log(`guest list replaced: ${plan.list.length} invitations ` +
+        `(+${plan.added.length} ~${plan.changed.length} -${plan.removed.length})`);
+      return send(200, { ...preview, applied: true });
+    }
+
     if (req.method === "GET" && url.pathname === "/admin") {
       return send(200, ADMIN_HTML, "text/html; charset=utf-8", { "X-Robots-Tag": "noindex" });
     }
@@ -615,6 +743,7 @@ if (isMain) {
   if (!ADMIN_PASSWORD) console.warn("ADMIN_PASSWORD is unset — /admin and the RSVP export are disabled.");
   const store = await createStore();
   console.log(`RSVPs stored in ${store.kind}: ${store.detail}`);
+  await loadGuests(store);
   if (!store.durable) {
     console.warn("Nothing durable is configured — RSVPs are wiped by the next deploy or restart. " +
       "Set DATABASE_URL to a Postgres instance and they'll persist.");

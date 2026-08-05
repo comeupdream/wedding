@@ -12,8 +12,12 @@ Lydia Mountain, Virginia — **Saturday, October 10, 2026**.
   - **Indian Food** — itemized caterer quote, $5,100
   - **American Dinner** — $115/person menu and cost calculator
   - **Original (backup)** — the untouched original tally sheet
-- `guest-codes.json` — the live guest list the server reads: one entry per
-  invitation with its password, seat count, and which events it covers
+- `guest-codes.json` — the seed guest list: one entry per invitation with its
+  password, seat count, and which events it covers. Once the service is running,
+  the live list lives in the database and is updated by uploading a spreadsheet
+- `guests.csv` — the same list in spreadsheet form, with households merged
+- `xlsx.js` / `guest-import.js` — a dependency-free .xlsx reader and the
+  spreadsheet-to-guest-list rules, shared by the CLI and the upload button
 - `server.js` — the web service: serves the site, validates passwords, stores RSVPs
 - `tools/` — password generator, link generator, and an end-to-end smoke test
 - `site/index.html` — the invite website, fully self-contained (fonts and images embedded)
@@ -34,23 +38,35 @@ Every invitation has its own **four-digit password**. One invitation covers a
 whole household — the seat count is on the guest record, so a family of four
 answers once. 62 invitations, 104 seats.
 
-### Updating the guest list from the workbook
+### Updating the guest list
 
-`WEDDING_GUEST_LIST.xlsx` stays the planning source of truth. Export its **Guest
-List** tab as CSV over `guests.csv`, then:
+**In `/admin` → Guest list.** Choose a spreadsheet, press **Check this file**,
+and you get the full diff before anything is saved: what's new, what changed,
+what would lose its invitation, what was on the sheet but skipped. Only **Apply
+these changes** writes. It takes the planning workbook (`.xlsx`) directly, or
+any sheet with a `name` column — the layout is detected, not configured.
 
-```sh
-node tools/import-guests.mjs              # show what would change
-node tools/import-guests.mjs --write      # apply it
-```
-
-It keeps the password of anyone already on the list, so links you've already
-sent keep working, and mints one for everybody new. Columns: `name`, `party`,
-`invite`, `contact` — only `name` is required.
+Passwords already handed out are kept, so links you've sent keep working, and
+anyone new gets a fresh one. An invite scope you set by hand is kept too, since
+the workbook has no column for it.
 
 Four rows in the workbook are deliberately not invitations: Sharon and Zachary
-themselves, and the two tentative "estimate, up to 5" placeholders for the
-bride's extended family. Give those real names in the sheet and they'll import.
+themselves, and the two "estimate, up to 5" placeholders for the bride's
+extended family. Give those real names in the sheet and they'll import. Any row
+with no headcount at all is flagged and treated as one seat rather than guessed.
+
+**One thing to watch:** the raw workbook lists the Dodsons, the Felices, and
+Linda & Shawn as ten separate people. Uploading it would undo those merges — the
+diff will say so plainly, listing them under *No longer on the list*. Upload
+`guests.csv` instead, which carries the merged households, or re-merge after.
+
+The same thing from a terminal, which writes `guest-codes.json` — the seed a
+brand-new database starts from:
+
+```sh
+node tools/import-guests.mjs WEDDING_GUEST_LIST.xlsx    # show what would change
+node tools/import-guests.mjs guests.csv --write         # apply it
+```
 
 ### Passwords
 
@@ -146,10 +162,12 @@ and unlocking shows them what they last sent so they can amend it.
 
 ### Where the answers live
 
-Set `DATABASE_URL` and RSVPs go to Postgres — two tables, `rsvps` (the current
-answer per invitation) and `rsvp_log` (every submission ever received, so an
-amended answer never erases what came before). The server creates both on first
-boot; there's no migration step.
+Set `DATABASE_URL` and everything goes to Postgres — `rsvps` (the current answer
+per invitation), `rsvp_log` (every submission ever received, so an amended
+answer never erases what came before), and `guests` (the live guest list, so a
+spreadsheet you upload survives a redeploy). The server creates all three on
+first boot and seeds `guests` from `guest-codes.json` when it's empty; there's
+no migration step.
 
 With no `DATABASE_URL` it falls back to JSON files, which is what makes
 `npm start` and the tests work on a laptop with nothing installed. That fallback
@@ -193,8 +211,9 @@ do by hand is set `ADMIN_PASSWORD` in the Render dashboard.
 Don't drop the database to Render's free Postgres plan — it is deleted 30 days
 after creation, taking every RSVP with it.
 
-Editing `guest-codes.json` needs a redeploy to take effect (or `kill -HUP` the
-process if you're on a shell).
+Editing `guest-codes.json` only affects a **new** database — it's the seed. To
+change a list that's already live, upload the sheet in `/admin`, which takes
+effect immediately with no deploy.
 
 ### A note on four-digit passwords
 

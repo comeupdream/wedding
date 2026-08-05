@@ -22,7 +22,7 @@ process.env.ADMIN_PASSWORD = "s3cret";
 
 // Imported after the env is set: server.js reads the guest list on load, and a
 // static import would be hoisted above these assignments.
-const { createApp } = await import("../server.js");
+const { createApp, loadGuests } = await import("../server.js");
 const { createStore, resolveStorage } = await import("../store.js");
 
 let failures = 0;
@@ -33,6 +33,10 @@ const check = (name, ok, detail) => {
 
 const suite = async (label, store) => {
   console.log(`\n${label}`);
+  // Put the fixture list in the store first: loadGuests only seeds from the repo
+  // file when the store is empty, and a reused database will not be.
+  await store.putGuests(JSON.parse(fs.readFileSync(guestsFile, "utf8")));
+  await loadGuests(store);
   const server = createApp(store).listen(0);
   await new Promise((r) => server.once("listening", r));
   const base = `http://127.0.0.1:${server.address().port}`;
@@ -184,6 +188,62 @@ const suite = async (label, store) => {
   server.close();
 };
 
+// --- reading a spreadsheet ---------------------------------------------------
+console.log("spreadsheet import");
+const { readUpload, merge, parseCsv } = await import("../guest-import.js");
+const csv = Buffer.from(
+  "name,party,invite,contact,members\n" +
+  "The Dodsons,4,both,amy@example.com,Amy; Chris; Dexter; Taylor\n" +
+  'Gita Aunty,1,ceremony,,\n' +
+  '"Bawa, Toffee and Harry",2,both,,Toffee; Harry\n');
+let up = readUpload(csv, "list.csv");
+check("a CSV export is read", up.guests.length === 3, JSON.stringify(up.guests.map((g) => g.name)));
+check("quoted commas survive", up.guests[2].name === "Bawa, Toffee and Harry", up.guests[2].name);
+check("members are split on semicolons", up.guests[0].members.join("|") === "Amy|Chris|Dexter|Taylor");
+check("a ceremony-only scope is read", up.guests[1].invite === "ceremony");
+
+// The planning workbook's own layout: banners, headcount columns, NOT COMING.
+const sheet = Buffer.from(
+  "Guest List,Guests Email or phone #,RICHMOND,OTHER CITIES,INDIA,SHARON'S\n" +
+  "GROOM'S SIDE — IMMEDIATE FAMILY,,,,,\n" +
+  "Zachary (Groom),,1,,,\n" +
+  "Mother – Rashmi,,1,,,\n" +
+  "Ravi & Geeta Varma,v@example.com,,2,,\n" +
+  '"Cousins (estimate, up to 5)",,,,,5\n' +
+  "Blank Count Person,,,,,\n" +
+  "TOTAL,,2,2,,5\n" +
+  "NOT COMING,,,,,\n" +
+  "Pratima & Ravi,p@example.com,,,,\n");
+up = readUpload(sheet, "book.csv");
+const names = up.guests.map((g) => g.name);
+check("section banners are skipped", !names.includes("GROOM'S SIDE — IMMEDIATE FAMILY"), names.join("|"));
+check("the couple are not invitations", !names.some((n) => /Groom|Bride/.test(n)), names.join("|"));
+check("placeholder estimate rows are skipped", !names.some((n) => /estimate/.test(n)));
+check("NOT COMING is honoured", !names.includes("Pratima & Ravi"), names.join("|"));
+check("headcounts add across the columns", up.guests.find((g) => g.name.startsWith("Ravi")).party === 2);
+check("a blank headcount falls back to one seat",
+  up.guests.find((g) => g.name === "Blank Count Person").party === 1);
+check("skipped rows are reported back", up.skipped.length === 3, JSON.stringify(up.skipped));
+
+const before = [{ code: "4821", name: "The Dodsons", party: 3, invite: "ceremony", contact: "", members: [] }];
+const plan = merge(before, readUpload(csv).guests, (lo, hi) => lo + Math.floor(Math.random() * (hi - lo)));
+check("an existing password is kept", plan.list.find((g) => g.name === "The Dodsons").code === "4821");
+check("a scope set by hand is kept", plan.list.find((g) => g.name === "The Dodsons").invite === "ceremony");
+check("new guests get fresh passwords",
+  plan.added.length === 2 && plan.list.filter((g) => /^\d{4}$/.test(g.code)).length === 3,
+  JSON.stringify(plan.added));
+check("a changed seat count is reported", plan.changed.some((c) => c.includes("seats 3")), plan.changed.join("|"));
+check("passwords never collide", new Set(plan.list.map((g) => g.code)).size === 3);
+check("the real workbook parses", (() => {
+  try {
+    const wb = fs.readFileSync("/root/.claude/uploads/37f4758c-02f6-5314-99c5-ad3acb2225b6/a7a62819-WEDDING_GUEST_LIST_4_1.xlsx");
+    const r = readUpload(wb, "WEDDING_GUEST_LIST.xlsx");
+    // 103, not 104: one row has no headcount at all and is flagged rather than guessed.
+    return r.guests.length === 69 && r.guests.reduce((n, g) => n + g.party, 0) === 103
+      && r.guests.filter((g) => g.noCount).length === 1;
+  } catch (e) { return e.code === "ENOENT"; }   // not present outside this session
+})());
+
 // --- storage selection ------------------------------------------------------
 console.log("storage selection");
 const disk = fs.mkdtempSync(path.join(os.tmpdir(), "wedding-disk-"));
@@ -205,7 +265,7 @@ if (dbUrl) {
   {
     const { default: pg } = await import("pg");
     const wipe = new pg.Pool({ connectionString: dbUrl });
-    await wipe.query("drop table if exists rsvps, rsvp_log");
+    await wipe.query("drop table if exists rsvps, rsvp_log, guests");
     await wipe.end();
   }
   const pgStore = await createStore({ DATABASE_URL: dbUrl });

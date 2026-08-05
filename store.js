@@ -34,10 +34,20 @@ const fileStore = (env) => {
   const read = () => {
     try { return JSON.parse(fs.readFileSync(file, "utf8")); } catch { return {}; }
   };
+  const guestFile = path.join(dir, "guests.json");
   return {
     kind: "files",
     durable,
     detail: `${dir} (${why})`,
+    async guests() {
+      try { return JSON.parse(fs.readFileSync(guestFile, "utf8")); } catch { return []; }
+    },
+    async putGuests(list) {
+      fs.mkdirSync(dir, { recursive: true });
+      fs.writeFileSync(guestFile + ".tmp", JSON.stringify(list, null, 1));
+      fs.renameSync(guestFile + ".tmp", guestFile);
+      return list;
+    },
     async all() { return read(); },
     async save(entry) {
       fs.mkdirSync(dir, { recursive: true });
@@ -80,6 +90,17 @@ create table if not exists rsvp_log (
 alter table rsvps add column if not exists ceremony  integer not null default 0;
 alter table rsvps add column if not exists reception integer not null default 0;
 alter table rsvps add column if not exists attendees jsonb   not null default '[]'::jsonb;
+-- The guest list lives here too, so uploading a new spreadsheet from /admin
+-- survives a redeploy. guest-codes.json is only the seed for an empty table.
+create table if not exists guests (
+  code       text primary key,
+  name       text not null,
+  party      integer not null default 1,
+  invite     text not null default 'both',
+  contact    text not null default '',
+  members    jsonb not null default '[]'::jsonb,
+  updated_at timestamptz not null default now()
+);
 `;
 
 const UPSERT = `
@@ -125,6 +146,35 @@ const pgStore = async (url) => {
     kind: "postgres",
     durable: true,
     detail: host,
+    async guests() {
+      const { rows } = await pool.query("select * from guests order by name");
+      return rows.map((r) => ({
+        code: r.code, name: r.name, party: r.party, invite: r.invite,
+        contact: r.contact, members: r.members || [],
+      }));
+    },
+    // Replace the list wholesale, in one transaction: a half-applied guest list
+    // would hand out passwords that don't open anything.
+    async putGuests(list) {
+      const client = await pool.connect();
+      try {
+        await client.query("begin");
+        await client.query("delete from guests");
+        for (const g of list) {
+          await client.query(
+            `insert into guests (code, name, party, invite, contact, members)
+             values ($1, $2, $3, $4, $5, $6)`,
+            [g.code, g.name, g.party, g.invite, g.contact || "", JSON.stringify(g.members || [])]);
+        }
+        await client.query("commit");
+      } catch (err) {
+        await client.query("rollback");
+        throw err;
+      } finally {
+        client.release();
+      }
+      return list;
+    },
     async all() {
       const { rows } = await pool.query("select * from rsvps");
       return Object.fromEntries(rows.map((r) => [r.code, fromRow(r)]));
