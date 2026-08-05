@@ -17,6 +17,7 @@ Lydia Mountain, Virginia — **Saturday, October 10, 2026**.
 - `server.js` — the web service: serves the site, validates passwords, stores RSVPs
 - `tools/` — password generator, link generator, and an end-to-end smoke test
 - `site/index.html` — the invite website, fully self-contained (fonts and images embedded)
+- `site/invite.html` — the personal invitation card: envelope, wax seal, and the card inside
 - `site/img/` — original photos (engagement + venue) before web optimization
 
 ## Running it locally
@@ -86,10 +87,21 @@ type anything — the site unlocks on load and scrubs the password out of the
 address bar. `https://your-site.example/?c=4821#rsvp`
 
 **The easy way: `/admin` → Invitations & links.** Every household with its
-password, its personal link, a copy button, and where to send it. Filter to
-households, ceremony-only invites, who's coming, or who hasn't replied, then
-**Copy these links** or **Download links CSV** for just that group. Links are
-built from the address you're on, so they're always the right hostname.
+password, its invitation link, a copy button, and where to send it. **Preview**
+opens that family's actual invitation in a modal, so you can see exactly what
+they'll get before you send it. Filter to households, ceremony-only invites,
+who's coming, or who hasn't replied, then **Copy these links** or **Download
+links CSV** for just that group. Links are built from the address you're on, so
+they're always the right hostname.
+
+### The invitation card
+
+The link you send opens `/invite?c=####`: a vanilla envelope addressed to the
+household in script, sealed with a red wax **W**. It opens — by click, tap, or
+keyboard — onto their own card: both names, everyone on that invitation by name,
+the date, what they're invited to, how many seats are held, and a button through
+to the RSVP form that carries their password. Someone who opens it with a bad
+link still gets a card; it just asks for the password at the RSVP step.
 
 The same thing from a terminal, if you'd rather:
 
@@ -143,6 +155,22 @@ way.
 
 If you point `DATABASE_URL` at a provider outside Render, append `?sslmode=require`
 so the connection is encrypted.
+
+## Accessibility
+
+The invite page, the invitation card, and `/admin` are checked against **WCAG 2.2
+AAA** — axe-core reports zero violations across every state, including the
+opened card, the RSVP form, and the admin links tab.
+
+What that meant in practice: every text colour is measured rather than guessed
+(the `--maple-ink`, `--gold-ink` and `--ink-muted` tokens all clear 7:1 on paper,
+and the comments record the ratios); each RSVP checkbox carries its own name, so
+it reads as "Amy — Ceremony" rather than an unlabelled box; the envelope is a
+real button that opens on Enter or Space and moves focus to the card; and
+`prefers-reduced-motion` turns the flap animation off entirely.
+
+Re-run it after any visual change — a colour tweak is the easiest way to fall
+back out of AAA.
 
 ## Deploying
 

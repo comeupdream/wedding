@@ -1,3 +1,5 @@
+<!doctype html>
+<html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sharon &amp; Zachary — Wedding Invitation</title>
@@ -35,6 +37,12 @@
     --maple: #B33F2E;
     --maple-deep: #8E2F22;
     --gold: #C98A2D;
+    /* Text tokens, measured against --paper and --paper-deep. Both clear 7:1,
+       so every one of them is WCAG AAA at any size. The two above stay as they
+       are: they only ever paint large decorative areas, never text. */
+    --maple-ink: #8A2A1B;   /* 7.8:1 on paper, 7.0:1 on paper-deep */
+    --gold-ink: #66450F;    /* 7.9:1 on paper */
+    --ink-muted: #57403A;   /* 8.7:1 on paper */
     --display: "Didot", "Bodoni MT", "Playfair Display", "Georgia", serif;
     --script: "Parisienne", "Snell Roundhand", "Brush Script MT", cursive;
     --body: "Iowan Old Style", "Palatino Linotype", "Georgia", serif;
@@ -101,8 +109,8 @@
     font-size: 0.78rem;
     letter-spacing: 0.28em;
     text-transform: uppercase;
-    color: var(--paper);
-    background: var(--maple);
+    color: #FFF6E8;
+    background: var(--maple-ink);   /* 8.1:1 against the label above */
     border: 1px solid var(--maple-deep);
     padding: 0.95rem 1.9rem;
     cursor: pointer;
@@ -110,7 +118,7 @@
     transition: background-color 160ms ease;
   }
   .btn:hover { background: var(--maple-deep); }
-  .btn.ghost { background: transparent; color: var(--maple); }
+  .btn.ghost { background: transparent; color: var(--maple-ink); }
   .btn.ghost:hover { background: rgba(179, 63, 46, 0.1); }
 
   /* ---------- Venue view ---------- */
@@ -179,7 +187,7 @@
     text-align: center;
     font-style: italic;
     font-size: 0.9rem;
-    color: var(--ink-soft);
+    color: var(--ink-muted);
   }
   .venue-cta { text-align: center; margin-top: 3rem; }
   .discover-cta { text-align: center; margin-top: 2.2rem; }
@@ -226,7 +234,17 @@
     font-size: 0.98rem;
   }
   .party-row .who { font-size: 1rem; }
-  .party-row .tick { display: flex; justify-content: center; }
+  .party-row .tick { display: flex; justify-content: center; align-items: center; min-height: 2.75rem; }
+  /* Visible only on phones, where the column headings are gone. */
+  .tick-text {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
   .party-row input[type="checkbox"] {
     width: 1.3rem;
     height: 1.3rem;
@@ -249,7 +267,17 @@
       text-transform: uppercase;
       color: var(--sky-glow);
     }
-    .party-row .tick::after { content: attr(data-label); }
+    /* On a phone there is no header row, so the label earns its place on screen. */
+    .party-row .tick-text {
+      position: static;
+      width: auto;
+      height: auto;
+      margin: 0;
+      overflow: visible;
+      clip: auto;
+      clip-path: none;
+      white-space: normal;
+    }
   }
   .rsvp-greeting {
     text-align: center;
@@ -368,11 +396,23 @@
   section { padding: 5.5rem 1.5rem; }
   .shell { max-width: 62rem; margin: 0 auto; }
   .shell-narrow { max-width: 40rem; margin: 0 auto; }
+  .skip {
+    position: absolute;
+    left: 0.6rem;
+    top: -4rem;
+    z-index: 99;
+    padding: 0.8rem 1.2rem;
+    background: var(--paper);
+    color: var(--maple-ink);
+    font-size: 0.85rem;
+    transition: top 150ms ease;
+  }
+  .skip:focus { top: 0.6rem; }
   .sec-label {
     font-size: 0.75rem;
     letter-spacing: 0.32em;
     text-transform: uppercase;
-    color: var(--gold);
+    color: var(--gold-ink);
     text-align: center;
   }
   h2 {
@@ -402,7 +442,7 @@
     text-align: center;
     max-width: 34rem;
     margin: 0 auto;
-    color: var(--ink-soft);
+    color: var(--ink-muted);
     font-size: 1.06rem;
   }
 
@@ -483,7 +523,7 @@
     font-size: 1.45rem;
     margin-bottom: 0.35rem;
   }
-  .event p { color: var(--ink-soft); font-size: 0.98rem; }
+  .event p { color: var(--ink-muted); font-size: 0.98rem; }
   @media (max-width: 34rem) {
     .event { grid-template-columns: 1fr; gap: 0.9rem; }
     .event-when {
@@ -507,13 +547,13 @@
     font-size: 0.8rem;
     letter-spacing: 0.28em;
     text-transform: uppercase;
-    color: var(--ink-soft);
+    color: var(--ink-muted);
     margin-top: 0.4rem;
   }
   .venue p.detail {
     max-width: 32rem;
     margin: 1.4rem auto 0;
-    color: var(--ink-soft);
+    color: var(--ink-muted);
   }
 
   /* ---------- RSVP ---------- */
@@ -557,8 +597,8 @@
     font-size: 0.8rem;
     letter-spacing: 0.3em;
     text-transform: uppercase;
-    color: var(--paper);
-    background: var(--maple);
+    color: #FFF6E8;
+    background: var(--maple-ink);   /* 8.1:1 against the label above */
     border: 1px solid var(--maple-deep);
     padding: 1.05rem 2rem;
     cursor: pointer;
@@ -597,6 +637,7 @@
   }
 </style>
 
+<a class="skip" href="#main">Skip to content</a>
 <nav class="site-nav" aria-label="Site">
   <button class="brand" type="button" data-goto="home">S &amp; Z</button>
   <div class="tabs" role="tablist">
@@ -605,6 +646,7 @@
   </div>
 </nav>
 
+<main id="main">
 <div class="view" id="view-home">
 <header class="hero">
   <canvas class="leaffall" aria-hidden="true"></canvas>
@@ -809,6 +851,7 @@
     </div>
   </section>
 </div>
+</main>
 
 <footer>
   <p class="names-small">Sharon &amp; Zachary</p>
@@ -1002,16 +1045,23 @@
         }
         row.appendChild(who);
 
+        var LABELS = { ceremony: "Ceremony", reception: "Reception", vegetarian: "Vegetarian" };
         ["ceremony", "reception", "vegetarian"].forEach(function (kind) {
           var cell = document.createElement("label");
           cell.className = "tick";
-          cell.dataset.label = kind === "vegetarian" ? "Vegetarian" : kind;
           var box = document.createElement("input");
           box.type = "checkbox";
           box.dataset.kind = kind;
           // Default a fresh invitation to yes for the events they're invited to.
           box.checked = prev ? Boolean(prev[kind]) : (kind !== "vegetarian" && scope[kind]);
           cell.appendChild(box);
+          // Wrapped text is the checkbox's accessible name. It reads as
+          // "Amy — Ceremony", so each tick says who as well as what. The column
+          // header carries it visually on a wide screen, so it's hidden there.
+          var text = document.createElement("span");
+          text.className = "tick-text";
+          text.textContent = (known || "Guest " + (i + 1)) + " — " + LABELS[kind];
+          cell.appendChild(text);
           cell.hidden = kind === "ceremony" ? !scope.ceremony : !scope.reception;
           row.appendChild(cell);
         });
@@ -1036,6 +1086,15 @@
       });
     }
     partyRows.addEventListener("change", syncRows);
+    // Keep each tick's accessible name in step with a typed-in guest name.
+    partyRows.addEventListener("input", function (e) {
+      if (e.target.type !== "text") return;
+      var row = e.target.closest(".party-row");
+      var name = e.target.value.trim() || e.target.placeholder.replace("'s name", "");
+      Array.prototype.forEach.call(row.querySelectorAll(".tick-text"), function (t) {
+        t.textContent = name + " — " + t.textContent.split(" — ")[1];
+      });
+    });
 
     function collect() {
       return Array.prototype.map.call(partyRows.children, function (row, i) {
@@ -1156,3 +1215,4 @@
     }
   })();
 </script>
+</html>

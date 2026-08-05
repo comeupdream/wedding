@@ -95,7 +95,7 @@ const authorized = (req) => {
 const MIME = {
   ".mp4": "video/mp4", ".png": "image/png", ".svg": "image/svg+xml",
   ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp",
-  ".ico": "image/x-icon",
+  ".ico": "image/x-icon", ".css": "text/css; charset=utf-8",
 };
 const ASSETS_DIR = path.join(__dirname, "site", "assets");
 const serveStatic = (req, res, filePath) => {
@@ -216,34 +216,45 @@ const toCsv = (rows) => [
 // Two panels: the answers as they come in, and every invitation with its own
 // personal link. Links are built from the page's own origin, so whatever
 // hostname you opened /admin on is the hostname your guests get.
-const ADMIN_HTML = `<!doctype html><meta charset="utf-8">
+const ADMIN_HTML = `<!doctype html><html lang="en"><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>RSVPs — Sharon &amp; Zachary</title>
 <style>
+  /* Colours measured against #FBF3E4: every one clears 7:1, WCAG AAA. */
   body{font-family:Georgia,serif;background:#FBF3E4;color:#3A2420;max-width:78rem;margin:2rem auto;padding:0 1rem}
   h1{font-size:1.4rem;margin-bottom:.8rem}
-  input,button,select{font:inherit;padding:.5rem .8rem;border:1px solid #B33F2E}
-  button{background:#B33F2E;color:#FBF3E4;cursor:pointer}
-  button.ghost{background:transparent;color:#B33F2E}
-  button.ghost.on{background:#B33F2E;color:#FBF3E4}
-  button.mini{padding:.2rem .5rem;font-size:.78rem}
+  input,button,select{font:inherit;padding:.5rem .8rem;border:1px solid #8A2A1B;min-height:2.75rem}
+  button{background:#8A2A1B;color:#FFF6E8;cursor:pointer}
+  button.ghost{background:transparent;color:#8A2A1B}
+  button.ghost.on{background:#8A2A1B;color:#FFF6E8}
+  button.mini{padding:.35rem .6rem;font-size:.78rem;min-height:2.25rem}
   table{border-collapse:collapse;width:100%;margin-top:1rem;font-size:.92rem}
   th,td{border:1px solid #d8c4a5;padding:.45rem .6rem;text-align:left;vertical-align:top}
-  th{background:#F3E6CE} .muted{color:#6E5247;font-style:italic}
+  th{background:#F3E6CE} .muted{color:#57403A;font-style:italic}
   .totals{margin-top:1.2rem;padding:.8rem 1rem;background:#F3E6CE;border:1px solid #d8c4a5}
-  .totals b{font-size:1.1rem} .no{color:#8a6a60}
-  .warn{margin-top:1.2rem;padding:.8rem 1rem;background:#F7DFD6;border:1px solid #B33F2E;font-size:.9rem}
+  .totals b{font-size:1.1rem} .no{color:#6B4F47}
+  .warn{margin-top:1.2rem;padding:.8rem 1rem;background:#F7DFD6;border:1px solid #8A2A1B;font-size:.9rem;color:#2B1A17}
   .tabs{margin:1.4rem 0 .4rem;display:flex;gap:.5rem}
   .bar{margin:1rem 0;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
-  .link{font-family:ui-monospace,Menlo,monospace;font-size:.8rem;word-break:break-all;color:#6E5247}
+  .link{font-family:ui-monospace,Menlo,monospace;font-size:.8rem;word-break:break-all;color:#57403A}
   .code{font-family:ui-monospace,Menlo,monospace;font-size:1rem;letter-spacing:.08em}
   .hide{display:none}
-  .ok{color:#2E6B3A;font-style:italic}
+  .ok{color:#1F5129;font-style:italic}
+  dialog{border:1px solid #8A2A1B;background:#FBF3E4;color:#3A2420;padding:0;max-width:min(46rem,94vw);width:100%}
+  dialog::backdrop{background:rgba(46,26,46,.72)}
+  :focus-visible{outline:3px solid #8A2A1B;outline-offset:2px}
+  .dlg-head{display:flex;gap:1rem;align-items:center;justify-content:space-between;padding:.7rem 1rem;border-bottom:1px solid #d8c4a5}
+  .dlg-head h2{font-size:1rem;margin:0}
+  .dlg-body{padding:0;background:#2E1A2E}
+  .dlg-body iframe{display:block;width:100%;height:min(70vh,40rem);border:0}
+  .dlg-foot{display:flex;gap:.5rem;flex-wrap:wrap;padding:.7rem 1rem;border-top:1px solid #d8c4a5}
 </style>
+<main>
 <h1>Sharon &amp; Zachary — admin</h1>
-<p><input id="pw" type="password" placeholder="Admin password"> <button id="go">Open</button>
-<span class="muted" id="msg"></span></p>
+<p><label for="pw">Admin password</label>
+<input id="pw" type="password" autocomplete="current-password"> <button id="go">Open</button>
+<span class="muted" id="msg" role="status"></span></p>
 
 <div id="app" class="hide">
   <div class="tabs">
@@ -256,6 +267,19 @@ const ADMIN_HTML = `<!doctype html><meta charset="utf-8">
     <div id="sum"></div>
     <div id="out"></div>
   </div>
+
+  <dialog id="preview" aria-labelledby="preview-title">
+    <div class="dlg-head">
+      <h2 id="preview-title">Invitation preview</h2>
+      <button class="mini" id="preview-close">Close</button>
+    </div>
+    <div class="dlg-body"><iframe id="preview-frame" title="Invitation preview"></iframe></div>
+    <div class="dlg-foot">
+      <button id="preview-open">Open in a new tab</button>
+      <button id="preview-copy">Copy this link</button>
+      <span class="ok" id="preview-msg"></span>
+    </div>
+  </dialog>
 
   <div id="panel-links" class="hide">
     <div class="bar">
@@ -272,6 +296,7 @@ const ADMIN_HTML = `<!doctype html><meta charset="utf-8">
     <div id="links"></div>
   </div>
 </div>
+</main>
 <script>
 var pw = document.getElementById("pw"), msg = document.getElementById("msg");
 var out = document.getElementById("out"), sum = document.getElementById("sum");
@@ -288,6 +313,9 @@ var SCOPE = { both: "Ceremony &amp; reception", ceremony: "Ceremony only", recep
 
 // ---- the personal link, exactly as a guest receives it ----
 function linkFor(code) { return location.origin + "/?c=" + encodeURIComponent(code) + "#rsvp"; }
+// The card is what you actually send: an envelope with their name on it, which
+// opens onto their invitation and leads through to the RSVP form.
+function cardFor(code) { return location.origin + "/invite?c=" + encodeURIComponent(code); }
 
 function load() {
   msg.textContent = "Loading…";
@@ -355,7 +383,7 @@ function renderLinks() {
   document.getElementById("links").innerHTML =
     "<p class=muted>" + rows.length + " invitation(s) — one link per household, seats included.</p>" +
     "<table><tr><th>Guest</th><th>Seats</th><th>Invited to</th><th>Send to</th><th>Password</th>" +
-    "<th>Personal link</th><th></th><th>Status</th></tr>" +
+    "<th>Invitation link</th><th>Actions</th><th>Status</th></tr>" +
     rows.map(function (g) {
       var status = !g.replied ? "<span class=muted>no reply</span>"
         : g.events === "none" ? "<span class=muted>cannot attend</span>"
@@ -364,15 +392,18 @@ function renderLinks() {
         (SCOPE[g.invite] || esc(g.invite)) + "</td>" +
         "<td class=muted>" + (g.contact ? esc(g.contact) : "—") + "</td>" +
         "<td class=code>" + esc(g.code) + "</td>" +
-        "<td class=link>" + esc(linkFor(g.code)) + "</td>" +
-        "<td><button class='mini' data-copy='" + esc(g.code) + "'>copy</button></td>" +
+        "<td class=link>" + esc(cardFor(g.code)) + "</td>" +
+        "<td class=rowacts><button class='mini' data-preview='" + esc(g.code) +
+        "' aria-label='Preview the invitation for " + esc(g.name) + "'>preview</button> " +
+        "<button class='mini' data-copy='" + esc(g.code) +
+        "' aria-label='Copy the invitation link for " + esc(g.name) + "'>copy</button></td>" +
         "<td>" + status + "</td></tr>";
     }).join("") + "</table>";
 }
 document.addEventListener("click", function (e) {
   var code = e.target.getAttribute && e.target.getAttribute("data-copy");
   if (!code) return;
-  navigator.clipboard.writeText(linkFor(code)).then(function () {
+  navigator.clipboard.writeText(cardFor(code)).then(function () {
     e.target.textContent = "copied";
     setTimeout(function () { e.target.textContent = "copy"; }, 1200);
   });
@@ -387,7 +418,7 @@ document.querySelectorAll("[data-filter]").forEach(function (b) {
   });
 });
 document.getElementById("copy-all").addEventListener("click", function () {
-  var text = shown().map(function (g) { return g.name + "\\t" + g.code + "\\t" + linkFor(g.code); }).join("\\n");
+  var text = shown().map(function (g) { return g.name + "\\t" + g.code + "\\t" + cardFor(g.code); }).join("\\n");
   navigator.clipboard.writeText(text).then(function () {
     linkMsg.textContent = shown().length + " link(s) copied";
   });
@@ -405,10 +436,41 @@ document.getElementById("links-csv").addEventListener("click", function () {
     return /[",\\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
   };
   var rows = shown().map(function (g) {
-    return [g.name, g.code, g.party, SCOPE[g.invite] || g.invite, g.contact || "", linkFor(g.code)].map(cell).join(",");
+    return [g.name, g.code, g.party, SCOPE[g.invite] || g.invite, g.contact || "",
+            cardFor(g.code), linkFor(g.code)].map(cell).join(",");
   });
   download("invitation-links.csv",
-    "name,password,seats,invited,send_to,link\\n" + rows.join("\\n") + "\\n", "text/csv");
+    "name,password,seats,invited,send_to,invitation_link,rsvp_link\\n" + rows.join("\\n") + "\\n", "text/csv");
+});
+
+// ---- invitation preview ----
+var dlg = document.getElementById("preview");
+var frame = document.getElementById("preview-frame");
+var previewCode = null;
+function preview(code, name) {
+  previewCode = code;
+  document.getElementById("preview-title").textContent = "Invitation preview — " + name;
+  document.getElementById("preview-msg").textContent = "";
+  frame.src = cardFor(code);
+  if (dlg.showModal) dlg.showModal(); else window.open(cardFor(code), "_blank");
+}
+document.addEventListener("click", function (e) {
+  var code = e.target.getAttribute && e.target.getAttribute("data-preview");
+  if (!code) return;
+  var g = GUESTS.filter(function (x) { return x.code === code; })[0];
+  preview(code, g ? g.name : code);
+});
+document.getElementById("preview-close").addEventListener("click", function () { dlg.close(); });
+// Blank the iframe on close so the next preview always animates from sealed.
+dlg.addEventListener("close", function () { frame.src = "about:blank"; });
+document.getElementById("preview-open").addEventListener("click", function () {
+  if (previewCode) window.open(cardFor(previewCode), "_blank", "noopener");
+});
+document.getElementById("preview-copy").addEventListener("click", function () {
+  if (!previewCode) return;
+  navigator.clipboard.writeText(cardFor(previewCode)).then(function () {
+    document.getElementById("preview-msg").textContent = "copied";
+  });
 });
 
 // ---- tabs ----
@@ -428,7 +490,7 @@ document.getElementById("csv").addEventListener("click", function () {
     .then(function (r) { return r.text(); })
     .then(function (t) { download("rsvps.csv", t, "text/csv"); });
 });
-</script>`;
+</script></html>`;
 
 // ---------- routes ----------
 export const createApp = (store) => {
@@ -441,8 +503,16 @@ return http.createServer(async (req, res) => {
   };
   try {
     if (req.method === "GET" && (url.pathname === "/" || url.pathname === "/index.html")) {
-      return send(200, fs.readFileSync(path.join(__dirname, "site", "index.html")), "text/html; charset=utf-8");
+      return send(200, fs.readFileSync(path.join(__dirname, "site", "index.html")),
+        "text/html; charset=utf-8", { "Cache-Control": "no-cache" });
     }
+    // The invitation card — an envelope with the household's name on it that
+    // opens onto their own card. The page reads ?c= and unlocks like any guest.
+    if (req.method === "GET" && (url.pathname === "/invite" || url.pathname === "/invite.html")) {
+      return send(200, fs.readFileSync(path.join(__dirname, "site", "invite.html")),
+        "text/html; charset=utf-8", { "X-Robots-Tag": "noindex", "Cache-Control": "no-cache" });
+    }
+
     if (url.pathname === "/healthz") {
       return send(200, { ok: true, guests: byCode.size, storage: store.kind, durable: store.durable });
     }
@@ -486,6 +556,10 @@ return http.createServer(async (req, res) => {
       const b = JSON.parse((await readBody(req)) || "{}");
       const guest = byCode.get(norm(b.code));
       if (!guest) return send(404, { error: "unknown code" });
+      // Refuse a body with no attendees rather than reading it as "nobody is
+      // coming". A guest on a cached copy of the old form would otherwise be
+      // recorded as declining without ever being told.
+      if (!Array.isArray(b.attendees)) return send(400, { error: "expected an attendees list" });
       const entry = await store.save(buildRsvp(guest, b));
       // Mirrored to stdout so the service logs keep a copy either way.
       console.log("RSVP " + JSON.stringify(entry));

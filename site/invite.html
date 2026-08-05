@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>An invitation — Sharon &amp; Zachary</title>
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="stylesheet" href="/assets/fonts.css">
+<style>
+  :root {
+    --paper: #FBF3E4;
+    --vellum: #F6EAD2;
+    --vellum-edge: #E4D2AE;
+    /* Every value below is measured against --vellum, the darkest the card gets,
+       and clears 7:1 — WCAG AAA for text at any size. */
+    --ink: #2B1A17;          /* 13.9:1 */
+    --ink-soft: #57403A;     /*  8.0:1 */
+    --maple: #8A2A1B;        /*  7.3:1 — also the wax red */
+    --maple-deep: #6E2115;
+    --gold: #66450F;         /*  7.3:1 */
+    --night: #2E1A2E;
+    --display: "Didot", "Bodoni MT", "Playfair Display", Georgia, serif;
+    --script: "Parisienne", "Snell Roundhand", "Brush Script MT", cursive;
+    --body: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 2rem 1rem;
+    font-family: var(--body);
+    color: var(--ink);
+    background:
+      radial-gradient(120% 90% at 50% 0%, #4A2038 0%, #2E1A2E 55%, #241522 100%);
+  }
+  .stage { width: min(38rem, 100%); }
+
+  /* ---------- the envelope ---------- */
+  .envelope {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    margin: 0 auto;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+  }
+  .envelope[hidden] { display: none; }
+  .env-body {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, #FBF1DC 0%, var(--vellum) 45%, #EFE0C2 100%);
+    border: 1px solid var(--vellum-edge);
+    box-shadow: 0 1.4rem 3rem rgba(0, 0, 0, 0.45);
+  }
+  /* the two lower folds, drawn as flat shadows so the paper reads as folded */
+  .env-body::before,
+  .env-body::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    width: 52%;
+    height: 100%;
+    background: linear-gradient(120deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0));
+  }
+  .env-body::before { left: 0; clip-path: polygon(0 0, 100% 100%, 0 100%); }
+  .env-body::after { right: 0; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+  .env-flap {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 62%;
+    background: linear-gradient(180deg, #FBF1DC 0%, #F1E2C4 100%);
+    border: 1px solid var(--vellum-edge);
+    border-bottom: 0;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: top center;
+    transition: transform 900ms cubic-bezier(.4, .05, .2, 1);
+    z-index: 3;
+  }
+  .env-to {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 14%;
+    text-align: center;
+    font-family: var(--script);
+    font-size: clamp(1.5rem, 5vw, 2.3rem);
+    color: var(--ink);
+    z-index: 2;
+  }
+  .env-hint {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 5%;
+    text-align: center;
+    font-size: 0.72rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    z-index: 2;
+  }
+
+  /* ---------- the wax seal ---------- */
+  .seal {
+    position: absolute;
+    left: 50%;
+    top: 62%;
+    width: clamp(4rem, 15%, 5.5rem);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    z-index: 4;
+    transition: opacity 350ms ease, transform 350ms ease;
+    filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.4));
+  }
+  .envelope:hover .seal { transform: translate(-50%, -50%) scale(1.04); }
+
+  /* ---------- the card ---------- */
+  .card {
+    position: relative;
+    background: linear-gradient(170deg, #FDF6E7 0%, var(--vellum) 100%);
+    border: 1px solid var(--vellum-edge);
+    box-shadow: 0 1.4rem 3rem rgba(0, 0, 0, 0.45);
+    padding: clamp(2rem, 6vw, 3.4rem) clamp(1.4rem, 6vw, 3.4rem);
+    text-align: center;
+  }
+  .card::after {
+    content: "";
+    position: absolute;
+    inset: 0.7rem;
+    border: 1px solid rgba(150, 48, 31, 0.28);
+    pointer-events: none;
+  }
+  .eyebrow {
+    margin: 0 0 1.4rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .names {
+    margin: 0;
+    font-family: var(--script);
+    font-size: clamp(2.6rem, 11vw, 4.2rem);
+    font-weight: 400;
+    line-height: 1.05;
+    color: var(--maple);
+  }
+  .names .amp {
+    display: block;
+    font-size: 0.42em;
+    color: var(--gold);
+    margin: 0.1em 0;
+  }
+  .invited {
+    margin: 1.8rem 0 0;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+  }
+  .guests {
+    margin: 0.5rem 0 0;
+    font-family: var(--display);
+    font-size: clamp(1.2rem, 4.5vw, 1.7rem);
+    line-height: 1.5;
+    color: var(--ink);
+  }
+  .rule {
+    margin: 1.9rem auto;
+    width: 7rem;
+    border: 0;
+    border-top: 1px solid rgba(150, 48, 31, 0.4);
+  }
+  .when {
+    margin: 0;
+    font-family: var(--display);
+    font-size: clamp(1.15rem, 4vw, 1.5rem);
+    letter-spacing: 0.04em;
+    color: var(--ink);
+  }
+  .where {
+    margin: 0.55rem 0 0;
+    font-size: 0.8rem;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .scope {
+    margin: 1.6rem 0 0;
+    display: inline-block;
+    padding: 0.45rem 1.1rem;
+    border: 1px solid rgba(150, 48, 31, 0.4);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--maple);
+  }
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3rem;         /* 48px — comfortably over the 44px AAA target */
+    min-width: 14rem;
+    margin-top: 2.2rem;
+    padding: 0.9rem 2rem;
+    font-family: var(--body);
+    font-size: 0.82rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #FFF6E8;           /* 7.6:1 on --maple */
+    background: var(--maple);
+    border: 1px solid var(--maple-deep);
+  }
+  .cta:hover { background: var(--maple-deep); }
+  .closing {
+    margin: 1.6rem 0 0;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  :focus-visible {
+    outline: 3px solid #FDCB6A;
+    outline-offset: 3px;
+  }
+
+  /* Opening: the flap lifts, then the card takes the envelope's place. */
+  .stage.open .env-flap { transform: rotateX(180deg); }
+  .stage.open .seal { opacity: 0; transform: translate(-50%, -50%) scale(0.85); }
+  .card { opacity: 0; transform: translateY(1.5rem); transition: opacity 700ms ease 500ms, transform 700ms ease 500ms; }
+  .stage.open .card { opacity: 1; transform: none; }
+  .card[hidden] { display: none; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .env-flap, .seal, .card { transition: none !important; }
+  }
+</style>
+
+<main class="stage" id="stage">
+  <h1 class="sr-only" id="page-title">An invitation from Sharon and Zachary</h1>
+  <button class="envelope" id="envelope" type="button" aria-expanded="false" aria-controls="card">
+    <span class="env-body" aria-hidden="true"></span>
+    <span class="env-to" id="env-to">&nbsp;</span>
+    <span class="env-hint" id="env-hint">Tap to open</span>
+    <span class="env-flap" aria-hidden="true"></span>
+    <svg class="seal" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+      <defs>
+        <radialGradient id="wax" cx="38%" cy="32%" r="72%">
+          <stop offset="0%" stop-color="#A83525"/>
+          <stop offset="55%" stop-color="#7E2517"/>
+          <stop offset="100%" stop-color="#5C1409"/>
+        </radialGradient>
+      </defs>
+      <!-- a hand-pressed edge: a circle nudged out of round -->
+      <path fill="url(#wax)" d="M50 3c13 0 22 6 31 13s16 16 15 30-9 24-18 32-21 19-33 17-25-11-33-20S1 55 3 42 14 20 24 13 37 3 50 3Z"/>
+      <circle cx="50" cy="50" r="33" fill="none" stroke="#5B1409" stroke-opacity=".45" stroke-width="1.6"/>
+      <text x="50" y="50" text-anchor="middle" dominant-baseline="central"
+            font-family="Didot, 'Bodoni MT', Georgia, serif" font-size="40" fill="#FBEDDC" fill-opacity=".93">W</text>
+    </svg>
+  </button>
+
+  <article class="card" id="card" hidden tabindex="-1" aria-labelledby="card-names">
+    <p class="eyebrow">Together with their families</p>
+    <h2 class="names" id="card-names">Sharon<span class="amp">&amp;</span>Zachary</h2>
+    <p class="invited" id="invited-line">request the pleasure of your company</p>
+    <p class="guests" id="guests"></p>
+    <hr class="rule">
+    <p class="when">Saturday, the tenth of October<br>Two thousand twenty-six</p>
+    <p class="where">Lydia Mountain <span aria-hidden="true">·</span> Virginia</p>
+    <p><span class="scope" id="scope"></span></p>
+    <p><a class="cta" id="rsvp-link" href="/#rsvp">RSVP</a></p>
+    <p class="closing" id="closing"></p>
+  </article>
+</main>
+
+<script>
+(function () {
+  var stage = document.getElementById("stage");
+  var envelope = document.getElementById("envelope");
+  var card = document.getElementById("card");
+  var code = new URLSearchParams(location.search).get("c") || "";
+  var SCOPES = {
+    both: "Ceremony & reception",
+    ceremony: "Ceremony only",
+    reception: "Reception only"
+  };
+
+  // Join names the way a person would: "Amy, Chris and Taylor".
+  function list(names) {
+    if (names.length < 2) return names[0] || "";
+    return names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
+  }
+
+  function fill(g) {
+    var seats = g.party || 1;
+    var named = (g.members || []).filter(Boolean);
+    document.getElementById("env-to").textContent = g.name;
+    document.getElementById("guests").textContent = named.length ? list(named) : g.name;
+    document.getElementById("scope").textContent = SCOPES[g.invite] || SCOPES.both;
+    document.getElementById("closing").textContent = seats > 1
+      ? seats + " seats have been reserved in your name."
+      : "A seat has been reserved in your name.";
+    var link = document.getElementById("rsvp-link");
+    link.href = "/?c=" + encodeURIComponent(code) + "#rsvp";
+    link.setAttribute("aria-label", "RSVP for " + g.name);
+    document.title = "An invitation for " + g.name + " — Sharon & Zachary";
+    document.getElementById("page-title").textContent = "An invitation for " + g.name +
+      " from Sharon and Zachary";
+    envelope.setAttribute("aria-label", "Sealed envelope addressed to " + g.name +
+      ". Activate to open your invitation.");
+  }
+
+  function open() {
+    if (stage.classList.contains("open")) return;
+    card.hidden = false;
+    // Let the browser lay the card out before the transition starts.
+    requestAnimationFrame(function () {
+      stage.classList.add("open");
+      envelope.setAttribute("aria-expanded", "true");
+    });
+    var motion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setTimeout(function () {
+      envelope.hidden = true;
+      card.focus();
+    }, motion ? 0 : 700);
+  }
+  envelope.addEventListener("click", open);
+
+  if (!code) {
+    document.getElementById("env-to").textContent = "Our friends";
+    document.getElementById("env-hint").textContent = "Tap to open";
+    document.getElementById("guests").textContent = "Our friends and family";
+    document.getElementById("scope").textContent = SCOPES.both;
+    document.getElementById("closing").textContent = "";
+    return;
+  }
+
+  fetch("/api/unlock", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code: code })
+  }).then(function (r) {
+    if (!r.ok) throw new Error("no");
+    return r.json();
+  }).then(fill).catch(function () {
+    document.getElementById("env-to").textContent = "Our friends";
+    document.getElementById("guests").textContent = "Our friends and family";
+    document.getElementById("scope").textContent = SCOPES.both;
+    document.getElementById("closing").textContent =
+      "We couldn't read the password on this link — the RSVP page will ask for it.";
+    document.getElementById("rsvp-link").href = "/#rsvp";
+  });
+})();
+</script>
+</html>

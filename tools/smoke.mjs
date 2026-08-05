@@ -120,6 +120,13 @@ const suite = async (label, store) => {
   r = await post("/api/rsvp", { code: "0000", attendees: [] });
   check("RSVP with an unknown password is rejected", r.status === 404);
 
+  // A cached copy of the old form posts no attendees list. That must fail loudly
+  // rather than be read as "nobody is coming".
+  r = await post("/api/rsvp", { code: "4821", events: "both", party: 3, vegetarian: 1, email: "x@example.com" });
+  check("a body with no attendees is refused", r.status === 400, String(r.status));
+  r = await post("/api/unlock", { code: "4821" });
+  check("...and the earlier answer is left untouched", (await r.json()).rsvp.party === 3);
+
   // --- admin --------------------------------------------------------------
   r = await fetch(base + "/api/rsvps");
   check("export needs the admin password", r.status === 401);
@@ -165,6 +172,14 @@ const suite = async (label, store) => {
   check("the invite page is served", r.status === 200 && r.headers.get("content-type").includes("text/html"));
   r = await fetch(base + "/assets/../../server.js");
   check("asset paths can't escape the site directory", r.status === 404);
+  r = await fetch(base + "/invite?c=4821");
+  check("the invitation card is served", r.status === 200 && r.headers.get("content-type").includes("text/html"));
+  check("pages aren't cached, so nobody submits a stale form",
+    r.headers.get("cache-control") === "no-cache");
+  check("the card is kept out of search results", r.headers.get("x-robots-tag") === "noindex");
+  r = await fetch(base + "/assets/fonts.css");
+  check("the shared font stylesheet is served as CSS",
+    r.status === 200 && r.headers.get("content-type").startsWith("text/css"), r.headers.get("content-type"));
 
   server.close();
 };
