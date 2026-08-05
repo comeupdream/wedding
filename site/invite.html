@@ -555,6 +555,14 @@
     };
     var ask = document.getElementById("ask");
     var role = ROLES[g.role];
+    // *stars* mark emphasis; everything else is escaped, so the text stays
+    // plain data.
+    var writeAsk = function (words) {
+      ask.innerHTML = words
+        .replace(/[&<>]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]; })
+        .replace(/\*([^*]+)\*/g, "<em>$1</em>");
+      ask.hidden = false;
+    };
     var wax = document.getElementById("seal-wax");
     var ring = document.getElementById("seal-ring");
     var mono = document.getElementById("seal-mono");
@@ -566,13 +574,8 @@
       // Light wax needs a dark W; every other seal keeps the cream one.
       if (mono) mono.setAttribute("fill", role.mono || "#FBEDDC");
       // Address them by the first name on the invitation.
-      // Words written for this guest win over the role's default. *stars* mark
-      // emphasis; everything else is escaped, so the text stays plain data.
-      var words = g.ask || role.ask((named[0] || g.name).split(/[\s,&]/)[0]);
-      ask.innerHTML = words
-        .replace(/[&<>]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]; })
-        .replace(/\*([^*]+)\*/g, "<em>$1</em>");
-      ask.hidden = false;
+      // Words written for this guest win over the role's default.
+      writeAsk(g.ask || role.ask((named[0] || g.name).split(/[\s,&]/)[0]));
       cardEl.classList.add("role-" + role.tone);
       waxShades = role.shades;
       // Every standing gets the sheen and the mica — only the ordinary red
@@ -585,7 +588,9 @@
       if (wax) wax.setAttribute("fill", "url(#wax)");
       if (ring) ring.setAttribute("stroke", "#5B1409");
       if (mono) mono.setAttribute("fill", "#FBEDDC");
-      ask.hidden = true;
+      // No standing at the wedding, but words can still be written for an
+      // invitation on its own — a note keeps the plain red wax.
+      if (g.ask) writeAsk(g.ask); else ask.hidden = true;
       var plain = document.getElementById("seal-shine");
       if (plain) plain.setAttribute("hidden", "");
       document.getElementById("sparkles").innerHTML = "";
