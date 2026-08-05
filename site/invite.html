@@ -7,6 +7,7 @@
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="alternate icon" href="/assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="stylesheet" href="/assets/fonts.css">
+<!--share-->
 <style>
   :root {
     --paper: #FBF3E4;
@@ -540,11 +541,10 @@
       ask.hidden = false;
       cardEl.classList.add("role-" + role.tone);
       waxShades = role.shades;
+      // Every standing gets the sheen and the mica — only the ordinary red
+      // wax is left plain.
       var shine = document.getElementById("seal-shine");
-      if (shine) {
-        if (role.tone === "gold") shine.removeAttribute("hidden");
-        else shine.setAttribute("hidden", "");
-      }
+      if (shine) shine.removeAttribute("hidden");
       sparkle(18);
     } else {
       waxShades = WAX_RED;

@@ -25,6 +25,9 @@ export const MEALS = ["standard", "vegetarian"];
 
 export const norm = (s) => String(s ?? "").toUpperCase().replace(/[^A-Z0-9]/g, "");
 
+const escapeAttr = (s) => String(s)
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
 // A household with no surname on it — "Pinki & Sudhir", "Mia". Judged by the
 // last person named: if that segment is a single word, no surname was given.
 // It's a nudge for the guest list, never anything a guest sees.
@@ -359,6 +362,10 @@ const ADMIN_HTML = `<!doctype html><html lang="en"><meta charset="utf-8">
   .card-frame { border:1px solid var(--line); background:#241522; }
   .card-frame iframe { display:block; width:100%; height:min(78vh,46rem); border:0; }
 
+  .rolegroup { margin-top:1.6rem; }
+  .rolegroup h2 { margin:0; font-size:.95rem; font-weight:400; letter-spacing:.04em; }
+  .swatch { display:inline-block; width:.85rem; height:.85rem; margin-right:.5rem;
+            border:1px solid var(--line); border-radius:50%; vertical-align:-1px; }
   .diff { margin-top:1rem; display:grid; gap:.9rem; }
   .diff section { border:1px solid var(--line); background:var(--panel); padding:.8rem 1rem; }
   .diff h3 { margin:0 0 .4rem; font-size:.92rem; font-weight:400; color:var(--gold); }
@@ -386,6 +393,7 @@ const ADMIN_HTML = `<!doctype html><html lang="en"><meta charset="utf-8">
   <div class="tabs">
     <button class="ghost on" id="tab-rsvps">Replies</button>
     <button class="ghost" id="tab-links">Invitations &amp; links</button>
+    <button class="ghost" id="tab-special">Special invites</button>
     <button class="ghost" id="tab-preview">Preview</button>
     <button class="ghost" id="tab-list">Guest list</button>
   </div>
@@ -409,6 +417,12 @@ const ADMIN_HTML = `<!doctype html><html lang="en"><meta charset="utf-8">
       <span class="ok" id="link-msg"></span>
     </div>
     <div id="links"></div>
+  </div>
+
+  <div id="panel-special" class="hide">
+    <p class="lede">The invitations that carry their own wax and their own words.
+      Everyone else gets the red seal and the standard card.</p>
+    <div id="special"></div>
   </div>
 
   <div id="panel-preview" class="hide">
@@ -465,6 +479,17 @@ function esc(s) {
 function auth() { return { Authorization: "Bearer " + pw.value }; }
 var EVENTS = { both: "Ceremony &amp; reception", ceremony: "Ceremony only", reception: "Reception only", none: "Cannot attend" };
 var SCOPE = { both: "Ceremony &amp; reception", ceremony: "Ceremony only", reception: "Reception only" };
+// The wedding party and the parents — the invitations that carry their own
+// seal and their own words.
+var ROLES = {
+  "best-man":      { label: "Best man",        wax: "Gold",   swatch: "#C79A2A" },
+  "maid-of-honor": { label: "Maid of honour",  wax: "Gold",   swatch: "#C79A2A" },
+  "groom-mother":  { label: "Groom's mother",  wax: "Blue",   swatch: "#33608F" },
+  "bride-parents": { label: "Bride's parents", wax: "Blue",   swatch: "#33608F" },
+  "groomsman":     { label: "Groomsman",       wax: "Silver", swatch: "#8C9298" },
+  "bridesmaid":    { label: "Bridesmaid",      wax: "Rose",   swatch: "#A34568" }
+};
+var ROLE_ORDER = ["best-man", "maid-of-honor", "groom-mother", "bride-parents", "groomsman", "bridesmaid"];
 function linkFor(code) { return location.origin + "/?c=" + encodeURIComponent(code) + "#rsvp"; }
 function cardFor(code) { return location.origin + "/invite?c=" + encodeURIComponent(code); }
 // Everyone on an invitation, printed under the household name for accounting.
@@ -550,6 +575,7 @@ function load() {
           (g.party > 1 ? " people" : " person") + " unaccounted for</td></tr>";
       }).join("") + "</table>";
     renderLinks();
+    renderSpecial();
     renderRail();
   }).catch(function (e) { msg.textContent = e.message; out.innerHTML = ""; sum.innerHTML = ""; });
 }
@@ -633,6 +659,35 @@ document.getElementById("links-csv").addEventListener("click", function () {
     "name,password,party,invite,contact,members,role,test,invitation_link,rsvp_link\\n" +
     rows.join("\\n") + "\\n", "text/csv");
 });
+
+// ---- special invites ----
+function renderSpecial() {
+  var byRole = {};
+  GUESTS.forEach(function (g) { if (g.role) (byRole[g.role] = byRole[g.role] || []).push(g); });
+  var html = ROLE_ORDER.filter(function (k) { return byRole[k]; }).map(function (k) {
+    var r = ROLES[k];
+    return "<section class=rolegroup><h2><span class=swatch style='background:" + r.swatch +
+      "'></span>" + r.label + " <span class=muted>· " + r.wax + " seal · " +
+      byRole[k].length + "</span></h2><table><tr><th>Household</th><th>Card is addressed to</th>" +
+      "<th>Seats</th><th>Password</th><th>Invitation link</th><th>Actions</th><th>Status</th></tr>" +
+      byRole[k].map(function (g) {
+        var first = (g.members || [])[0] || String(g.name).split(/[\s,&]/)[0];
+        var status = !g.replied ? "<span class=muted>no reply</span>"
+          : g.events === "none" ? "<span class=muted>cannot attend</span>"
+          : "<b>" + (EVENTS[g.events] || esc(g.events)) + "</b>";
+        return "<tr><td>" + esc(g.name) + namesOf(g) + "</td><td>" + esc(first) +
+          "</td><td class=num>" + esc(g.party) + "</td><td class=code>" + esc(g.code) + "</td>" +
+          "<td class=link>" + esc(cardFor(g.code)) + "</td>" +
+          "<td><button class='mini' data-preview='" + esc(g.code) +
+          "' aria-label='Preview the invitation for " + esc(g.name) + "'>preview</button> " +
+          "<button class='mini ghost' data-copy='" + esc(g.code) +
+          "' aria-label='Copy the invitation link for " + esc(g.name) + "'>copy</button></td>" +
+          "<td>" + status + "</td></tr>";
+      }).join("") + "</table></section>";
+  }).join("");
+  document.getElementById("special").innerHTML = html ||
+    "<p class=muted>No special invitations yet. Give a household a <b>role</b> in the guest list.</p>";
+}
 
 // ---- preview tab: the whole list, scrollable, card beside it ----
 function renderRail() {
@@ -752,7 +807,7 @@ document.getElementById("preview-copy").addEventListener("click", function () {
 });
 
 // ---- tabs ----
-var TABS = ["rsvps", "links", "preview", "list"];
+var TABS = ["rsvps", "links", "special", "preview", "list"];
 function tab(which) {
   TABS.forEach(function (k) {
     document.getElementById("panel-" + k).classList.toggle("hide", which !== k);
@@ -789,8 +844,35 @@ return http.createServer(async (req, res) => {
     // The invitation card — an envelope with the household's name on it that
     // opens onto their own card. The page reads ?c= and unlocks like any guest.
     if (req.method === "GET" && (url.pathname === "/invite" || url.pathname === "/invite.html")) {
-      return send(200, fs.readFileSync(path.join(__dirname, "site", "invite.html")),
-        "text/html; charset=utf-8", { "X-Robots-Tag": "noindex", "Cache-Control": "no-cache" });
+      let html = fs.readFileSync(path.join(__dirname, "site", "invite.html"), "utf8");
+      // A link preview shows this household's own sealed envelope, when one has
+      // been rendered for them. Chat apps read these tags and nothing else, so
+      // the picture has to be a real file, not the page's canvas.
+      const guest = byCode.get(norm(url.searchParams.get("c")));
+      if (guest) {
+        const img = path.join(ASSETS_DIR, "share", `${guest.code}.jpg`);
+        const proto = String(req.headers["x-forwarded-proto"] || "https").split(",")[0];
+        const origin = `${proto}://${req.headers.host}`;
+        const title = `An invitation for ${guest.name}`;
+        const tags = [
+          `<meta property="og:type" content="website">`,
+          `<meta property="og:title" content="${escapeAttr(title)}">`,
+          `<meta property="og:description" content="Sharon &amp; Zachary — Saturday, the tenth of October, 2026. Lydia Mountain, Virginia.">`,
+          `<meta property="og:url" content="${escapeAttr(origin + "/invite?c=" + guest.code)}">`,
+          `<meta name="twitter:card" content="summary_large_image">`,
+        ];
+        if (fs.existsSync(img)) {
+          tags.push(
+            `<meta property="og:image" content="${escapeAttr(origin)}/assets/share/${guest.code}.jpg">`,
+            `<meta property="og:image:type" content="image/jpeg">`,
+            `<meta property="og:image:width" content="1200">`,
+            `<meta property="og:image:height" content="630">`,
+            `<meta property="og:image:alt" content="${escapeAttr("A sealed envelope addressed to " + guest.name)}">`);
+        }
+        html = html.replace("<!--share-->", tags.join("\n"));
+      }
+      return send(200, html, "text/html; charset=utf-8",
+        { "X-Robots-Tag": "noindex", "Cache-Control": "no-cache" });
     }
 
     if (url.pathname === "/healthz") {

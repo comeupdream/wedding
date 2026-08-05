@@ -139,6 +139,24 @@ who's coming, or who hasn't replied, then **Copy these links** or **Download
 links CSV** for just that group. Links are built from the address you're on, so
 they're always the right hostname.
 
+### Share cards
+
+When you send an invitation link, the preview in a message shows **that
+household's own sealed envelope** — their name on it, in their wax. The images
+are rendered once and committed, because link previews want a real file and
+won't run the page:
+
+```sh
+node tools/share-cards.mjs                 # every invitation with a role
+node tools/share-cards.mjs --all           # everybody
+node tools/share-cards.mjs --who "Lynda"
+```
+
+Needs Playwright, which is a tool-time dependency, not a server one. Re-run it
+after renaming anyone, or after giving someone a role — the file is named by
+password, so a new password means a new card. Invitations without a rendered
+card still get a title and a description in the preview, just no picture.
+
 ### The invitation card
 
 The link you send opens `/invite?c=####`: a vanilla envelope addressed to the
