@@ -926,7 +926,9 @@
         codeError.hidden = true;
         gate.hidden = true;
         form.hidden = false;
-        greeting.textContent = "Welcome, " + g.name + " — we saved " + g.party +
+        // list names read "Sister – Amy"; greet people by the name half only
+        var firstName = g.name.split(" – ").pop();
+        greeting.textContent = "Welcome, " + firstName + " — we saved " + g.party +
           (g.party > 1 ? " seats" : " seat") + " for you.";
         note.textContent = g.note || "";
         note.hidden = !g.note;
