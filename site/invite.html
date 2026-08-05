@@ -1,0 +1,824 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>An invitation — Sharon &amp; Zachary</title>
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="alternate icon" href="/assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="stylesheet" href="/assets/fonts.css">
+<!--share-->
+<style>
+  :root {
+    --paper: #FBF3E4;
+    --vellum: #F6EAD2;
+    --vellum-edge: #E4D2AE;
+    /* Every value below is measured against --vellum, the darkest the card gets,
+       and clears 7:1 — WCAG AAA for text at any size. */
+    --ink: #2B1A17;          /* 13.9:1 */
+    --ink-soft: #57403A;     /*  8.0:1 */
+    --maple: #8A2A1B;        /*  7.3:1 — also the wax red */
+    --maple-deep: #6E2115;
+    --gold: #66450F;         /*  7.3:1 */
+    --night: #2E1A2E;
+    --display: "Didot", "Bodoni MT", "Playfair Display", Georgia, serif;
+    --script: "Parisienne", "Snell Roundhand", "Brush Script MT", cursive;
+    --body: "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 2rem 1rem;
+    font-family: var(--body);
+    color: var(--ink);
+    background:
+      radial-gradient(120% 90% at 50% 0%, #4A2038 0%, #2E1A2E 55%, #241522 100%);
+  }
+  /* Envelope and card share one grid cell, so the card rises into the place the
+     envelope just left instead of appearing below it. */
+  .stage {
+    width: min(38rem, 100%);
+    display: grid;
+    align-items: center;
+  }
+  .stage > .envelope,
+  .stage > .card { grid-area: 1 / 1; }
+
+  /* ---------- the envelope ---------- */
+  .envelope {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    margin: 0 auto;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    font: inherit;
+    color: inherit;
+  }
+  .envelope[hidden] { display: none; }
+  .env-body {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(160deg, #FBF1DC 0%, var(--vellum) 45%, #EFE0C2 100%);
+    border: 1px solid var(--vellum-edge);
+    box-shadow: 0 1.4rem 3rem rgba(0, 0, 0, 0.45);
+  }
+  /* the two lower folds, drawn as flat shadows so the paper reads as folded */
+  .env-body::before,
+  .env-body::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    width: 52%;
+    height: 100%;
+    background: linear-gradient(120deg, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0));
+  }
+  .env-body::before { left: 0; clip-path: polygon(0 0, 100% 100%, 0 100%); }
+  .env-body::after { right: 0; clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+  .env-flap {
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 62%;
+    background: linear-gradient(180deg, #FBF1DC 0%, #F1E2C4 100%);
+    border: 1px solid var(--vellum-edge);
+    border-bottom: 0;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    transform-origin: top center;
+    transition: transform 900ms cubic-bezier(.4, .05, .2, 1);
+    z-index: 3;
+  }
+  .env-to {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 14%;
+    padding: 0 7%;
+    text-align: center;
+    text-wrap: balance;
+    line-height: 1.15;
+    font-family: var(--script);
+    font-size: clamp(1.5rem, 5vw, 2.3rem);
+    color: var(--ink);
+    z-index: 2;
+  }
+  /* Households are named things like "Alexia, David, Sebastian & Linsey" —
+     a script face at full size would run off the paper. */
+  .env-to.long { font-size: clamp(1.1rem, 3.6vw, 1.7rem); }
+  .env-hint {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 5%;
+    text-align: center;
+    font-size: 0.72rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    z-index: 2;
+  }
+
+  /* ---------- the wax seal ---------- */
+  /* The UA stylesheet's [hidden] rule doesn't reach elements inside an SVG,
+     so the sheen needs saying explicitly or it shows on every seal. */
+  #seal-shine[hidden] { display: none; }
+  .seal {
+    position: absolute;
+    left: 50%;
+    top: 62%;
+    width: clamp(4rem, 15%, 5.5rem);
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    z-index: 4;
+    transition: opacity 350ms ease, transform 350ms ease;
+    filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.4));
+  }
+  .envelope:hover .seal { transform: translate(-50%, -50%) scale(1.04); }
+
+  /* ---------- the card ---------- */
+  .card {
+    position: relative;
+    background: linear-gradient(170deg, #FDF6E7 0%, var(--vellum) 100%);
+    border: 1px solid var(--vellum-edge);
+    box-shadow: 0 1.4rem 3rem rgba(0, 0, 0, 0.45);
+    padding: clamp(2rem, 6vw, 3.4rem) clamp(1.4rem, 6vw, 3.4rem);
+    text-align: center;
+  }
+  /* Sparkles sit behind the words and only around the margins, so nothing
+     ever twinkles underneath text. They shimmer as the card arrives and then
+     settle — finite, so there is no perpetual motion to need a pause control. */
+  .sparkles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .sparkles i {
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    opacity: 0;
+    background:
+      radial-gradient(circle, currentColor 0 18%, transparent 62%),
+      linear-gradient(currentColor, currentColor) center/100% 1px no-repeat,
+      linear-gradient(currentColor, currentColor) center/1px 100% no-repeat;
+    animation: twinkle 2.6s ease-in-out 3 both;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0; transform: scale(.5) rotate(0deg); }
+    50%      { opacity: .85; transform: scale(1) rotate(45deg); }
+  }
+  .card > *:not(.sparkles) { position: relative; z-index: 1; }
+  .card.role-gold .sparkles { color: #C79A2A; }
+  .card.role-blue .sparkles { color: #4C7CAE; }
+  .card.role-ivy .sparkles { color: #3E8A62; }
+  .card.role-silver .sparkles { color: #9AA1A8; }
+  .card.role-rose .sparkles { color: #B9647F; }
+  @media (prefers-reduced-motion: reduce) {
+    .sparkles i { animation: none; opacity: .5; transform: none; }
+  }
+  .card::after {
+    content: "";
+    position: absolute;
+    inset: 0.7rem;
+    border: 1px solid rgba(150, 48, 31, 0.28);
+    pointer-events: none;
+  }
+  .card.role-gold::after { border-color: rgba(154, 112, 22, 0.5); }
+  .card.role-silver::after { border-color: rgba(110, 118, 126, 0.55); }
+  .card.role-rose::after { border-color: rgba(163, 69, 104, 0.5); }
+  .card.role-rose .ask { color: #742640; }     /* 8.4:1 on the vellum card */
+  .card.role-blue .ask { color: #1E3F62; }     /* 9.1:1 on the vellum card */
+  .card.role-ivy .ask { color: #1B4A33; }      /* 8.5:1 on the vellum card */
+  .card.role-ivy::after { border-color: rgba(42, 106, 74, 0.5); }
+  .card.role-blue::after { border-color: rgba(51, 96, 143, 0.5); }
+  /* The parents' cards are a thank-you, so their line is given more room. */
+  .card.role-blue .ask { font-size: clamp(1.1rem, 3.6vw, 1.4rem); max-width: 28rem; }
+  .card.role-silver .ask { color: #4A5057; }   /* 7.6:1 on the vellum card */
+  .eyebrow {
+    margin: 0 0 1.4rem;
+    font-size: 0.72rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .names {
+    margin: 0;
+    font-family: var(--script);
+    font-size: clamp(2.6rem, 11vw, 4.2rem);
+    font-weight: 400;
+    line-height: 1.05;
+    color: var(--maple);
+  }
+  .names .amp {
+    display: block;
+    font-size: 0.42em;
+    color: var(--gold);
+    margin: 0.1em 0;
+  }
+  .invited {
+    margin: 1.8rem 0 0;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+  }
+  .guests {
+    margin: 0.5rem 0 0;
+    font-family: var(--display);
+    font-size: clamp(1.2rem, 4.5vw, 1.7rem);
+    line-height: 1.5;
+    color: var(--ink);
+  }
+  .rule {
+    margin: 1.9rem auto;
+    width: 7rem;
+    border: 0;
+    border-top: 1px solid rgba(150, 48, 31, 0.4);
+  }
+  .when {
+    margin: 0;
+    font-family: var(--display);
+    font-size: clamp(1.15rem, 4vw, 1.5rem);
+    letter-spacing: 0.04em;
+    color: var(--ink);
+  }
+  .where {
+    margin: 0.55rem 0 0;
+    font-size: 0.8rem;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+  .scope {
+    margin: 1.6rem 0 0;
+    display: inline-block;
+    padding: 0.45rem 1.1rem;
+    border: 1px solid rgba(150, 48, 31, 0.4);
+    font-size: 0.72rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--maple);
+  }
+  .ask {
+    margin: 1.7rem auto 0;
+    max-width: 26rem;
+    font-family: var(--display);
+    font-size: clamp(1.05rem, 3.4vw, 1.3rem);
+    line-height: 1.5;
+    color: #6A4A0C;   /* 7.2:1 on the vellum card */
+  }
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 3rem;         /* 48px — comfortably over the 44px AAA target */
+    min-width: 14rem;
+    margin-top: 2.2rem;
+    padding: 0.9rem 2rem;
+    font-family: var(--body);
+    font-size: 0.82rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: #FFF6E8;           /* 7.6:1 on --maple */
+    background: var(--maple);
+    border: 1px solid var(--maple-deep);
+  }
+  .cta:hover { background: var(--maple-deep); }
+  .byline {
+    margin: 1rem 0 0;
+    font-size: 0.74rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--maple);
+  }
+  .ask em { font-style: italic; }
+  .closing {
+    margin: 0.9rem 0 0;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  :focus-visible {
+    outline: 3px solid #FDCB6A;
+    outline-offset: 3px;
+  }
+
+  /* Opening: the seal breaks, the flap lifts, the card rises out. */
+  .stage.open .env-flap { transform: rotateX(178deg); }
+  /* The seal doesn't fade — it shatters on the canvas, so it just vanishes
+     the instant the shards take its place. */
+  .stage.open .seal { opacity: 0; transition: none; }
+  .stage.open .env-body,
+  .stage.open .env-to,
+  .stage.open .env-hint { transition: opacity 400ms ease 350ms; opacity: 0; }
+  .stage.open .envelope { transform: translateY(0.6rem) scale(0.97); transition: transform 800ms ease 200ms; }
+  .card {
+    opacity: 0;
+    transform: translateY(2.2rem) scale(0.97);
+    transition: opacity 650ms ease 420ms, transform 850ms cubic-bezier(.2, .9, .25, 1) 420ms;
+  }
+  .stage.open .card { opacity: 1; transform: none; }
+  .card[hidden] { display: none; }
+
+  /* Sits over everything, purely decorative, and never takes a click. */
+  .fx {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 20;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .env-flap, .seal, .card, .envelope, .env-body, .env-to, .env-hint { transition: none !important; }
+  }
+</style>
+
+<canvas class="fx" id="fx" aria-hidden="true"></canvas>
+
+<main class="stage" id="stage">
+  <h1 class="sr-only" id="page-title">An invitation from Sharon and Zachary</h1>
+  <button class="envelope" id="envelope" type="button" aria-expanded="false" aria-controls="card">
+    <span class="env-body" aria-hidden="true"></span>
+    <span class="env-to" id="env-to">&nbsp;</span>
+    <span class="env-hint" id="env-hint">Tap to open</span>
+    <span class="env-flap" aria-hidden="true"></span>
+    <svg class="seal" viewBox="0 0 100 100" aria-hidden="true" focusable="false">
+      <defs>
+        <radialGradient id="wax" cx="38%" cy="32%" r="72%">
+          <stop offset="0%" stop-color="#A83525"/>
+          <stop offset="55%" stop-color="#7E2517"/>
+          <stop offset="100%" stop-color="#5C1409"/>
+        </radialGradient>
+        <!-- Standing at the wedding is shown in the wax: gold for the best
+             man, silver for the groomsmen, ordinary red for everyone else. -->
+        <radialGradient id="gold" cx="36%" cy="28%" r="78%">
+          <stop offset="0%"   stop-color="#FBE9A8"/>
+          <stop offset="18%"  stop-color="#EBC65C"/>
+          <stop offset="46%"  stop-color="#C79A2A"/>
+          <stop offset="74%"  stop-color="#96701A"/>
+          <stop offset="100%" stop-color="#5F430A"/>
+        </radialGradient>
+        <!-- Ivory, for the maids of honour. Near-white wax pressed onto a vanilla
+             envelope has almost nothing to separate it, so the rim carries a warm
+             shadow and the monogram is inked dark instead of light. -->
+        <radialGradient id="ivory" cx="36%" cy="28%" r="78%">
+          <stop offset="0%"   stop-color="#FFFDF7"/>
+          <stop offset="30%"  stop-color="#FAF2DF"/>
+          <stop offset="62%"  stop-color="#EDDFC2"/>
+          <stop offset="100%" stop-color="#C3AE86"/>
+        </radialGradient>
+        <!-- The sheen across the top-left, where a pressed seal catches light. -->
+        <radialGradient id="sheen" cx="34%" cy="24%" r="42%">
+          <stop offset="0%"   stop-color="#FFF6D4" stop-opacity=".72"/>
+          <stop offset="60%"  stop-color="#FFF6D4" stop-opacity=".14"/>
+          <stop offset="100%" stop-color="#FFF6D4" stop-opacity="0"/>
+        </radialGradient>
+        <!-- Mica: sparse bright grains suspended in the wax. Turbulence gives
+             the scatter; the matrix keeps only the brightest peaks. -->
+        <filter id="mica" x="0" y="0" width="100%" height="100%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/>
+          <feColorMatrix in="n" type="matrix" result="m"
+            values="0 0 0 0 1  0 0 0 0 0.93  0 0 0 0 0.72  7 -3 -3 0 -3.1"/>
+          <feComposite in="m" in2="SourceGraphic" operator="in"/>
+        </filter>
+        <clipPath id="sealclip">
+          <path d="M50 3c13 0 22 6 31 13s16 16 15 30-9 24-18 32-21 19-33 17-25-11-33-20S1 55 3 42 14 20 24 13 37 3 50 3Z"/>
+        </clipPath>
+        <radialGradient id="silver" cx="38%" cy="32%" r="72%">
+          <stop offset="0%" stop-color="#CFD3D8"/>
+          <stop offset="55%" stop-color="#8C9298"/>
+          <stop offset="100%" stop-color="#5A6067"/>
+        </radialGradient>
+        <radialGradient id="blue" cx="38%" cy="32%" r="72%">
+          <stop offset="0%" stop-color="#6E9ACB"/>
+          <stop offset="55%" stop-color="#33608F"/>
+          <stop offset="100%" stop-color="#1A3654"/>
+        </radialGradient>
+        <radialGradient id="ivy" cx="38%" cy="32%" r="72%">
+          <stop offset="0%" stop-color="#7FC49B"/>
+          <stop offset="55%" stop-color="#2A6A4A"/>
+          <stop offset="100%" stop-color="#1B4A33"/>
+        </radialGradient>
+        <radialGradient id="rose" cx="38%" cy="32%" r="72%">
+          <stop offset="0%" stop-color="#D98098"/>
+          <stop offset="55%" stop-color="#A34568"/>
+          <stop offset="100%" stop-color="#742640"/>
+        </radialGradient>
+      </defs>
+      <!-- a hand-pressed edge: a circle nudged out of round -->
+      <path id="seal-wax" fill="url(#wax)" d="M50 3c13 0 22 6 31 13s16 16 15 30-9 24-18 32-21 19-33 17-25-11-33-20S1 55 3 42 14 20 24 13 37 3 50 3Z"/>
+      <g clip-path="url(#sealclip)" id="seal-shine" hidden>
+        <rect x="0" y="0" width="100" height="100" fill="url(#sheen)"/>
+        <rect x="0" y="0" width="100" height="100" filter="url(#mica)" opacity=".55"/>
+      </g>
+      <circle cx="50" cy="50" r="33" fill="none" stroke="#5B1409" stroke-opacity=".45" stroke-width="1.6" id="seal-ring"/>
+      <text x="50" y="50" text-anchor="middle" dominant-baseline="central" id="seal-mono"
+            font-family="Didot, 'Bodoni MT', Georgia, serif" font-size="40" fill="#FBEDDC" fill-opacity=".93">W</text>
+    </svg>
+  </button>
+
+  <article class="card" id="card" hidden tabindex="-1" aria-labelledby="card-names">
+    <span class="sparkles" id="sparkles" aria-hidden="true"></span>
+    <p class="eyebrow">Together with their families</p>
+    <h2 class="names" id="card-names">Sharon<span class="amp">&amp;</span>Zachary</h2>
+    <p class="invited" id="invited-line">request the pleasure of your company</p>
+    <p class="guests" id="guests"></p>
+    <hr class="rule">
+    <p class="when">Saturday, the tenth of October<br>Two thousand twenty-six</p>
+    <p class="where">Lydia Mountain <span aria-hidden="true">·</span> Virginia</p>
+    <p><span class="scope" id="scope"></span></p>
+    <p class="ask" id="ask" hidden></p>
+    <p><a class="cta" id="rsvp-link" href="/#rsvp">RSVP</a></p>
+    <p class="byline">Kindly reply by the first of September</p>
+    <p class="closing" id="closing"></p>
+  </article>
+</main>
+
+<script>
+(function () {
+  var stage = document.getElementById("stage");
+  var envelope = document.getElementById("envelope");
+  var card = document.getElementById("card");
+  var code = new URLSearchParams(location.search).get("c") || "";
+  var SCOPES = {
+    both: "Ceremony & reception",
+    ceremony: "Ceremony only",
+    reception: "Reception only"
+  };
+
+  // Join names the way a person would: "Amy, Chris and Taylor".
+  function list(names) {
+    if (names.length < 2) return names[0] || "";
+    return names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
+  }
+
+  function fill(g) {
+    var seats = g.party || 1;
+    var named = (g.members || []).filter(Boolean);
+    var to = document.getElementById("env-to");
+    var addressed = g.name.replace(/\s*\([^)]*\)\s*$/, "");
+    to.textContent = addressed;
+    to.classList.toggle("long", addressed.length > 22);
+    // The card names the household, not each person — the per-person list lives
+    // in the admin guest list and on the RSVP form. Where a household is
+    // addressed one way and written out another — "The Hausenflecks" on the
+    // envelope, "Gaby & Dylan Hausenfleck" on the invitation — the card takes
+    // the written-out form.
+    document.getElementById("guests").textContent = g.formal || g.name;
+    document.getElementById("scope").textContent = SCOPES[g.invite] || SCOPES.both;
+
+    // A standing at the wedding gets its own seal and its own ask. The first
+    // name comes from the invitation itself, so nothing is hard-coded per guest.
+    var ROLES = {
+      "best-man": {
+        seal: "url(#gold)", ring: "#5A3E09", tone: "gold",
+        shades: ["#E0B44A", "#B98A22", "#7A5410"],
+        ask: function (n) {
+          return n + " — of everyone I could ask, it could only be you. " +
+            "Would you do me the honour of standing beside me as my best man?";
+        }
+      },
+      "groomsman": {
+        seal: "url(#silver)", ring: "#464C52", tone: "silver",
+        shades: ["#DDE1E6", "#A0A6AD", "#6B7178"],
+        ask: function (n) {
+          return n + " — the day wouldn't feel like mine without you in it. " +
+            "Will you stand with me as one of my groomsmen?";
+        }
+      },
+      // Sharon's side. The three maids of honour are her sisters, which is why
+      // theirs reads the way it does. Ivory wax — near-white on a vanilla
+      // envelope, so the monogram is inked dark instead of light.
+      "maid-of-honor": {
+        seal: "url(#ivory)", ring: "#8A7350", mono: "#5C4A2E", tone: "gold",
+        shades: ["#FFFDF7", "#EDDFC2", "#C3AE86"],
+        ask: function (n) {
+          return n + " — you have been beside me my whole life, and I'm not " +
+            "walking towards him without you. Will you be one of my maids of honour?";
+        }
+      },
+      // The parents. Blue wax, and the only cards that thank rather than ask.
+      "groom-mother": {
+        seal: "url(#blue)", ring: "#12283E", tone: "blue",
+        shades: ["#7FA8D4", "#33608F", "#1A3654"],
+        ask: function (n) {
+          return "Mom — you raised me for this day long before either of us knew " +
+            "it was coming. Everything I am walking towards, you gave me first. " +
+            "Thank you.";
+        }
+      },
+      "bride-parents": {
+        seal: "url(#blue)", ring: "#12283E", tone: "blue",
+        shades: ["#7FA8D4", "#33608F", "#1A3654"],
+        ask: function (n) {
+          return "Mami and Papi — you showed me what this looks like when it's done " +
+            "right, and I have spent my life measuring against it. Thank you for " +
+            "every single day of it.";
+        }
+      },
+      // Zachary's sisters — not bridesmaids, and their own wax to say so.
+      "groom-sister": {
+        seal: "url(#ivy)", ring: "#123524", tone: "ivy",
+        shades: ["#8FCFA8", "#2A6A4A", "#1B4A33"],
+        ask: function (n) {
+          return n + " — you have had a front-row seat to every version of me, " +
+            "including the ones I would rather forget, and you never once looked " +
+            "away. I'd be honoured to have my sister standing there when I do this.";
+        }
+      },
+      // Sharon's ask, so it is written in her voice rather than Zachary's.
+      "bridesmaid": {
+        seal: "url(#rose)", ring: "#5E1B30", tone: "rose",
+        shades: ["#E092A8", "#A34568", "#742640"],
+        ask: function (n) {
+          return n + " — I've pictured this day a hundred times, and you are in " +
+            "every version of it. Will you stand beside me as one of my bridesmaids?";
+        }
+      }
+    };
+    var ask = document.getElementById("ask");
+    var role = ROLES[g.role];
+    // *stars* mark emphasis; everything else is escaped, so the text stays
+    // plain data.
+    var writeAsk = function (words) {
+      ask.innerHTML = words
+        .replace(/[&<>]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]; })
+        .replace(/\*([^*]+)\*/g, "<em>$1</em>");
+      ask.hidden = false;
+    };
+    var wax = document.getElementById("seal-wax");
+    var ring = document.getElementById("seal-ring");
+    var mono = document.getElementById("seal-mono");
+    var cardEl = document.querySelector(".card");
+    cardEl.classList.remove("role-gold", "role-silver", "role-rose", "role-blue", "role-ivy");
+    if (role) {
+      if (wax) wax.setAttribute("fill", role.seal);
+      if (ring) ring.setAttribute("stroke", role.ring);
+      // Light wax needs a dark W; every other seal keeps the cream one.
+      if (mono) mono.setAttribute("fill", role.mono || "#FBEDDC");
+      // Address them by the first name on the invitation.
+      // Words written for this guest win over the role's default.
+      writeAsk(g.ask || role.ask((named[0] || g.name).split(/[\s,&]/)[0]));
+      cardEl.classList.add("role-" + role.tone);
+      waxShades = role.shades;
+      // Every standing gets the sheen and the mica — only the ordinary red
+      // wax is left plain.
+      var shine = document.getElementById("seal-shine");
+      if (shine) shine.removeAttribute("hidden");
+      sparkle(18);
+    } else {
+      waxShades = WAX_RED;
+      if (wax) wax.setAttribute("fill", "url(#wax)");
+      if (ring) ring.setAttribute("stroke", "#5B1409");
+      if (mono) mono.setAttribute("fill", "#FBEDDC");
+      // No standing at the wedding, but words can still be written for an
+      // invitation on its own — a note keeps the plain red wax.
+      if (g.ask) writeAsk(g.ask); else ask.hidden = true;
+      var plain = document.getElementById("seal-shine");
+      if (plain) plain.setAttribute("hidden", "");
+      document.getElementById("sparkles").innerHTML = "";
+    }
+    document.getElementById("closing").textContent = seats > 1
+      ? seats + " seats have been reserved in your name."
+      : "A seat has been reserved in your name.";
+    var link = document.getElementById("rsvp-link");
+    link.href = "/?c=" + encodeURIComponent(code) + "#rsvp";
+    link.setAttribute("aria-label", "RSVP for " + g.name);
+    document.title = "An invitation for " + g.name + " — Sharon & Zachary";
+    document.getElementById("page-title").textContent = "An invitation for " + g.name +
+      " from Sharon and Zachary";
+    envelope.setAttribute("aria-label", "Sealed envelope addressed to " + g.name +
+      ". Activate to open your invitation.");
+  }
+
+  /* ---------------------------------------------------------------------
+     The opening. Everything below is drawn, not filmed: the wax seal breaks
+     into shards struck out from its centre, and a handful of maple leaves and
+     two small hearts puff out of the envelope and drift down. Each run differs
+     because every piece takes a random size, spin, and heading.
+
+     It is deliberately short — under three seconds, then the canvas clears and
+     the loop stops. WCAG's "moving content" rule (2.2.2) only bites past five,
+     and prefers-reduced-motion skips the whole thing anyway.
+  --------------------------------------------------------------------- */
+  var fx = document.getElementById("fx");
+  var ctx = fx.getContext("2d");
+  var bits = [];
+  var running = false;
+  var GRAVITY = 0.00042;          // px per ms squared, tuned by eye
+  var LEAF = ["#B33F2E", "#E8833A", "#C98A2D", "#8A2A1B", "#D6A03C"];
+  // Shard colours per seal. Set when the invitation loads, so a gold seal
+  // shatters into gold and a silver one into silver.
+  var WAX_RED = ["#A83525", "#7E2517", "#5C1409"];
+  var waxShades = WAX_RED;
+  var rand = function (lo, hi) { return lo + Math.random() * (hi - lo); };
+
+  function size() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    fx.width = Math.round(innerWidth * dpr);
+    fx.height = Math.round(innerHeight * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  size();
+  addEventListener("resize", size);
+
+  // A wax shard: a wedge of the seal with a jagged inner break.
+  function shard(cx, cy, r, a0, a1) {
+    var pts = [[0, 0]];
+    var steps = 4;
+    for (var i = 0; i <= steps; i++) {
+      var a = a0 + (a1 - a0) * (i / steps);
+      var rr = r * rand(0.86, 1);
+      pts.push([Math.cos(a) * rr, Math.sin(a) * rr]);
+    }
+    var mid = (a0 + a1) / 2;
+    return {
+      kind: "wax", x: cx, y: cy, pts: pts,
+      vx: Math.cos(mid) * rand(0.09, 0.22),
+      vy: Math.sin(mid) * rand(0.09, 0.22) - rand(0.04, 0.12),
+      rot: 0, spin: rand(-0.009, 0.009),
+      life: 0, ttl: rand(800, 1150),
+      fill: waxShades[(Math.random() * waxShades.length) | 0]
+    };
+  }
+
+  // A leaf, or now and then a small heart — it is a wedding, after all.
+  function leaf(cx, cy) {
+    var heart = Math.random() < 0.18;
+    return {
+      kind: heart ? "heart" : "leaf",
+      x: cx + rand(-14, 14), y: cy + rand(-8, 8),
+      vx: rand(-0.26, 0.26), vy: rand(-0.52, -0.2),
+      r: rand(5, 11),
+      rot: rand(0, Math.PI * 2), spin: rand(-0.004, 0.004),
+      sway: rand(0.0012, 0.0028), phase: rand(0, Math.PI * 2),
+      life: 0, ttl: rand(1900, 2800),
+      fill: heart ? "#B33F2E" : LEAF[(Math.random() * LEAF.length) | 0]
+    };
+  }
+
+  function drawLeaf(p) {
+    // Two mirrored curves meeting at a point, with a midrib.
+    var r = p.r;
+    ctx.beginPath();
+    ctx.moveTo(0, -r);
+    ctx.bezierCurveTo(r * 0.9, -r * 0.35, r * 0.7, r * 0.6, 0, r);
+    ctx.bezierCurveTo(-r * 0.7, r * 0.6, -r * 0.9, -r * 0.35, 0, -r);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(0, -r * 0.85);
+    ctx.lineTo(0, r * 0.85);
+    ctx.globalAlpha *= 0.35;
+    ctx.strokeStyle = "#5C1409";
+    ctx.lineWidth = Math.max(0.6, r * 0.09);
+    ctx.stroke();
+  }
+
+  function drawHeart(p) {
+    var r = p.r;
+    ctx.beginPath();
+    ctx.moveTo(0, r * 0.75);
+    ctx.bezierCurveTo(-r * 1.5, -r * 0.2, -r * 0.55, -r * 1.15, 0, -r * 0.42);
+    ctx.bezierCurveTo(r * 0.55, -r * 1.15, r * 1.5, -r * 0.2, 0, r * 0.75);
+    ctx.fill();
+  }
+
+  function frame(last) {
+    return function step(now) {
+      var dt = Math.min(now - last, 34);   // clamp, so a stall doesn't teleport
+      last = now;
+      ctx.clearRect(0, 0, fx.width, fx.height);
+      for (var i = bits.length - 1; i >= 0; i--) {
+        var p = bits[i];
+        p.life += dt;
+        if (p.life > p.ttl) { bits.splice(i, 1); continue; }
+        p.vy += GRAVITY * dt;
+        if (p.sway) p.vx += Math.sin(p.phase + p.life * p.sway) * 0.0016 * dt;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        p.rot += p.spin * dt;
+
+        var fade = p.life / p.ttl;
+        ctx.save();
+        var from = p.kind === "wax" ? 0.55 : 0.72;
+        ctx.globalAlpha = fade > from ? 1 - (fade - from) / (1 - from) : 1;
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.fillStyle = p.fill;
+        if (p.kind === "wax") {
+          ctx.beginPath();
+          ctx.moveTo(p.pts[0][0], p.pts[0][1]);
+          for (var j = 1; j < p.pts.length; j++) ctx.lineTo(p.pts[j][0], p.pts[j][1]);
+          ctx.closePath();
+          ctx.fill();
+        } else if (p.kind === "heart") { drawHeart(p); } else { drawLeaf(p); }
+        ctx.restore();
+      }
+      if (bits.length) { requestAnimationFrame(step); }
+      else { running = false; ctx.clearRect(0, 0, fx.width, fx.height); }
+    };
+  }
+  function run() {
+    if (running) return;
+    running = true;
+    requestAnimationFrame(function (t) { requestAnimationFrame(frame(t)); });
+  }
+
+  function breakSeal() {
+    var seal = envelope.querySelector(".seal");
+    var box = seal.getBoundingClientRect();
+    var cx = box.left + box.width / 2;
+    var cy = box.top + box.height / 2;
+    var r = box.width / 2;
+    var n = 7 + ((Math.random() * 3) | 0);
+    var edge = 0;
+    for (var i = 0; i < n; i++) {
+      var next = edge + (Math.PI * 2) / n * rand(0.75, 1.3);
+      bits.push(shard(cx, cy, r, edge, Math.min(next, Math.PI * 2)));
+      edge = next;
+      if (edge >= Math.PI * 2) break;
+    }
+    // ...and the puff of leaves that comes out with it.
+    for (var k = 0; k < 16; k++) bits.push(leaf(cx, cy + r * 0.4));
+    run();
+  }
+
+  // Scattered around the margins, never across the middle where the words are.
+  function sparkle(n) {
+    var box = document.getElementById("sparkles");
+    box.innerHTML = "";
+    for (var i = 0; i < n; i++) {
+      var s = document.createElement("i");
+      var edge = Math.random() < 0.5;
+      var x = edge ? rand(2, 14) + (Math.random() < 0.5 ? 0 : 84) : rand(4, 96);
+      var y = edge ? rand(4, 96) : rand(2, 12) + (Math.random() < 0.5 ? 0 : 86);
+      s.style.left = x + "%";
+      s.style.top = y + "%";
+      var size = rand(3, 7);
+      s.style.width = s.style.height = size + "px";
+      s.style.animationDelay = rand(0, 2200) + "ms";
+      box.appendChild(s);
+    }
+  }
+
+  function open() {
+    if (stage.classList.contains("open")) return;
+    var motion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    card.hidden = false;
+    if (!motion) breakSeal();
+    // Let the browser lay the card out before the transition starts.
+    requestAnimationFrame(function () {
+      stage.classList.add("open");
+      envelope.setAttribute("aria-expanded", "true");
+    });
+    setTimeout(function () {
+      envelope.hidden = true;
+      card.focus();
+    }, motion ? 0 : 900);
+  }
+  envelope.addEventListener("click", open);
+
+  if (!code) {
+    document.getElementById("env-to").textContent = "Our friends";
+    document.getElementById("env-hint").textContent = "Tap to open";
+    document.getElementById("guests").textContent = "Our friends and family";
+    document.getElementById("scope").textContent = SCOPES.both;
+    document.getElementById("closing").textContent = "";
+    return;
+  }
+
+  fetch("/api/unlock", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code: code })
+  }).then(function (r) {
+    if (!r.ok) throw new Error("no");
+    return r.json();
+  }).then(fill).catch(function () {
+    document.getElementById("env-to").textContent = "Our friends";
+    document.getElementById("guests").textContent = "Our friends and family";
+    document.getElementById("scope").textContent = SCOPES.both;
+    document.getElementById("closing").textContent =
+      "We couldn't read the password on this link — the RSVP page will ask for it.";
+    document.getElementById("rsvp-link").href = "/#rsvp";
+  });
+})();
+</script>
+</html>

@@ -1,308 +1,730 @@
 [
  {
-  "code": "OAKLEAF-3800",
-  "name": "Mother \u2013 Rashmi",
-  "party": 1
+  "code": "1556",
+  "name": "TEST",
+  "party": 3,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Test One",
+   "Test Two"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": true
  },
  {
-  "code": "CEDAR-7677",
-  "name": "Sister \u2013 Amy",
-  "party": 1
+  "code": "3863",
+  "name": "Abha & Family",
+  "party": 3,
+  "invite": "both",
+  "contact": "Abhasharma@aol.com",
+  "members": [
+   "Abha",
+   "Abha's Mom",
+   "Ashwin"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "ASPEN-4698",
-  "name": "Amy's Husband \u2013 Chris",
-  "party": 1
+  "code": "8231",
+  "name": "Alexia, David, Sebastian & Linsey",
+  "party": 4,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Alexia",
+   "David",
+   "Sebastian",
+   "Linsey"
+  ],
+  "role": "maid-of-honor",
+  "ask": "",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "BIRCH-7144",
-  "name": "Sister \u2013 Ashley",
-  "party": 1
+  "code": "5069",
+  "name": "Aman Khera",
+  "party": 2,
+  "invite": "both",
+  "contact": "kharams@hotmail.com",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "ORCHARD-8836",
-  "name": "Ashley's Husband \u2013 Joe",
-  "party": 1
+  "code": "3530",
+  "name": "Amit & Audra Varma",
+  "party": 2,
+  "invite": "both",
+  "contact": "amit.varma01@gmail.com",
+  "members": [
+   "Amit",
+   "Audra"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "LANTERN-6818",
-  "name": "Linda",
+  "code": "8995",
+  "name": "Appu & Ken",
+  "party": 4,
+  "invite": "both",
+  "contact": "Janetribble21@gmail.com; Sgosaie91@gmail.com; Sarahgosaie94@gmail.com",
+  "members": [
+   "Appu",
+   "Ken",
+   "Sarah",
+   "Shelly"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "4845",
+  "name": "Archana & Rajeev",
+  "party": 2,
+  "invite": "both",
+  "contact": "Arcraj@aol.com",
+  "members": [
+   "Archana",
+   "Rajeev"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "2341",
+  "name": "Bholi Dhillon",
+  "party": 2,
+  "invite": "both",
+  "contact": "bholi0910@gmail.com",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "2551",
+  "name": "Brian & Angie",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Brian",
+   "Angie"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "6578",
+  "name": "Brianna Dorset",
   "party": 1,
-  "note": "Before there were vows, there were pudding cups, backyard baseball, and a very small boy asking for “McDonalds winna pweez.” You took care of me then — it wouldn’t be a wedding without you here now."
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "ACORN-8710",
-  "name": "Linda's Husband – Shaun",
-  "party": 1
+  "code": "8831",
+  "name": "Carson Whitmore",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "groomsman",
+  "ask": "",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "CEDAR-8710",
-  "name": "Mia",
-  "party": 1
+  "code": "2570",
+  "name": "Charles Williams",
+  "party": 1,
+  "invite": "both",
+  "contact": "ccwjr@comcast.net",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "CIDER-4145",
-  "name": "Dexter",
-  "party": 1
+  "code": "1723",
+  "name": "Charnae Holmes",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "bridesmaid",
+  "ask": "",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "MAPLE-6029",
-  "name": "Taylor",
-  "party": 1
+  "code": "6996",
+  "name": "Durga & Family",
+  "party": 4,
+  "invite": "both",
+  "contact": "Dkumar323@yahoo.com",
+  "members": [
+   "Durga",
+   "Ritika",
+   "Nitika",
+   "Loveena"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "HICKORY-6763",
-  "name": "Anthony",
-  "party": 1
+  "code": "3987",
+  "name": "The Hausenflecks",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Gaby",
+   "Dylan"
+  ],
+  "role": "maid-of-honor",
+  "ask": "",
+  "formal": "Gaby & Dylan Hausenfleck",
+  "test": false
  },
  {
-  "code": "BIRCH-5796",
-  "name": "Pradeep",
-  "party": 1
+  "code": "2022",
+  "name": "Gita & Sudhir Chopra",
+  "party": 2,
+  "invite": "both",
+  "contact": "goregous37@gmail.com",
+  "members": [
+   "Gita",
+   "Sudhir"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "ACORN-2433",
-  "name": "Sudhir",
-  "party": 1
+  "code": "4337",
+  "name": "Herpal & Family",
+  "party": 5,
+  "invite": "both",
+  "contact": "Hsmalik1@yahoo.com",
+  "members": [
+   "Herpal",
+   "Maheer",
+   "Roshni"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "SUMAC-3680",
-  "name": "Pinki",
-  "party": 1
+  "code": "1484",
+  "name": "Jassi Slatch",
+  "party": 2,
+  "invite": "both",
+  "contact": "Jassslach@yahoo.com",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "ACORN-4996",
-  "name": "Vikram",
-  "party": 1
+  "code": "5995",
+  "name": "Jon Snyder & Francine",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Jon",
+   "Francine"
+  ],
+  "role": "best-man",
+  "ask": "",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "CEDAR-4049",
-  "name": "Sonya",
-  "party": 1
+  "code": "2668",
+  "name": "Kamlesh & Ashok Varma",
+  "party": 2,
+  "invite": "both",
+  "contact": "kamsvarma@gmail.com",
+  "members": [
+   "Kamlesh",
+   "Ashok"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "ACORN-4066",
-  "name": "Mini",
-  "party": 1
+  "code": "4728",
+  "name": "Kulsoom & Luciano",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Kulsoom",
+   "Luciano"
+  ],
+  "role": "bridesmaid",
+  "ask": "",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "LANTERN-8441",
-  "name": "Ravi",
-  "party": 1
+  "code": "9430",
+  "name": "Leena and Rakesh Chug",
+  "party": 2,
+  "invite": "both",
+  "contact": "Leenachug@hotmail.com",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "WILLOW-7668",
-  "name": "Geeta",
-  "party": 1
+  "code": "7455",
+  "name": "Linda & Shaun Fitzmaurice",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Linda",
+   "Shaun"
+  ],
+  "role": "",
+  "ask": "Before there were vows, there were pudding cups, backyard baseball, and a very small boy asking for “McDonalds winna pweez.” You took care of me then — it wouldn’t be a wedding without you here now.",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "ORCHARD-8089",
-  "name": "Dhruv",
-  "party": 1
+  "code": "1023",
+  "name": "Lynda",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "maid-of-honor",
+  "ask": "Lynda — you have been beside me for *your* whole life, whether you liked it or not. Will you be one of my maids of honour?",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "CIDER-1009",
-  "name": "Ridhi",
-  "party": 1
+  "code": "4259",
+  "name": "Nick Adkins",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "ACORN-2626",
-  "name": "Ruchi",
-  "party": 1
+  "code": "4424",
+  "name": "Nita & Harish Batra",
+  "party": 2,
+  "invite": "both",
+  "contact": "Nitabatranita@gmail.com",
+  "members": [
+   "Nita",
+   "Harish"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "WILLOW-1368",
-  "name": "Vinay",
-  "party": 1
- },
- {
-  "code": "AUTUMN-8971",
-  "name": "Neal",
-  "party": 1
- },
- {
-  "code": "ASPEN-6445",
-  "name": "Rahul",
-  "party": 1
- },
- {
-  "code": "SUMAC-7947",
-  "name": "Sid",
-  "party": 1
- },
- {
-  "code": "MAPLE-5700",
-  "name": "Saurabh",
-  "party": 1
- },
- {
-  "code": "LANTERN-4227",
-  "name": "Aneesha",
-  "party": 1
- },
- {
-  "code": "EMBER-7861",
-  "name": "Sarika",
-  "party": 1
- },
- {
-  "code": "SUMAC-6103",
-  "name": "Asher",
-  "party": 1
- },
- {
-  "code": "ASPEN-4723",
-  "name": "Simran",
-  "party": 1
- },
- {
-  "code": "SUMAC-2890",
-  "name": "Zed",
-  "party": 1
- },
- {
-  "code": "CIDER-7296",
-  "name": "Brianna",
-  "party": 1
- },
- {
-  "code": "MAPLE-7458",
-  "name": "Brian",
-  "party": 1
- },
- {
-  "code": "HARVEST-8579",
-  "name": "Sincere",
-  "party": 1
- },
- {
-  "code": "HARVEST-9297",
-  "name": "Nick",
-  "party": 1
- },
- {
-  "code": "HICKORY-9164",
-  "name": "Jon",
-  "party": 1
- },
- {
-  "code": "OAKLEAF-2282",
-  "name": "Carson",
-  "party": 1
- },
- {
-  "code": "SUMAC-8377",
-  "name": "Sam",
-  "party": 1
- },
- {
-  "code": "LANTERN-1355",
-  "name": "Herpal Family",
-  "party": 3
- },
- {
-  "code": "FOLIAGE-8762",
-  "name": "Raju & Herleen Family",
-  "party": 4
- },
- {
-  "code": "SUMAC-6864",
-  "name": "Durga Family",
-  "party": 3
- },
- {
-  "code": "OAKLEAF-2211",
-  "name": "Tony & Alka Family",
-  "party": 4
- },
- {
-  "code": "BIRCH-7320",
-  "name": "Gita Aunty",
-  "party": 1
- },
- {
-  "code": "ACORN-9780",
-  "name": "Pratima & Ravi",
-  "party": 2
- },
- {
-  "code": "FOLIAGE-4415",
-  "name": "Apu Aunty Family",
-  "party": 3
- },
- {
-  "code": "MAPLE-5297",
-  "name": "Abba Aunty Family",
-  "party": 2
- },
- {
-  "code": "ASPEN-5950",
-  "name": "Mother \u2013 Yuly",
-  "party": 1
- },
- {
-  "code": "BIRCH-6369",
-  "name": "Father \u2013 Rudy",
-  "party": 1
- },
- {
-  "code": "AUTUMN-2698",
-  "name": "Sister \u2013 Lynda",
-  "party": 1
- },
- {
-  "code": "CEDAR-2534",
-  "name": "Lynda's Husband \u2013 Dylan",
-  "party": 1
- },
- {
-  "code": "OAKLEAF-1142",
-  "name": "Sister \u2013 Alexia",
-  "party": 1
- },
- {
-  "code": "WILLOW-5607",
-  "name": "Sister \u2013 Gaby",
-  "party": 1
- },
- {
-  "code": "FOLIAGE-8534",
-  "name": "Gaby's Husband \u2013 David",
-  "party": 1
- },
- {
-  "code": "EMBER-1829",
-  "name": "Sebastian",
-  "party": 1
- },
- {
-  "code": "ORCHARD-5684",
-  "name": "Lindsay",
-  "party": 1
- },
- {
-  "code": "WILLOW-8400",
-  "name": "Charnae",
-  "party": 1
- },
- {
-  "code": "BIRCH-8183",
+  "code": "6760",
   "name": "Olivia Leon Vitervo",
-  "party": 1
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "bridesmaid",
+  "ask": "",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "LANTERN-5785",
+  "code": "5511",
+  "name": "Pandit Abhay & Daughter",
+  "party": 2,
+  "invite": "both",
+  "contact": "315-560-0853",
+  "members": [
+   "Pandit Abhay",
+   "Daughter"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "3935",
+  "name": "Pinki & Sudhir Sekhri",
+  "party": 2,
+  "invite": "both",
+  "contact": "invite via What's app family group and phone call; invite via What's app family group and phone call",
+  "members": [
+   "Pinki",
+   "Sudhir"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "2775",
+  "name": "Pradeep Sekhri & Gulnar",
+  "party": 2,
+  "invite": "both",
+  "contact": "invite via What's app family group; Gulnar006@gmail.com",
+  "members": [
+   "Pradeep",
+   "Gulnar"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "9254",
+  "name": "Rahul Sekri",
+  "party": 1,
+  "invite": "both",
+  "contact": "What's App Brother's group",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "8133",
+  "name": "Rajni Trehan",
+  "party": 1,
+  "invite": "both",
+  "contact": "RajniTrehan10@gmail.com",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "2939",
+  "name": "Raju & Herleen Sodhi",
+  "party": 4,
+  "invite": "both",
+  "contact": "Harleen.sodhi2@gmail.com",
+  "members": [
+   "Raju",
+   "Herleen",
+   "Kabir",
+   "Divita"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "4844",
+  "name": "Raju Madhok",
+  "party": 1,
+  "invite": "both",
+  "contact": "Rajmadhok17@gmail.com",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "5985",
+  "name": "Rashmi Sekhri",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Rashmi"
+  ],
+  "role": "groom-mother",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "9625",
+  "name": "Ravi & Geeta Varma",
+  "party": 2,
+  "invite": "both",
+  "contact": "vsgr1956@gmail.com",
+  "members": [
+   "Ravi",
+   "Geeta"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "2030",
+  "name": "Sam Guion",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "groomsman",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "5908",
+  "name": "Saurabh Sekhri",
+  "party": 1,
+  "invite": "both",
+  "contact": "What's App Brother's group",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "6117",
+  "name": "Shruti & Family",
+  "party": 3,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "7901",
+  "name": "Siddarth & Pari Sekhri",
+  "party": 2,
+  "invite": "both",
+  "contact": "What's App Brother's group; What's App Brother's group",
+  "members": [
+   "Siddarth",
+   "Pari"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "4062",
+  "name": "Sincere",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "8383",
+  "name": "Sreedhar & Family",
+  "party": 3,
+  "invite": "both",
+  "contact": "makarla@gmail.com",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "1155",
+  "name": "The Dodsons",
+  "party": 4,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Amy",
+   "Chris",
+   "Dexter",
+   "Taylor"
+  ],
+  "role": "groom-sister",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "4392",
+  "name": "The Felices",
+  "party": 4,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Ashley",
+   "Joe",
+   "Mia",
+   "Anthony"
+  ],
+  "role": "groom-sister",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "7510",
+  "name": "The Lamonts",
+  "party": 4,
+  "invite": "both",
+  "contact": "Varma.Sarika@gmail.com",
+  "members": [
+   "Sarika",
+   "Neil",
+   "Asher",
+   "Simran"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "1358",
+  "name": "Toffee & Harry Bawa",
+  "party": 2,
+  "invite": "both",
+  "contact": "dhanguru_nanak@hotmail.com",
+  "members": [
+   "Toffee",
+   "Harry"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "8228",
+  "name": "Tony & Alka Sappal",
+  "party": 4,
+  "invite": "both",
+  "contact": "Alkasappal@gmail.com",
+  "members": [
+   "Tony",
+   "Alka",
+   "Samay",
+   "Samay's wife"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "9568",
+  "name": "Vikram Sekhri",
+  "party": 1,
+  "invite": "both",
+  "contact": "invite via What's app family group and phone call",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "7008",
+  "name": "Vinay Varma",
+  "party": 1,
+  "invite": "both",
+  "contact": "What's App Brother's group",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "5449",
   "name": "Yamilet Macias",
-  "party": 1
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "BIRCH-3721",
-  "name": "Kulsoom",
-  "party": 1
+  "code": "7072",
+  "name": "Yuly & Rudy",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Yuly",
+   "Rudy"
+  ],
+  "role": "bride-parents",
+  "ask": "",
+  "formal": "",
+  "test": false
  },
  {
-  "code": "FOLIAGE-9690",
-  "name": "Loey",
-  "party": 1
+  "code": "9208",
+  "name": "Zed Maely",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
  }
 ]

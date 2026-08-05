@@ -1,3 +1,5 @@
+<!doctype html>
+<html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sharon &amp; Zachary — Wedding Invitation</title>
@@ -7,7 +9,7 @@
 <meta name="theme-color" content="#5C2340">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Sharon &amp; Zachary — A Fall Wedding at Lydia Mountain">
-<meta property="og:description" content="Join us in the Blue Ridge Mountains of Virginia. Enter your invitation code to RSVP.">
+<meta property="og:description" content="October 10, 2026 — join us in the Blue Ridge Mountains of Virginia. Enter your invitation password to RSVP.">
 <meta property="og:image" content="https://sharonandzachary.love/assets/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -35,6 +37,12 @@
     --maple: #B33F2E;
     --maple-deep: #8E2F22;
     --gold: #C98A2D;
+    /* Text tokens, measured against --paper and --paper-deep. Both clear 7:1,
+       so every one of them is WCAG AAA at any size. The two above stay as they
+       are: they only ever paint large decorative areas, never text. */
+    --maple-ink: #8A2A1B;   /* 7.8:1 on paper, 7.0:1 on paper-deep */
+    --gold-ink: #66450F;    /* 7.9:1 on paper */
+    --ink-muted: #57403A;   /* 8.7:1 on paper */
     --display: "Didot", "Bodoni MT", "Playfair Display", "Georgia", serif;
     --script: "Parisienne", "Snell Roundhand", "Brush Script MT", cursive;
     --body: "Iowan Old Style", "Palatino Linotype", "Georgia", serif;
@@ -101,8 +109,8 @@
     font-size: 0.78rem;
     letter-spacing: 0.28em;
     text-transform: uppercase;
-    color: var(--paper);
-    background: var(--maple);
+    color: #FFF6E8;
+    background: var(--maple-ink);   /* 8.1:1 against the label above */
     border: 1px solid var(--maple-deep);
     padding: 0.95rem 1.9rem;
     cursor: pointer;
@@ -110,7 +118,7 @@
     transition: background-color 160ms ease;
   }
   .btn:hover { background: var(--maple-deep); }
-  .btn.ghost { background: transparent; color: var(--maple); }
+  .btn.ghost { background: transparent; color: var(--maple-ink); }
   .btn.ghost:hover { background: rgba(179, 63, 46, 0.1); }
 
   /* ---------- Venue view ---------- */
@@ -179,7 +187,7 @@
     text-align: center;
     font-style: italic;
     font-size: 0.9rem;
-    color: var(--ink-soft);
+    color: var(--ink-muted);
   }
   .venue-cta { text-align: center; margin-top: 3rem; }
   .discover-cta { text-align: center; margin-top: 2.2rem; }
@@ -190,31 +198,92 @@
   .code-row input { flex: 1; text-transform: uppercase; letter-spacing: 0.08em; }
   .code-row .btn { padding: 0.8rem 1.4rem; }
   .code-error { color: #FFB3A0; font-size: 0.9rem; margin-top: 0.6rem; }
+  .code-busy { color: rgba(251, 243, 228, 0.7); font-size: 0.9rem; margin-top: 0.6rem; }
+  .field-hint {
+    font-size: 0.78rem;
+    color: rgba(251, 243, 228, 0.6);
+    margin: 0;
+  }
+  /* ---------- who's coming, per person ---------- */
+  .party-lede {
+    font-size: 0.95rem;
+    color: rgba(251, 243, 228, 0.78);
+    margin-bottom: 1.1rem;
+  }
+  /* Columns come from --cols, which the form narrows for a ceremony-only
+     invite. Kept in CSS rather than inline so the phone layout below wins. */
+  .party-head, .party-row {
+    display: grid;
+    grid-template-columns: var(--cols, 1fr 6.5rem 6.5rem 6.5rem);
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .party-head span {
+    font-size: 0.66rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--sky-glow);
+    text-align: center;
+  }
+  .party-row {
+    padding: 0.7rem 0;
+    border-top: 1px solid rgba(251, 243, 228, 0.16);
+  }
+  .party-row input[type="text"] {
+    padding: 0.55rem 0.7rem;
+    font-size: 0.98rem;
+  }
+  .party-row .who { font-size: 1rem; }
+  .party-row .tick { display: flex; justify-content: center; align-items: center; min-height: 2.75rem; }
+  /* Visible only on phones, where the column headings are gone. */
+  .tick-text {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .party-row input[type="checkbox"] {
+    width: 1.3rem;
+    height: 1.3rem;
+    accent-color: var(--maple);
+    cursor: pointer;
+  }
+  .party-row.out .who { opacity: 0.5; }
+  @media (max-width: 34rem) {
+    .party-head { display: none; }
+    .party-row {
+      grid-template-columns: 1fr;   /* one stacked row per person on a phone */
+      gap: 0.5rem;
+      padding: 1rem 0;
+    }
+    .party-row .tick {
+      justify-content: flex-start;
+      gap: 0.6rem;
+      font-size: 0.8rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--sky-glow);
+    }
+    /* On a phone there is no header row, so the label earns its place on screen. */
+    .party-row .tick-text {
+      position: static;
+      width: auto;
+      height: auto;
+      margin: 0;
+      overflow: visible;
+      clip: auto;
+      clip-path: none;
+      white-space: normal;
+    }
+  }
   .rsvp-greeting {
     text-align: center;
     font-family: var(--script);
     font-size: 1.7rem;
     color: var(--sky-glow);
-    margin-bottom: 0.2rem;
-  }
-  /* personal line, shown only for guests who have one on their invite */
-  .rsvp-note {
-    max-width: 34rem;
-    margin: 0.4rem auto 1.6rem;
-    text-align: center;
-    font-style: italic;
-    line-height: 1.7;
-    opacity: 0.9;
-  }
-  .rsvp-note::before,
-  .rsvp-note::after {
-    content: "";
-    display: block;
-    width: 3.4rem;
-    height: 1px;
-    margin: 1rem auto;
-    background: currentColor;
-    opacity: 0.35;
   }
 
   /* ---------- Hero ---------- */
@@ -290,6 +359,20 @@
     font-size: 1.55rem;
     color: #FFE9C4;
   }
+  .hero-year {
+    margin-top: 0.1rem;
+    font-size: 0.78rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(255, 233, 196, 0.8);
+  }
+  .events-note {
+    margin-top: 2rem;
+    text-align: center;
+    font-size: 0.9rem;
+    font-style: italic;
+    color: var(--ink-soft, #6E5247);
+  }
   .scroll-cue {
     position: absolute;
     bottom: 4.5vh;
@@ -313,11 +396,23 @@
   section { padding: 5.5rem 1.5rem; }
   .shell { max-width: 62rem; margin: 0 auto; }
   .shell-narrow { max-width: 40rem; margin: 0 auto; }
+  .skip {
+    position: absolute;
+    left: 0.6rem;
+    top: -4rem;
+    z-index: 99;
+    padding: 0.8rem 1.2rem;
+    background: var(--paper);
+    color: var(--maple-ink);
+    font-size: 0.85rem;
+    transition: top 150ms ease;
+  }
+  .skip:focus { top: 0.6rem; }
   .sec-label {
     font-size: 0.75rem;
     letter-spacing: 0.32em;
     text-transform: uppercase;
-    color: var(--gold);
+    color: var(--gold-ink);
     text-align: center;
   }
   h2 {
@@ -347,7 +442,7 @@
     text-align: center;
     max-width: 34rem;
     margin: 0 auto;
-    color: var(--ink-soft);
+    color: var(--ink-muted);
     font-size: 1.06rem;
   }
 
@@ -428,7 +523,7 @@
     font-size: 1.45rem;
     margin-bottom: 0.35rem;
   }
-  .event p { color: var(--ink-soft); font-size: 0.98rem; }
+  .event p { color: var(--ink-muted); font-size: 0.98rem; }
   @media (max-width: 34rem) {
     .event { grid-template-columns: 1fr; gap: 0.9rem; }
     .event-when {
@@ -452,13 +547,13 @@
     font-size: 0.8rem;
     letter-spacing: 0.28em;
     text-transform: uppercase;
-    color: var(--ink-soft);
+    color: var(--ink-muted);
     margin-top: 0.4rem;
   }
   .venue p.detail {
     max-width: 32rem;
     margin: 1.4rem auto 0;
-    color: var(--ink-soft);
+    color: var(--ink-muted);
   }
 
   /* ---------- RSVP ---------- */
@@ -502,8 +597,8 @@
     font-size: 0.8rem;
     letter-spacing: 0.3em;
     text-transform: uppercase;
-    color: var(--paper);
-    background: var(--maple);
+    color: #FFF6E8;
+    background: var(--maple-ink);   /* 8.1:1 against the label above */
     border: 1px solid var(--maple-deep);
     padding: 1.05rem 2rem;
     cursor: pointer;
@@ -542,6 +637,7 @@
   }
 </style>
 
+<a class="skip" href="#main">Skip to content</a>
 <nav class="site-nav" aria-label="Site">
   <button class="brand" type="button" data-goto="home">S &amp; Z</button>
   <div class="tabs" role="tablist">
@@ -550,6 +646,7 @@
   </div>
 </nav>
 
+<main id="main">
 <div class="view" id="view-home">
 <header class="hero">
   <canvas class="leaffall" aria-hidden="true"></canvas>
@@ -565,7 +662,8 @@
     <p class="eyebrow">Together with their families</p>
     <h1 class="names">Sharon<span class="amp">&amp;</span>Zachary</h1>
     <p class="hero-sub">Lydia Mountain <span class="dot">·</span> Virginia</p>
-    <p class="hero-date">A fall wedding — date to be announced</p>
+    <p class="hero-date">Saturday, the tenth of October</p>
+    <p class="hero-year">Two thousand twenty-six</p>
   </div>
   <a class="scroll-cue" href="#story">Scroll</a>
 </header>
@@ -612,8 +710,8 @@
         <div>
           <h3>The Ceremony</h3>
           <p>An outdoor ceremony under the mandap with the Blue Ridge behind us,
-             honoring both of our traditions. Timing and details to follow with your
-             formal invitation.</p>
+             honoring both of our traditions. Start time comes with the full
+             schedule.</p>
         </div>
       </article>
       <article class="event">
@@ -626,6 +724,8 @@
         </div>
       </article>
     </div>
+    <p class="events-note">The full schedule and the final menu are still being
+       finalized — we'll post both here well before the day.</p>
   </div>
 </section>
 
@@ -653,51 +753,37 @@
   <div class="shell-narrow">
     <p class="sec-label">RSVP</p>
     <h2>Save us a dance</h2>
-    <p class="lede">Enter the invitation code from your invite to RSVP for the
-       ceremony, the reception, or both.</p>
+    <p class="lede">Enter the four-digit password from your invitation to RSVP.
+       Your invite tells you which parts of the day you're joining us for.</p>
     <div id="code-gate">
       <div class="field">
-        <label for="f-code">Invitation code</label>
+        <label for="f-code">Invitation password</label>
         <div class="code-row">
-          <input id="f-code" type="text" autocomplete="off" spellcheck="false" placeholder="MAPLE-1234">
+          <input id="f-code" type="text" inputmode="numeric" autocomplete="off"
+                 spellcheck="false" maxlength="8" placeholder="1234">
           <button class="btn" id="code-btn" type="button">Unlock</button>
         </div>
-        <p class="code-error" id="code-error" hidden>We couldn't find that code —
+        <p class="code-busy" id="code-busy" hidden>Opening your invitation…</p>
+        <p class="code-error" id="code-error" hidden>We couldn't find that password —
            double-check your invitation, or send us a note.</p>
       </div>
     </div>
     <form id="rsvp-form" novalidate hidden>
       <p class="rsvp-greeting" id="rsvp-greeting"></p>
-      <p class="rsvp-note" id="rsvp-note" hidden></p>
-      <div class="field-row">
-        <div class="field">
-          <label for="f-events">Joining us for</label>
-          <select id="f-events" name="events">
-            <option value="both">Ceremony &amp; reception</option>
-            <option value="ceremony">Ceremony only</option>
-            <option value="reception">Reception only</option>
-            <option value="none">Unable to attend</option>
-          </select>
+      <div id="party-wrap">
+        <p class="party-lede" id="party-lede"></p>
+        <div class="party-head" id="party-head">
+          <span></span>
+          <span class="col-ceremony">Ceremony</span>
+          <span class="col-reception">Reception</span>
+          <span class="col-veg">Vegetarian</span>
         </div>
-        <div class="field">
-          <label for="f-party">Guests attending</label>
-          <input id="f-party" name="party" type="number" min="1" value="1">
-        </div>
+        <div id="party-rows"></div>
+        <p class="field-hint" id="party-hint"></p>
       </div>
-      <div class="field-row">
-        <div class="field">
-          <label for="f-email">Email</label>
-          <input id="f-email" name="email" type="email" autocomplete="email" required>
-        </div>
-        <div class="field" id="dinner-wrap">
-          <label for="f-dinner">Dinner preference</label>
-          <select id="f-dinner" name="dinner">
-            <option value="steak">Steak</option>
-            <option value="salmon">Glazed salmon</option>
-            <option value="indian">Indian buffet</option>
-            <option value="veg">Vegetarian</option>
-          </select>
-        </div>
+      <div class="field">
+        <label for="f-email">Email</label>
+        <input id="f-email" name="email" type="email" autocomplete="email" required>
       </div>
       <div class="field">
         <label for="f-note">A note for the couple (optional)</label>
@@ -708,8 +794,9 @@
          RSVP — please try again in a moment.</p>
     </form>
     <p class="rsvp-confirm" id="rsvp-confirm">Thank you — we can't wait to celebrate with you.</p>
-    <p class="rsvp-note">Each invitation has its own code — check your invite, or
-       send us a note if it's gone missing.</p>
+    <p class="rsvp-note">Each invitation has its own password — check your invite, or
+       send us a note if it's gone missing. Changed your mind? Unlock again and
+       send a new answer; the latest one counts.</p>
   </div>
 </section>
 
@@ -764,6 +851,7 @@
     </div>
   </section>
 </div>
+</main>
 
 <footer>
   <p class="names-small">Sharon &amp; Zachary</p>
@@ -894,13 +982,16 @@
     var codeInput = document.getElementById("f-code");
     var codeBtn = document.getElementById("code-btn");
     var codeError = document.getElementById("code-error");
+    var codeBusy = document.getElementById("code-busy");
     var form = document.getElementById("rsvp-form");
     var greeting = document.getElementById("rsvp-greeting");
-    var note = document.getElementById("rsvp-note");
     var confirmMsg = document.getElementById("rsvp-confirm");
-    var eventsSel = document.getElementById("f-events");
-    var partyInput = document.getElementById("f-party");
-    var dinnerWrap = document.getElementById("dinner-wrap");
+    var emailInput = document.getElementById("f-email");
+    var noteInput = document.getElementById("f-note");
+    var partyRows = document.getElementById("party-rows");
+    var partyLede = document.getElementById("party-lede");
+    var partyHead = document.getElementById("party-head");
+    var partyHint = document.getElementById("party-hint");
     if (!gate || !form) return;
 
     var current = null;
@@ -911,64 +1002,189 @@
       codeInput.focus();
       codeInput.select();
     }
-    function tryUnlock() {
+
+    // The invite decides which columns exist: a ceremony-only invitation never
+    // shows a reception tick, so nobody can accept an event they weren't asked to.
+    var scope = { ceremony: true, reception: true };
+    function setScope(allowed) {
+      scope.ceremony = allowed.indexOf("ceremony") >= 0 || allowed.indexOf("both") >= 0;
+      scope.reception = allowed.indexOf("reception") >= 0 || allowed.indexOf("both") >= 0;
+      partyHead.querySelector(".col-ceremony").hidden = !scope.ceremony;
+      partyHead.querySelector(".col-reception").hidden = !scope.reception;
+      partyHead.querySelector(".col-veg").hidden = !scope.reception;
+      var cols = ["1fr"];
+      if (scope.ceremony) cols.push("6.5rem");
+      if (scope.reception) cols.push("6.5rem", "6.5rem");
+      // Set as a custom property, not an inline grid: the phone media query
+      // has to be able to collapse these rows to a single column.
+      document.getElementById("party-wrap").style.setProperty("--cols", cols.join(" "));
+    }
+
+    // One row per seat. Named guests are printed; unnamed seats get a text box
+    // so a household can tell us who is actually coming.
+    function buildRows(seats, members, saved) {
+      partyRows.innerHTML = "";
+      for (var i = 0; i < seats; i++) {
+        var known = (members && members[i]) || "";
+        var prev = saved && saved[i];
+        var row = document.createElement("div");
+        row.className = "party-row";
+
+        var who = document.createElement("div");
+        who.className = "who";
+        if (known) {
+          who.textContent = known;
+          who.dataset.name = known;
+        } else {
+          var input = document.createElement("input");
+          input.type = "text";
+          input.placeholder = "Guest " + (i + 1) + "'s name";
+          input.setAttribute("aria-label", "Name of guest " + (i + 1));
+          input.value = prev ? prev.name : "";
+          who.appendChild(input);
+        }
+        row.appendChild(who);
+
+        var LABELS = { ceremony: "Ceremony", reception: "Reception", vegetarian: "Vegetarian" };
+        ["ceremony", "reception", "vegetarian"].forEach(function (kind) {
+          var cell = document.createElement("label");
+          cell.className = "tick";
+          var box = document.createElement("input");
+          box.type = "checkbox";
+          box.dataset.kind = kind;
+          // Default a fresh invitation to yes for the events they're invited to.
+          box.checked = prev ? Boolean(prev[kind]) : (kind !== "vegetarian" && scope[kind]);
+          cell.appendChild(box);
+          // Wrapped text is the checkbox's accessible name. It reads as
+          // "Amy — Ceremony", so each tick says who as well as what. The column
+          // header carries it visually on a wide screen, so it's hidden there.
+          var text = document.createElement("span");
+          text.className = "tick-text";
+          text.textContent = (known || "Guest " + (i + 1)) + " — " + LABELS[kind];
+          cell.appendChild(text);
+          cell.hidden = kind === "ceremony" ? !scope.ceremony : !scope.reception;
+          row.appendChild(cell);
+        });
+        partyRows.appendChild(row);
+      }
+      syncRows();
+    }
+
+    // Grey out a person who isn't coming, and hide a meal question that can't apply.
+    function syncRows() {
+      Array.prototype.forEach.call(partyRows.children, function (row) {
+        var boxes = row.querySelectorAll("input[type=checkbox]");
+        var by = {};
+        Array.prototype.forEach.call(boxes, function (b) { by[b.dataset.kind] = b; });
+        var coming = (by.ceremony && by.ceremony.checked) || (by.reception && by.reception.checked);
+        row.classList.toggle("out", !coming);
+        if (by.vegetarian) {
+          var eats = by.reception && by.reception.checked;
+          by.vegetarian.disabled = !eats;
+          if (!eats) by.vegetarian.checked = false;
+        }
+      });
+    }
+    partyRows.addEventListener("change", syncRows);
+    // Keep each tick's accessible name in step with a typed-in guest name.
+    partyRows.addEventListener("input", function (e) {
+      if (e.target.type !== "text") return;
+      var row = e.target.closest(".party-row");
+      var name = e.target.value.trim() || e.target.placeholder.replace("'s name", "");
+      Array.prototype.forEach.call(row.querySelectorAll(".tick-text"), function (t) {
+        t.textContent = name + " — " + t.textContent.split(" — ")[1];
+      });
+    });
+
+    function collect() {
+      return Array.prototype.map.call(partyRows.children, function (row, i) {
+        var who = row.querySelector(".who");
+        var typed = who.querySelector("input");
+        var by = {};
+        Array.prototype.forEach.call(row.querySelectorAll("input[type=checkbox]"), function (b) {
+          by[b.dataset.kind] = b.checked;
+        });
+        return {
+          name: (typed ? typed.value.trim() : who.dataset.name) || ("Guest " + (i + 1)),
+          ceremony: Boolean(by.ceremony),
+          reception: Boolean(by.reception),
+          vegetarian: Boolean(by.vegetarian)
+        };
+      });
+    }
+
+    function unlocked(code, g) {
+      current = { code: code, name: g.name, party: g.party, invite: g.invite };
+      codeError.hidden = true;
+      gate.hidden = true;
+      form.hidden = false;
+      setScope(g.events || ["both", "ceremony", "reception", "none"]);
+      buildRows(g.party, g.members || [], g.rsvp ? g.rsvp.attendees : null);
+      var many = g.party > 1;
+      greeting.textContent = (g.rsvp ? "Welcome back, " : "Welcome, ") + g.name;
+      partyLede.textContent = g.rsvp
+        ? "Here's what you sent us — change anything and send it again."
+        : many
+          ? "We've saved " + g.party + " seats for you. Tick who's joining us, for each part of the day."
+          : "Tick what you'll be joining us for.";
+      partyHint.textContent = many
+        ? "One row per seat — leave a row unticked for anyone who can't make it."
+        : "Untick both if you can't make it.";
+      if (g.rsvp) {
+        emailInput.value = g.rsvp.email || "";
+        noteInput.value = g.rsvp.note || "";
+      }
+      form.scrollIntoView({ block: "center" });
+      var first = partyRows.querySelector("input");
+      if (first) first.focus();
+    }
+
+    function tryUnlock(code, silent) {
+      var value = (code === undefined ? codeInput.value : code).trim();
+      if (!value) return;
       codeBtn.disabled = true;
+      codeBusy.hidden = !silent;
       fetch("/api/unlock", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: codeInput.value })
+        body: JSON.stringify({ code: value })
       }).then(function (r) {
         if (r.status === 404) throw new Error("badcode");
+        if (r.status === 429) throw new Error("throttled");
         if (!r.ok) throw new Error("server");
         return r.json();
       }).then(function (g) {
-        current = { code: codeInput.value, name: g.name, party: g.party };
-        codeError.hidden = true;
-        gate.hidden = true;
-        form.hidden = false;
-        // list names read "Sister – Amy"; greet people by the name half only
-        var firstName = g.name.split(" – ").pop();
-        greeting.textContent = "Welcome, " + firstName + " — we saved " + g.party +
-          (g.party > 1 ? " seats" : " seat") + " for you.";
-        note.textContent = g.note || "";
-        note.hidden = !g.note;
-        partyInput.value = g.party;
-        partyInput.max = g.party;
-        form.querySelector("select").focus();
+        unlocked(value, g);
       }).catch(function (e) {
+        if (silent) codeInput.value = "";
         showCodeError(e.message === "badcode"
-          ? "We couldn't find that code — double-check your invitation, or send us a note."
-          : "The RSVP service isn't reachable right now — please try again shortly.");
-      }).then(function () { codeBtn.disabled = false; });
+          ? "We couldn't find that password — double-check your invitation, or send us a note."
+          : e.message === "throttled"
+            ? "That's a few too many tries — please wait a few minutes and try again."
+            : "The RSVP service isn't reachable right now — please try again shortly.");
+      }).then(function () {
+        codeBtn.disabled = false;
+        codeBusy.hidden = true;
+      });
     }
-    codeBtn.addEventListener("click", tryUnlock);
+    codeBtn.addEventListener("click", function () { tryUnlock(); });
     codeInput.addEventListener("keydown", function (e) {
       if (e.key === "Enter") { e.preventDefault(); tryUnlock(); }
     });
 
-    function syncFields() {
-      var v = eventsSel.value;
-      dinnerWrap.hidden = (v === "ceremony" || v === "none");
-      partyInput.disabled = (v === "none");
-    }
-    eventsSel.addEventListener("change", syncFields);
-    syncFields();
-
     form.addEventListener("submit", function (e) {
       e.preventDefault();
-      var email = document.getElementById("f-email");
-      if (!email.value.trim() || email.value.indexOf("@") < 0) { email.focus(); return; }
+      if (!emailInput.value.trim() || emailInput.value.indexOf("@") < 0) { emailInput.focus(); return; }
       var entry = {
         code: current ? current.code : "",
-        events: eventsSel.value,
-        party: partyInput.value,
-        email: email.value.trim(),
-        dinner: dinnerWrap.hidden ? "" : document.getElementById("f-dinner").value,
-        note: document.getElementById("f-note").value.trim()
+        attendees: collect(),
+        email: emailInput.value.trim(),
+        note: noteInput.value.trim()
       };
       var sendBtn = form.querySelector(".submit");
       var sendError = document.getElementById("rsvp-error");
       sendBtn.disabled = true;
+      sendError.hidden = true;
       fetch("/api/rsvp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -977,10 +1193,26 @@
         if (!r.ok) throw new Error("server");
         form.style.display = "none";
         confirmMsg.style.display = "block";
+        confirmMsg.scrollIntoView({ block: "center" });
       }).catch(function () {
         sendBtn.disabled = false;
         sendError.hidden = false;
       });
     });
+
+    // Personal links carry the password (…/?c=4821). Unlock straight away and
+    // scrub it out of the address bar so it isn't left in history or a screenshot.
+    var fromLink = new URLSearchParams(location.search).get("c");
+    if (fromLink) {
+      codeInput.value = fromLink;
+      if (history.replaceState) {
+        var params = new URLSearchParams(location.search);
+        params.delete("c");
+        var q = params.toString();
+        history.replaceState(null, "", location.pathname + (q ? "?" + q : "") + location.hash);
+      }
+      tryUnlock(fromLink, true);
+    }
   })();
 </script>
+</html>
