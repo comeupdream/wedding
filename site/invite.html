@@ -154,6 +154,8 @@
   }
   .card.role-gold::after { border-color: rgba(154, 112, 22, 0.5); }
   .card.role-silver::after { border-color: rgba(110, 118, 126, 0.55); }
+  .card.role-rose::after { border-color: rgba(163, 69, 104, 0.5); }
+  .card.role-rose .ask { color: #742640; }     /* 8.4:1 on the vellum card */
   .card.role-silver .ask { color: #4A5057; }   /* 7.6:1 on the vellum card */
   .eyebrow {
     margin: 0 0 1.4rem;
@@ -331,6 +333,11 @@
           <stop offset="55%" stop-color="#8C9298"/>
           <stop offset="100%" stop-color="#5A6067"/>
         </radialGradient>
+        <radialGradient id="rose" cx="38%" cy="32%" r="72%">
+          <stop offset="0%" stop-color="#D98098"/>
+          <stop offset="55%" stop-color="#A34568"/>
+          <stop offset="100%" stop-color="#742640"/>
+        </radialGradient>
       </defs>
       <!-- a hand-pressed edge: a circle nudged out of round -->
       <path fill="url(#wax)" d="M50 3c13 0 22 6 31 13s16 16 15 30-9 24-18 32-21 19-33 17-25-11-33-20S1 55 3 42 14 20 24 13 37 3 50 3Z"/>
@@ -404,6 +411,25 @@
           return n + " — the day wouldn't feel like mine without you in it. " +
             "Will you stand with me as one of my groomsmen?";
         }
+      },
+      // Sharon's side. The three maids of honour are her sisters, which is why
+      // theirs reads the way it does; gold seal, like the best man's.
+      "maid-of-honor": {
+        seal: "url(#gold)", ring: "#5A3E09", tone: "gold",
+        shades: ["#E0B44A", "#B98A22", "#7A5410"],
+        ask: function (n) {
+          return n + " — you have been beside me my whole life, and I'm not " +
+            "walking towards him without you. Will you be one of my maids of honour?";
+        }
+      },
+      // Sharon's ask, so it is written in her voice rather than Zachary's.
+      "bridesmaid": {
+        seal: "url(#rose)", ring: "#5E1B30", tone: "rose",
+        shades: ["#E092A8", "#A34568", "#742640"],
+        ask: function (n) {
+          return n + " — I've pictured this day a hundred times, and you are in " +
+            "every version of it. Will you stand beside me as one of my bridesmaids?";
+        }
       }
     };
     var ask = document.getElementById("ask");
@@ -411,7 +437,7 @@
     var wax = document.querySelector(".seal path");
     var ring = document.getElementById("seal-ring");
     var cardEl = document.querySelector(".card");
-    cardEl.classList.remove("role-gold", "role-silver");
+    cardEl.classList.remove("role-gold", "role-silver", "role-rose");
     if (role) {
       if (wax) wax.setAttribute("fill", role.seal);
       if (ring) ring.setAttribute("stroke", role.ring);
