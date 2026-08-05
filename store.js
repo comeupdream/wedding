@@ -101,6 +101,9 @@ create table if not exists guests (
   members    jsonb not null default '[]'::jsonb,
   updated_at timestamptz not null default now()
 );
+-- A standing at the wedding — best-man, groomsman. Added as an ALTER so an
+-- existing guests table picks it up on the next boot.
+alter table guests add column if not exists role text not null default '';
 `;
 
 const UPSERT = `
@@ -150,7 +153,7 @@ const pgStore = async (url) => {
       const { rows } = await pool.query("select * from guests order by name");
       return rows.map((r) => ({
         code: r.code, name: r.name, party: r.party, invite: r.invite,
-        contact: r.contact, members: r.members || [],
+        contact: r.contact, members: r.members || [], role: r.role || "",
       }));
     },
     // Replace the list wholesale, in one transaction: a half-applied guest list
@@ -162,9 +165,10 @@ const pgStore = async (url) => {
         await client.query("delete from guests");
         for (const g of list) {
           await client.query(
-            `insert into guests (code, name, party, invite, contact, members)
-             values ($1, $2, $3, $4, $5, $6)`,
-            [g.code, g.name, g.party, g.invite, g.contact || "", JSON.stringify(g.members || [])]);
+            `insert into guests (code, name, party, invite, contact, members, role)
+             values ($1, $2, $3, $4, $5, $6, $7)`,
+            [g.code, g.name, g.party, g.invite, g.contact || "",
+             JSON.stringify(g.members || []), g.role || ""]);
         }
         await client.query("commit");
       } catch (err) {

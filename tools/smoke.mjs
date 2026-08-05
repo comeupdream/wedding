@@ -305,6 +305,26 @@ if (dbUrl) {
   check("postgres is used when DATABASE_URL is set", pgStore.kind === "postgres" && pgStore.durable);
   await suite("postgres store", pgStore);
 
+  // A standing at the wedding has to survive the store, not just live in memory:
+  // the gold and silver seals are driven entirely by this field.
+  await pgStore.putGuests([
+    { code: "4821", name: "The Dodsons", party: 3, invite: "both", contact: "",
+      members: ["Amy", "Chris", "Dexter"], role: "" },
+    { code: "1001", name: "Jon Snyder", party: 1, invite: "both", contact: "",
+      members: ["Jon"], role: "best-man" },
+    { code: "1002", name: "Carson Whitmore", party: 1, invite: "both", contact: "",
+      members: ["Carson"], role: "groomsman" },
+  ]);
+  const back = await pgStore.guests();
+  console.log("\nroles through postgres");
+  check("the best man's role survives the database",
+    (back.find((g) => g.code === "1001") || {}).role === "best-man",
+    JSON.stringify(back.map((g) => [g.code, g.role])));
+  check("a groomsman's role survives too",
+    (back.find((g) => g.code === "1002") || {}).role === "groomsman");
+  check("everyone else has no role", (back.find((g) => g.code === "4821") || {}).role === "");
+  await pgStore.putGuests(JSON.parse(fs.readFileSync(guestsFile, "utf8")));
+
   // The whole reason Postgres is here: a fresh process — a redeploy — still
   // sees every answer. Nothing is carried over but the connection string.
   console.log("\nsurviving a restart");
