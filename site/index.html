@@ -195,6 +195,26 @@
     font-family: var(--script);
     font-size: 1.7rem;
     color: var(--sky-glow);
+    margin-bottom: 0.2rem;
+  }
+  /* personal line, shown only for guests who have one on their invite */
+  .rsvp-note {
+    max-width: 34rem;
+    margin: 0.4rem auto 1.6rem;
+    text-align: center;
+    font-style: italic;
+    line-height: 1.7;
+    opacity: 0.9;
+  }
+  .rsvp-note::before,
+  .rsvp-note::after {
+    content: "";
+    display: block;
+    width: 3.4rem;
+    height: 1px;
+    margin: 1rem auto;
+    background: currentColor;
+    opacity: 0.35;
   }
 
   /* ---------- Hero ---------- */
@@ -648,6 +668,7 @@
     </div>
     <form id="rsvp-form" novalidate hidden>
       <p class="rsvp-greeting" id="rsvp-greeting"></p>
+      <p class="rsvp-note" id="rsvp-note" hidden></p>
       <div class="field-row">
         <div class="field">
           <label for="f-events">Joining us for</label>
@@ -875,6 +896,7 @@
     var codeError = document.getElementById("code-error");
     var form = document.getElementById("rsvp-form");
     var greeting = document.getElementById("rsvp-greeting");
+    var note = document.getElementById("rsvp-note");
     var confirmMsg = document.getElementById("rsvp-confirm");
     var eventsSel = document.getElementById("f-events");
     var partyInput = document.getElementById("f-party");
@@ -906,6 +928,8 @@
         form.hidden = false;
         greeting.textContent = "Welcome, " + g.name + " — we saved " + g.party +
           (g.party > 1 ? " seats" : " seat") + " for you.";
+        note.textContent = g.note || "";
+        note.hidden = !g.note;
         partyInput.value = g.party;
         partyInput.max = g.party;
         form.querySelector("select").focus();

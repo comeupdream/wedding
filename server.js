@@ -137,7 +137,7 @@ http.createServer(async (req, res) => {
       const { code } = JSON.parse((await readBody(req)) || "{}");
       const guest = byCode.get(norm(code));
       if (!guest) return send(404, { error: "unknown code" });
-      return send(200, { name: guest.name, party: guest.party });
+      return send(200, { name: guest.name, party: guest.party, note: guest.note || "" });
     }
 
     if (req.method === "POST" && url.pathname === "/api/rsvp") {
