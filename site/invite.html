@@ -107,7 +107,7 @@
     color: var(--ink);
     z-index: 2;
   }
-  /* Households are named things like "Alexia, David, Sebastian & Lindsay" —
+  /* Households are named things like "Alexia, David, Sebastian & Linsey" —
      a script face at full size would run off the paper. */
   .env-to.long { font-size: clamp(1.1rem, 3.6vw, 1.7rem); }
   .env-hint {
@@ -177,6 +177,7 @@
   .card > *:not(.sparkles) { position: relative; z-index: 1; }
   .card.role-gold .sparkles { color: #C79A2A; }
   .card.role-blue .sparkles { color: #4C7CAE; }
+  .card.role-ivy .sparkles { color: #3E8A62; }
   .card.role-silver .sparkles { color: #9AA1A8; }
   .card.role-rose .sparkles { color: #B9647F; }
   @media (prefers-reduced-motion: reduce) {
@@ -194,6 +195,8 @@
   .card.role-rose::after { border-color: rgba(163, 69, 104, 0.5); }
   .card.role-rose .ask { color: #742640; }     /* 8.4:1 on the vellum card */
   .card.role-blue .ask { color: #1E3F62; }     /* 9.1:1 on the vellum card */
+  .card.role-ivy .ask { color: #1B4A33; }      /* 8.5:1 on the vellum card */
+  .card.role-ivy::after { border-color: rgba(42, 106, 74, 0.5); }
   .card.role-blue::after { border-color: rgba(51, 96, 143, 0.5); }
   /* The parents' cards are a thank-you, so their line is given more room. */
   .card.role-blue .ask { font-size: clamp(1.1rem, 3.6vw, 1.4rem); max-width: 28rem; }
@@ -399,6 +402,11 @@
           <stop offset="55%" stop-color="#33608F"/>
           <stop offset="100%" stop-color="#1A3654"/>
         </radialGradient>
+        <radialGradient id="ivy" cx="38%" cy="32%" r="72%">
+          <stop offset="0%" stop-color="#7FC49B"/>
+          <stop offset="55%" stop-color="#2A6A4A"/>
+          <stop offset="100%" stop-color="#1B4A33"/>
+        </radialGradient>
         <radialGradient id="rose" cx="38%" cy="32%" r="72%">
           <stop offset="0%" stop-color="#D98098"/>
           <stop offset="55%" stop-color="#A34568"/>
@@ -512,6 +520,16 @@
             "every single day of it.";
         }
       },
+      // Zachary's sisters — not bridesmaids, and their own wax to say so.
+      "groom-sister": {
+        seal: "url(#ivy)", ring: "#123524", tone: "ivy",
+        shades: ["#8FCFA8", "#2A6A4A", "#1B4A33"],
+        ask: function (n) {
+          return n + " — you have had a front-row seat to every version of me, " +
+            "including the ones I would rather forget, and you never once looked " +
+            "away. I'd be honoured to have my sister standing there when I do this.";
+        }
+      },
       // Sharon's ask, so it is written in her voice rather than Zachary's.
       "bridesmaid": {
         seal: "url(#rose)", ring: "#5E1B30", tone: "rose",
@@ -527,7 +545,7 @@
     var wax = document.getElementById("seal-wax");
     var ring = document.getElementById("seal-ring");
     var cardEl = document.querySelector(".card");
-    cardEl.classList.remove("role-gold", "role-silver", "role-rose", "role-blue");
+    cardEl.classList.remove("role-gold", "role-silver", "role-rose", "role-blue", "role-ivy");
     if (role) {
       if (wax) wax.setAttribute("fill", role.seal);
       if (ring) ring.setAttribute("stroke", role.ring);

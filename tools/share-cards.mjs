@@ -31,6 +31,7 @@ const WAX = {
   "maid-of-honor": { a: "#FBE9A8", b: "#C79A2A", c: "#5F430A", ring: "#5A3E09", shine: true },
   "groom-mother":  { a: "#8FB6DF", b: "#33608F", c: "#1A3654", ring: "#12283E", shine: true },
   "bride-parents": { a: "#8FB6DF", b: "#33608F", c: "#1A3654", ring: "#12283E", shine: true },
+  "groom-sister":  { a: "#A8DCBE", b: "#2A6A4A", c: "#1B4A33", ring: "#123524", shine: true },
   "groomsman":     { a: "#E6EAEE", b: "#8C9298", c: "#5A6067", ring: "#464C52", shine: true },
   "bridesmaid":    { a: "#EBA3B7", b: "#A34568", c: "#742640", ring: "#5E1B30", shine: true },
 };

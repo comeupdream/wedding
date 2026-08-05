@@ -218,6 +218,20 @@ const suite = async (label, store) => {
   check("the shared font stylesheet is served as CSS",
     r.status === 200 && r.headers.get("content-type").startsWith("text/css"), r.headers.get("content-type"));
 
+  // A link preview asks with HEAD before it fetches. Answering 404 to that is
+  // how the share cards silently stopped appearing in messages.
+  r = await fetch(base + "/invite?c=4821", { method: "HEAD" });
+  check("HEAD on the card answers like a GET", r.status === 200, String(r.status));
+  check("and carries the same content type", (r.headers.get("content-type") || "").includes("text/html"));
+  check("with no body", (await r.text()) === "");
+  r = await fetch(base + "/assets/fonts.css", { method: "HEAD" });
+  check("HEAD on an asset answers with its type and length",
+    r.status === 200 && (r.headers.get("content-type") || "").startsWith("text/css") &&
+    Number(r.headers.get("content-length")) > 0,
+    `${r.status} ${r.headers.get("content-type")} ${r.headers.get("content-length")}`);
+  r = await fetch(base + "/", { method: "HEAD" });
+  check("HEAD on the invite page too", r.status === 200);
+
   server.close();
 };
 

@@ -148,9 +148,11 @@ const serveStatic = (req, res, filePath) => {
     }
     end = Math.min(end, size - 1);
     res.writeHead(206, { ...common, "Content-Range": `bytes ${start}-${end}/${size}`, "Content-Length": end - start + 1 });
+    if (req.method === "HEAD") return res.end();
     return fs.createReadStream(resolved, { start, end }).pipe(res);
   }
   res.writeHead(200, { ...common, "Content-Length": size });
+  if (req.method === "HEAD") return res.end();
   fs.createReadStream(resolved).pipe(res);
 };
 
@@ -486,10 +488,12 @@ var ROLES = {
   "maid-of-honor": { label: "Maid of honour",  wax: "Gold",   swatch: "#C79A2A" },
   "groom-mother":  { label: "Groom's mother",  wax: "Blue",   swatch: "#33608F" },
   "bride-parents": { label: "Bride's parents", wax: "Blue",   swatch: "#33608F" },
+  "groom-sister":  { label: "Groom's sisters", wax: "Ivy",    swatch: "#2A6A4A" },
   "groomsman":     { label: "Groomsman",       wax: "Silver", swatch: "#8C9298" },
   "bridesmaid":    { label: "Bridesmaid",      wax: "Rose",   swatch: "#A34568" }
 };
-var ROLE_ORDER = ["best-man", "maid-of-honor", "groom-mother", "bride-parents", "groomsman", "bridesmaid"];
+var ROLE_ORDER = ["best-man", "maid-of-honor", "groom-mother", "bride-parents",
+                  "groom-sister", "groomsman", "bridesmaid"];
 function linkFor(code) { return location.origin + "/?c=" + encodeURIComponent(code) + "#rsvp"; }
 function cardFor(code) { return location.origin + "/invite?c=" + encodeURIComponent(code); }
 // Everyone on an invitation, printed under the household name for accounting.
@@ -671,7 +675,10 @@ function renderSpecial() {
       byRole[k].length + "</span></h2><table><tr><th>Household</th><th>Card is addressed to</th>" +
       "<th>Seats</th><th>Password</th><th>Invitation link</th><th>Actions</th><th>Status</th></tr>" +
       byRole[k].map(function (g) {
-        var first = (g.members || [])[0] || String(g.name).split(/[\s,&]/)[0];
+        // Escaped twice: this whole page is a template literal, and a lone \\s in
+        // one collapses to a literal "s" — which split "Carson Whitmore" on its
+        // own letters and addressed the card to "Car".
+        var first = (g.members || [])[0] || String(g.name).split(/[\\s,&]/)[0];
         var status = !g.replied ? "<span class=muted>no reply</span>"
           : g.events === "none" ? "<span class=muted>cannot attend</span>"
           : "<b>" + (EVENTS[g.events] || esc(g.events)) + "</b>";
@@ -832,18 +839,24 @@ export const createApp = (store) => {
 const guard = makeGuard();
 return http.createServer(async (req, res) => {
   const url = new URL(req.url, "http://localhost");
+  // A link preview asks with HEAD before it fetches anything — Slack, WhatsApp
+  // and Facebook all do it to check the type and size first. Answering 404
+  // makes the unfurler decide the picture isn't there and drop it, so a HEAD is
+  // routed exactly like a GET. Node suppresses the body for us.
+  const method = req.method === "HEAD" ? "GET" : req.method;
   const send = (status, body, type = "application/json", extra = {}) => {
     res.writeHead(status, { "Content-Type": type, ...extra });
+    if (req.method === "HEAD") return res.end();
     res.end(type === "application/json" ? JSON.stringify(body) : body);
   };
   try {
-    if (req.method === "GET" && (url.pathname === "/" || url.pathname === "/index.html")) {
+    if (method === "GET" && (url.pathname === "/" || url.pathname === "/index.html")) {
       return send(200, fs.readFileSync(path.join(__dirname, "site", "index.html")),
         "text/html; charset=utf-8", { "Cache-Control": "no-cache" });
     }
     // The invitation card — an envelope with the household's name on it that
     // opens onto their own card. The page reads ?c= and unlocks like any guest.
-    if (req.method === "GET" && (url.pathname === "/invite" || url.pathname === "/invite.html")) {
+    if (method === "GET" && (url.pathname === "/invite" || url.pathname === "/invite.html")) {
       let html = fs.readFileSync(path.join(__dirname, "site", "invite.html"), "utf8");
       // A link preview shows this household's own sealed envelope, when one has
       // been rendered for them. Chat apps read these tags and nothing else, so
@@ -879,16 +892,16 @@ return http.createServer(async (req, res) => {
       return send(200, { ok: true, guests: byCode.size, storage: store.kind, durable: store.durable });
     }
 
-    if (req.method === "GET" && url.pathname.startsWith("/assets/")) {
+    if (method === "GET" && url.pathname.startsWith("/assets/")) {
       return serveStatic(req, res, path.join(__dirname, "site", url.pathname));
     }
-    if (req.method === "GET" && url.pathname === "/favicon.ico") {
+    if (method === "GET" && url.pathname === "/favicon.ico") {
       return serveStatic(req, res, path.join(ASSETS_DIR, "favicon-32.png"));
     }
 
     // Unlock: exchange an invitation password for the guest's name, seat count,
     // the events they may answer for, and any RSVP they already sent.
-    if (req.method === "POST" && url.pathname === "/api/unlock") {
+    if (method === "POST" && url.pathname === "/api/unlock") {
       const ip = clientIp(req);
       const wait = guard.lockedOut(ip);
       if (wait) {
@@ -916,7 +929,7 @@ return http.createServer(async (req, res) => {
       }, "application/json", { "Cache-Control": "no-store" });
     }
 
-    if (req.method === "POST" && url.pathname === "/api/rsvp") {
+    if (method === "POST" && url.pathname === "/api/rsvp") {
       const b = JSON.parse((await readBody(req)) || "{}");
       const guest = byCode.get(norm(b.code));
       if (!guest) return send(404, { error: "unknown code" });
@@ -930,7 +943,7 @@ return http.createServer(async (req, res) => {
       return send(200, { ok: true, rsvp: entry }, "application/json", { "Cache-Control": "no-store" });
     }
 
-    if (req.method === "GET" && (url.pathname === "/api/rsvps" || url.pathname === "/api/rsvps.csv")) {
+    if (method === "GET" && (url.pathname === "/api/rsvps" || url.pathname === "/api/rsvps.csv")) {
       if (!authorized(req)) return send(401, { error: "unauthorized" });
       const all = await store.all();
       // Test invitations are listed but never counted, so trying the form out
@@ -960,7 +973,7 @@ return http.createServer(async (req, res) => {
 
     // Every invitation, with whether it has been answered — the admin page turns
     // these into personal links using its own origin, so they're always right.
-    if (req.method === "GET" && url.pathname === "/api/guests") {
+    if (method === "GET" && url.pathname === "/api/guests") {
       if (!authorized(req)) return send(401, { error: "unauthorized" });
       const all = await store.all();
       const guests = [...byCode.values()]
@@ -978,7 +991,7 @@ return http.createServer(async (req, res) => {
     // Upload a spreadsheet. Two steps on purpose: the first call reports what
     // would change, the second applies it. Nothing is written without the
     // second call, so a wrong file can't quietly rewrite the guest list.
-    if (req.method === "POST" && url.pathname === "/api/guests/import") {
+    if (method === "POST" && url.pathname === "/api/guests/import") {
       if (!authorized(req)) return send(401, { error: "unauthorized" });
       const b = JSON.parse((await readBody(req, UPLOAD_BODY)) || "{}");
       let parsed;
@@ -1021,7 +1034,7 @@ return http.createServer(async (req, res) => {
       return send(200, { ...preview, applied: true });
     }
 
-    if (req.method === "GET" && url.pathname === "/admin") {
+    if (method === "GET" && url.pathname === "/admin") {
       return send(200, ADMIN_HTML, "text/html; charset=utf-8", { "X-Robots-Tag": "noindex" });
     }
 

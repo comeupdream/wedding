@@ -30,7 +30,7 @@
  },
  {
   "code": "8231",
-  "name": "Alexia, David, Sebastian & Lindsay",
+  "name": "Alexia, David, Sebastian & Linsey",
   "party": 4,
   "invite": "both",
   "contact": "",
@@ -38,7 +38,7 @@
    "Alexia",
    "David",
    "Sebastian",
-   "Lindsay"
+   "Linsey"
   ],
   "role": "maid-of-honor",
   "ask": "",
@@ -548,7 +548,7 @@
    "Dexter",
    "Taylor"
   ],
-  "role": "bridesmaid",
+  "role": "groom-sister",
   "ask": "",
   "test": false
  },
@@ -564,7 +564,7 @@
    "Mia",
    "Anthony"
   ],
-  "role": "bridesmaid",
+  "role": "groom-sister",
   "ask": "",
   "test": false
  },
