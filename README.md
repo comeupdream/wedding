@@ -147,15 +147,26 @@ are rendered once and committed, because link previews want a real file and
 won't run the page:
 
 ```sh
-node tools/share-cards.mjs                 # every invitation with a role
-node tools/share-cards.mjs --all           # everybody
+npm run cards:check                        # is every card present and current?
+node tools/share-cards.mjs --stale         # render only what's missing or out of date
+node tools/share-cards.mjs --all           # everybody, from scratch
 node tools/share-cards.mjs --who "Lynda"
 ```
 
-Needs Playwright, which is a tool-time dependency, not a server one. Re-run it
-after renaming anyone, or after giving someone a role — the file is named by
-password, so a new password means a new card. Invitations without a rendered
-card still get a title and a description in the preview, just no picture.
+Needs Playwright, which is a tool-time dependency, not a server one.
+
+**`npm run cards:check` is the one to remember.** A rename leaves the old
+picture in place, which is worse than no picture at all — the preview shows a
+name the guest has already been told is wrong. The check compares every
+invitation against the name its card was actually drawn from and exits
+non-zero if any is missing or stale; `--stale` then renders exactly those.
+
+Cards are found by password first. When the password doesn't match a file —
+a password minted on the live site is not in the repo, so nothing is named
+after it — the household's name is looked up in `manifest.json` instead.
+Old names are kept there on purpose, so a live list that hasn't been synced
+yet still resolves to the right card. Anything still unmatched falls back to
+an unaddressed envelope, so a preview always has a picture.
 
 ### The invitation card
 

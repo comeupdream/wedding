@@ -167,7 +167,7 @@ const shareCard = (guest) => {
     return { file: `${guest.code}.jpg`, addressed: true };
   try {
     const manifest = JSON.parse(fs.readFileSync(path.join(dir, "manifest.json"), "utf8"));
-    for (const [name, file] of Object.entries(manifest)) {
+    for (const [name, file] of Object.entries(manifest.byName || manifest)) {
       if (norm(name) === norm(guest.name) && fs.existsSync(path.join(dir, file)))
         return { file, addressed: true };
     }

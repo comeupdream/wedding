@@ -103,8 +103,50 @@ ${fontCss}
 };
 
 const guests = JSON.parse(fs.readFileSync(path.join(ROOT, "guest-codes.json"), "utf8"));
+const MANIFEST = path.join(OUT, "manifest.json");
+const readManifest = () => {
+  try {
+    const m = JSON.parse(fs.readFileSync(MANIFEST, "utf8"));
+    return { byName: m.byName || m, rendered: m.rendered || {} };
+  } catch { return { byName: {}, rendered: {} }; }
+};
+
+// What each invitation needs: a file, drawn from the name it carries now.
+// A rename leaves the old picture in place, which is worse than none — the
+// preview shows a name the guest has already been told is wrong.
+const audit = () => {
+  const { rendered } = readManifest();
+  const missing = [], stale = [];
+  for (const g of guests) {
+    if (!fs.existsSync(path.join(OUT, `${g.code}.jpg`))) missing.push(g);
+    else if (rendered[g.code] !== g.name) stale.push(g);
+  }
+  return { missing, stale };
+};
+
+if (flag("check")) {
+  const { missing, stale } = audit();
+  const dflt = fs.existsSync(path.join(OUT, "default.jpg"));
+  for (const g of missing) console.log(`  missing  ${g.code}  ${g.name}`);
+  for (const g of stale) console.log(`  stale    ${g.code}  ${g.name}  (card drawn from a different name)`);
+  if (!dflt) console.log("  missing  the fallback envelope (default.jpg)");
+  const bad = missing.length + stale.length + (dflt ? 0 : 1);
+  console.log(bad
+    ? `\n${bad} share card(s) need rendering — \`node tools/share-cards.mjs --stale\``
+    : `all ${guests.length} invitations have a current share card`);
+  process.exit(bad ? 1 : 0);
+}
+
 const who = opt("who", null);
 let list = guests.filter((g) => (flag("all") ? true : Boolean(g.role)));
+if (flag("stale")) {
+  const { missing, stale } = audit();
+  list = [...missing, ...stale];
+  if (!list.length && fs.existsSync(path.join(OUT, "default.jpg"))) {
+    console.log("every share card is already current");
+    process.exit(0);
+  }
+}
 if (who) {
   const needles = who.split(",").map((s) => s.trim().toLowerCase());
   list = guests.filter((g) => needles.some((n) => g.name.toLowerCase().includes(n)));
@@ -154,13 +196,18 @@ for (const g of list) {
 }
 await browser.close();
 
-// The manifest, keyed by household name. The live list keeps passwords that
-// were handed out before this render, so a code can point at no file at all —
-// the server uses this to find the household's card by name instead.
-const manifestPath = path.join(OUT, "manifest.json");
-let manifest = {};
-try { manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8")); } catch { /* first run */ }
-for (const g of list) if (g.name) manifest[g.name] = `${g.code}.jpg`;
-fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 1));
+// `byName` is how the server finds a card when the password doesn't match a
+// file: the live list keeps passwords handed out before this render, so a real
+// invitation can carry a code nothing is named after. Old names are kept on
+// purpose — a live list not yet synced still resolves to the right card.
+// `rendered` records the name each card was actually drawn from, which is what
+// --check compares against to catch a card left behind by a rename.
+const manifest = readManifest();
+for (const g of list) {
+  if (!g.name) continue;
+  manifest.byName[g.name] = `${g.code}.jpg`;
+  manifest.rendered[g.code] = g.name;
+}
+fs.writeFileSync(MANIFEST, JSON.stringify(manifest, null, 1));
 
 console.log(`\n${list.length} share card(s) in ${path.relative(ROOT, OUT)}`);

@@ -11,7 +11,9 @@
     "dev": "node --watch server.js",
     "test": "node tools/smoke.mjs",
     "codes": "node tools/gen-codes.mjs",
-    "links": "node tools/gen-links.mjs"
+    "links": "node tools/gen-links.mjs",
+    "cards": "node tools/share-cards.mjs",
+    "cards:check": "node tools/share-cards.mjs --check"
   },
   "dependencies": {
     "pg": "^8.22.0"
