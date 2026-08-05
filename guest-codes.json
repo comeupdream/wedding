@@ -27,11 +27,12 @@
  {
   "code": "LANTERN-6818",
   "name": "Linda",
-  "party": 1
+  "party": 1,
+  "note": "Before there were vows, there were pudding cups, backyard baseball, and a very small boy asking for “McDonalds winna pweez.” You took care of me then — it wouldn’t be a wedding without you here now."
  },
  {
   "code": "ACORN-8710",
-  "name": "Shawn",
+  "name": "Linda's Husband – Shaun",
   "party": 1
  },
  {
@@ -286,12 +287,12 @@
  },
  {
   "code": "BIRCH-8183",
-  "name": "Olivia",
+  "name": "Olivia Leon Vitervo",
   "party": 1
  },
  {
   "code": "LANTERN-5785",
-  "name": "Yamilette",
+  "name": "Yamilet Macias",
   "party": 1
  },
  {
