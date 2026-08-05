@@ -391,6 +391,7 @@
     var ROLES = {
       "best-man": {
         seal: "url(#gold)", ring: "#5A3E09", tone: "gold",
+        shades: ["#E0B44A", "#B98A22", "#7A5410"],
         ask: function (n) {
           return n + " — of everyone I could ask, it could only be you. " +
             "Would you do me the honour of standing beside me as my best man?";
@@ -398,6 +399,7 @@
       },
       "groomsman": {
         seal: "url(#silver)", ring: "#464C52", tone: "silver",
+        shades: ["#DDE1E6", "#A0A6AD", "#6B7178"],
         ask: function (n) {
           return n + " — the day wouldn't feel like mine without you in it. " +
             "Will you stand with me as one of my groomsmen?";
@@ -417,7 +419,9 @@
       ask.textContent = role.ask((named[0] || g.name).split(/[\s,&]/)[0]);
       ask.hidden = false;
       cardEl.classList.add("role-" + role.tone);
+      waxShades = role.shades;
     } else {
+      waxShades = WAX_RED;
       if (wax) wax.setAttribute("fill", "url(#wax)");
       if (ring) ring.setAttribute("stroke", "#5B1409");
       ask.hidden = true;
@@ -451,6 +455,10 @@
   var running = false;
   var GRAVITY = 0.00042;          // px per ms squared, tuned by eye
   var LEAF = ["#B33F2E", "#E8833A", "#C98A2D", "#8A2A1B", "#D6A03C"];
+  // Shard colours per seal. Set when the invitation loads, so a gold seal
+  // shatters into gold and a silver one into silver.
+  var WAX_RED = ["#A83525", "#7E2517", "#5C1409"];
+  var waxShades = WAX_RED;
   var rand = function (lo, hi) { return lo + Math.random() * (hi - lo); };
 
   function size() {
@@ -478,7 +486,7 @@
       vy: Math.sin(mid) * rand(0.09, 0.22) - rand(0.04, 0.12),
       rot: 0, spin: rand(-0.009, 0.009),
       life: 0, ttl: rand(800, 1150),
-      fill: ["#A83525", "#7E2517", "#5C1409"][(Math.random() * 3) | 0]
+      fill: waxShades[(Math.random() * waxShades.length) | 0]
     };
   }
 
