@@ -34,6 +34,9 @@ const loadGuests = () => {
       name: String(g.name),
       party: Math.max(1, parseInt(g.party, 10) || 1),
       invite,
+      // How to reach them — email, phone, "via the WhatsApp group". Carried from
+      // the spreadsheet so the admin export is a ready-to-send list.
+      contact: String(g.contact || ""),
     });
   }
   return map;
@@ -171,84 +174,212 @@ const toCsv = (rows) =>
   [CSV_COLS.join(","), ...rows.map((r) => CSV_COLS.map((c) => csvCell(r[c])).join(","))].join("\n") + "\n";
 
 // ---------- admin dashboard ----------
+// ---------- admin dashboard ----------
+// Two panels: the answers as they come in, and every invitation with its own
+// personal link. Links are built from the page's own origin, so whatever
+// hostname you opened /admin on is the hostname your guests get.
 const ADMIN_HTML = `<!doctype html><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>RSVPs — Sharon &amp; Zachary</title>
 <style>
-  body{font-family:Georgia,serif;background:#FBF3E4;color:#3A2420;max-width:72rem;margin:2rem auto;padding:0 1rem}
-  h1{font-size:1.4rem} input,button{font:inherit;padding:.5rem .8rem;border:1px solid #B33F2E}
+  body{font-family:Georgia,serif;background:#FBF3E4;color:#3A2420;max-width:78rem;margin:2rem auto;padding:0 1rem}
+  h1{font-size:1.4rem;margin-bottom:.8rem}
+  input,button,select{font:inherit;padding:.5rem .8rem;border:1px solid #B33F2E}
   button{background:#B33F2E;color:#FBF3E4;cursor:pointer}
-  table{border-collapse:collapse;width:100%;margin-top:1.2rem;font-size:.92rem}
+  button.ghost{background:transparent;color:#B33F2E}
+  button.ghost.on{background:#B33F2E;color:#FBF3E4}
+  button.mini{padding:.2rem .5rem;font-size:.78rem}
+  table{border-collapse:collapse;width:100%;margin-top:1rem;font-size:.92rem}
   th,td{border:1px solid #d8c4a5;padding:.45rem .6rem;text-align:left;vertical-align:top}
   th{background:#F3E6CE} .muted{color:#6E5247;font-style:italic}
   .totals{margin-top:1.2rem;padding:.8rem 1rem;background:#F3E6CE;border:1px solid #d8c4a5}
   .totals b{font-size:1.1rem} .no{color:#8a6a60}
   .warn{margin-top:1.2rem;padding:.8rem 1rem;background:#F7DFD6;border:1px solid #B33F2E;font-size:.9rem}
+  .tabs{margin:1.4rem 0 .4rem;display:flex;gap:.5rem}
+  .bar{margin:1rem 0;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+  .link{font-family:ui-monospace,Menlo,monospace;font-size:.8rem;word-break:break-all;color:#6E5247}
+  .code{font-family:ui-monospace,Menlo,monospace;font-size:1rem;letter-spacing:.08em}
+  .hide{display:none}
+  .ok{color:#2E6B3A;font-style:italic}
 </style>
-<h1>RSVPs</h1>
-<p><input id="pw" type="password" placeholder="Admin password"> <button id="go">View</button>
-<button id="csv" hidden>Download CSV</button> <span class="muted" id="msg"></span></p>
-<div id="sum"></div>
-<div id="out"></div>
+<h1>Sharon &amp; Zachary — admin</h1>
+<p><input id="pw" type="password" placeholder="Admin password"> <button id="go">Open</button>
+<span class="muted" id="msg"></span></p>
+
+<div id="app" class="hide">
+  <div class="tabs">
+    <button class="ghost on" id="tab-rsvps">RSVPs</button>
+    <button class="ghost" id="tab-links">Invitations &amp; links</button>
+  </div>
+
+  <div id="panel-rsvps">
+    <div class="bar"><button id="csv">Download RSVP CSV</button><span class="muted" id="rsvp-msg"></span></div>
+    <div id="sum"></div>
+    <div id="out"></div>
+  </div>
+
+  <div id="panel-links" class="hide">
+    <div class="bar">
+      <button class="ghost on" data-filter="all">Everyone</button>
+      <button class="ghost" data-filter="family">Households (2+)</button>
+      <button class="ghost" data-filter="ceremony">Ceremony only</button>
+      <button class="ghost" data-filter="both">Full invite</button>
+      <button class="ghost" data-filter="coming">Coming</button>
+      <button class="ghost" data-filter="noreply">No reply yet</button>
+      <button id="copy-all">Copy these links</button>
+      <button id="links-csv">Download links CSV</button>
+      <span class="ok" id="link-msg"></span>
+    </div>
+    <div id="links"></div>
+  </div>
+</div>
 <script>
 var pw = document.getElementById("pw"), msg = document.getElementById("msg");
-var out = document.getElementById("out"), sum = document.getElementById("sum"), csv = document.getElementById("csv");
+var out = document.getElementById("out"), sum = document.getElementById("sum");
+var app = document.getElementById("app"), linkMsg = document.getElementById("link-msg");
+var GUESTS = [], FILTER = "all";
 function esc(s) {
   return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
     return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
   });
 }
+function auth() { return { Authorization: "Bearer " + pw.value }; }
 var EVENTS = { both: "Ceremony &amp; reception", ceremony: "Ceremony only", reception: "Reception only", none: "Cannot attend" };
+var SCOPE = { both: "Ceremony &amp; reception", ceremony: "Ceremony only", reception: "Reception only" };
+
+// ---- the personal link, exactly as a guest receives it ----
+function linkFor(code) { return location.origin + "/?c=" + encodeURIComponent(code) + "#rsvp"; }
+
 function load() {
   msg.textContent = "Loading…";
-  fetch("/api/rsvps", { headers: { Authorization: "Bearer " + pw.value } })
-    .then(function (r) {
+  Promise.all([
+    fetch("/api/rsvps", { headers: auth() }).then(function (r) {
       if (r.status === 401) throw new Error("Wrong password");
       if (!r.ok) throw new Error("Error " + r.status);
       return r.json();
-    })
-    .then(function (data) {
-      var t = data.totals;
-      msg.textContent = t.responses + " of " + data.invited + " invitations answered";
-      csv.hidden = false;
-      var warn = data.storage && !data.storage.durable
-        ? "<div class=warn><b>These answers won't survive the next deploy.</b> " +
-          "No database is configured, so they're being kept in " + esc(data.storage.detail) +
-          " inside the running container. Set DATABASE_URL, or download the CSV " +
-          "before you deploy again.</div>"
-        : "";
-      sum.innerHTML = warn + "<div class=totals><b>" + t.ceremony + "</b> at the ceremony &nbsp;·&nbsp; <b>" +
-        t.reception + "</b> at the reception &nbsp;·&nbsp; <b>" + t.vegetarian +
-        "</b> vegetarian / <b>" + t.standard + "</b> standard meals &nbsp;·&nbsp; <b>" +
-        t.declined + "</b> cannot attend &nbsp;·&nbsp; <b>" + data.awaiting.length + "</b> awaiting reply</div>";
-      out.innerHTML = "<table><tr><th>Guest</th><th>Code</th><th>Invited to</th><th>Joining for</th>" +
-        "<th>Seats</th><th>Veg</th><th>Email</th><th>Note</th><th>When</th></tr>" +
-        data.rsvps.map(function (r) {
-          return "<tr><td>" + esc(r.name) + "</td><td>" + esc(r.code) + "</td><td>" + esc(r.invite) +
-            "</td><td>" + (EVENTS[r.events] || esc(r.events)) + "</td><td>" + esc(r.party) + " of " + esc(r.seats) +
-            "</td><td>" + esc(r.vegetarian) + "</td><td>" + esc(r.email) + "</td><td>" + esc(r.note) +
-            "</td><td>" + esc(String(r.at).slice(0, 16).replace("T", " ")) + "</td></tr>";
-        }).join("") +
-        data.awaiting.map(function (g) {
-          return "<tr class=no><td>" + esc(g.name) + "</td><td>" + esc(g.code) + "</td><td>" + esc(g.invite) +
-            "</td><td colspan=6 class=muted>no reply yet</td></tr>";
-        }).join("") + "</table>";
-    })
-    .catch(function (e) { msg.textContent = e.message; out.innerHTML = ""; sum.innerHTML = ""; });
+    }),
+    fetch("/api/guests", { headers: auth() }).then(function (r) { return r.json(); }),
+  ]).then(function (both) {
+    var data = both[0];
+    GUESTS = both[1].guests || [];
+    app.classList.remove("hide");
+    var t = data.totals;
+    msg.textContent = t.responses + " of " + data.invited + " invitations answered";
+    var warn = data.storage && !data.storage.durable
+      ? "<div class=warn><b>These answers won't survive the next deploy.</b> " +
+        "No database is configured, so they're being kept in " + esc(data.storage.detail) +
+        " inside the running container. Set DATABASE_URL, or download the CSV " +
+        "before you deploy again.</div>"
+      : "";
+    sum.innerHTML = warn + "<div class=totals><b>" + t.ceremony + "</b> at the ceremony &nbsp;·&nbsp; <b>" +
+      t.reception + "</b> at the reception &nbsp;·&nbsp; <b>" + t.vegetarian +
+      "</b> vegetarian / <b>" + t.standard + "</b> standard meals &nbsp;·&nbsp; <b>" +
+      t.declined + "</b> cannot attend &nbsp;·&nbsp; <b>" + data.awaiting.length + "</b> awaiting reply</div>";
+    out.innerHTML = "<table><tr><th>Guest</th><th>Code</th><th>Invited to</th><th>Joining for</th>" +
+      "<th>Seats</th><th>Veg</th><th>Email</th><th>Note</th><th>When</th></tr>" +
+      data.rsvps.map(function (r) {
+        return "<tr><td>" + esc(r.name) + "</td><td>" + esc(r.code) + "</td><td>" + esc(r.invite) +
+          "</td><td>" + (EVENTS[r.events] || esc(r.events)) + "</td><td>" + esc(r.party) + " of " + esc(r.seats) +
+          "</td><td>" + esc(r.vegetarian) + "</td><td>" + esc(r.email) + "</td><td>" + esc(r.note) +
+          "</td><td>" + esc(String(r.at).slice(0, 16).replace("T", " ")) + "</td></tr>";
+      }).join("") +
+      data.awaiting.map(function (g) {
+        return "<tr class=no><td>" + esc(g.name) + "</td><td>" + esc(g.code) + "</td><td>" + esc(g.invite) +
+          "</td><td colspan=6 class=muted>no reply yet</td></tr>";
+      }).join("") + "</table>";
+    renderLinks();
+  }).catch(function (e) { msg.textContent = e.message; out.innerHTML = ""; sum.innerHTML = ""; });
 }
+
+// ---- invitations & links ----
+function shown() {
+  return GUESTS.filter(function (g) {
+    if (FILTER === "family") return g.party > 1;
+    if (FILTER === "ceremony") return g.invite === "ceremony";
+    if (FILTER === "both") return g.invite === "both";
+    if (FILTER === "coming") return g.replied && g.events !== "none";
+    if (FILTER === "noreply") return !g.replied;
+    return true;
+  });
+}
+function renderLinks() {
+  var rows = shown();
+  document.getElementById("links").innerHTML =
+    "<p class=muted>" + rows.length + " invitation(s) — one link per household, seats included.</p>" +
+    "<table><tr><th>Guest</th><th>Seats</th><th>Invited to</th><th>Send to</th><th>Password</th>" +
+    "<th>Personal link</th><th></th><th>Status</th></tr>" +
+    rows.map(function (g) {
+      var status = !g.replied ? "<span class=muted>no reply</span>"
+        : g.events === "none" ? "<span class=muted>cannot attend</span>"
+        : "<b>" + (EVENTS[g.events] || esc(g.events)) + "</b>";
+      return "<tr><td>" + esc(g.name) + "</td><td>" + esc(g.party) + "</td><td>" +
+        (SCOPE[g.invite] || esc(g.invite)) + "</td>" +
+        "<td class=muted>" + (g.contact ? esc(g.contact) : "—") + "</td>" +
+        "<td class=code>" + esc(g.code) + "</td>" +
+        "<td class=link>" + esc(linkFor(g.code)) + "</td>" +
+        "<td><button class='mini' data-copy='" + esc(g.code) + "'>copy</button></td>" +
+        "<td>" + status + "</td></tr>";
+    }).join("") + "</table>";
+}
+document.addEventListener("click", function (e) {
+  var code = e.target.getAttribute && e.target.getAttribute("data-copy");
+  if (!code) return;
+  navigator.clipboard.writeText(linkFor(code)).then(function () {
+    e.target.textContent = "copied";
+    setTimeout(function () { e.target.textContent = "copy"; }, 1200);
+  });
+});
+document.querySelectorAll("[data-filter]").forEach(function (b) {
+  b.addEventListener("click", function () {
+    document.querySelectorAll("[data-filter]").forEach(function (x) { x.classList.remove("on"); });
+    b.classList.add("on");
+    FILTER = b.dataset.filter;
+    linkMsg.textContent = "";
+    renderLinks();
+  });
+});
+document.getElementById("copy-all").addEventListener("click", function () {
+  var text = shown().map(function (g) { return g.name + "\\t" + g.code + "\\t" + linkFor(g.code); }).join("\\n");
+  navigator.clipboard.writeText(text).then(function () {
+    linkMsg.textContent = shown().length + " link(s) copied";
+  });
+});
+function download(name, text, type) {
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text], { type: type }));
+  a.download = name;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+document.getElementById("links-csv").addEventListener("click", function () {
+  var cell = function (v) {
+    var s = String(v == null ? "" : v);
+    return /[",\\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+  var rows = shown().map(function (g) {
+    return [g.name, g.code, g.party, SCOPE[g.invite] || g.invite, g.contact || "", linkFor(g.code)].map(cell).join(",");
+  });
+  download("invitation-links.csv",
+    "name,password,seats,invited,send_to,link\\n" + rows.join("\\n") + "\\n", "text/csv");
+});
+
+// ---- tabs ----
+function tab(which) {
+  document.getElementById("panel-rsvps").classList.toggle("hide", which !== "rsvps");
+  document.getElementById("panel-links").classList.toggle("hide", which !== "links");
+  document.getElementById("tab-rsvps").classList.toggle("on", which === "rsvps");
+  document.getElementById("tab-links").classList.toggle("on", which === "links");
+}
+document.getElementById("tab-rsvps").addEventListener("click", function () { tab("rsvps"); });
+document.getElementById("tab-links").addEventListener("click", function () { tab("links"); });
+
 document.getElementById("go").addEventListener("click", load);
 pw.addEventListener("keydown", function (e) { if (e.key === "Enter") load(); });
-csv.addEventListener("click", function () {
-  fetch("/api/rsvps.csv", { headers: { Authorization: "Bearer " + pw.value } })
-    .then(function (r) { return r.blob(); })
-    .then(function (b) {
-      var a = document.createElement("a");
-      a.href = URL.createObjectURL(b);
-      a.download = "rsvps.csv";
-      a.click();
-      URL.revokeObjectURL(a.href);
-    });
+document.getElementById("csv").addEventListener("click", function () {
+  fetch("/api/rsvps.csv", { headers: auth() })
+    .then(function (r) { return r.text(); })
+    .then(function (t) { download("rsvps.csv", t, "text/csv"); });
 });
 </script>`;
 
@@ -328,6 +459,21 @@ return http.createServer(async (req, res) => {
         invited: byCode.size, totals: totals(rsvps), rsvps, awaiting,
         storage: { kind: store.kind, detail: store.detail, durable: store.durable },
       }, "application/json", { "Cache-Control": "no-store" });
+    }
+
+    // Every invitation, with whether it has been answered — the admin page turns
+    // these into personal links using its own origin, so they're always right.
+    if (req.method === "GET" && url.pathname === "/api/guests") {
+      if (!authorized(req)) return send(401, { error: "unauthorized" });
+      const all = await store.all();
+      const guests = [...byCode.values()]
+        .map((g) => ({
+          code: g.code, name: g.name, party: g.party, invite: g.invite, contact: g.contact,
+          replied: Boolean(all[g.code]),
+          events: all[g.code] ? all[g.code].events : null,
+        }))
+        .sort((a, b) => String(a.name).localeCompare(String(b.name)));
+      return send(200, { guests }, "application/json", { "Cache-Control": "no-store" });
     }
 
     if (req.method === "GET" && url.pathname === "/admin") {

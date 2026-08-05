@@ -67,6 +67,7 @@ const rows = guests.map((g) => ({
   code: String(g.code),
   seats: g.party,
   invited: SCOPE_LABEL[g.invite],
+  send_to: g.contact || "",
   link: `${base}/?c=${encodeURIComponent(g.code)}#rsvp`,
 }));
 
@@ -74,7 +75,7 @@ const csvCell = (v) => {
   const s = String(v ?? "");
   return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
 };
-const COLS = ["name", "code", "seats", "invited", "link"];
+const COLS = ["name", "code", "seats", "invited", "send_to", "link"];
 
 const render = () => {
   if (FORMAT === "csv") {

@@ -1,7 +1,7 @@
 # Sharon & Zachary — Wedding
 
 Planning files, the invite website, and the RSVP backend for the wedding at
-Lydia Mountain, Virginia.
+Lydia Mountain, Virginia — **Saturday, October 10, 2026**.
 
 ## Contents
 
@@ -31,7 +31,25 @@ npm test                        # end-to-end check of the whole RSVP flow
 
 Every invitation has its own **four-digit password**. One invitation covers a
 whole household — the seat count is on the guest record, so a family of four
-answers once.
+answers once. 69 invitations, 104 seats.
+
+### Updating the guest list from the workbook
+
+`WEDDING_GUEST_LIST.xlsx` stays the planning source of truth. Export its **Guest
+List** tab as CSV over `guests.csv`, then:
+
+```sh
+node tools/import-guests.mjs              # show what would change
+node tools/import-guests.mjs --write      # apply it
+```
+
+It keeps the password of anyone already on the list, so links you've already
+sent keep working, and mints one for everybody new. Columns: `name`, `party`,
+`invite`, `contact` — only `name` is required.
+
+Four rows in the workbook are deliberately not invitations: Sharon and Zachary
+themselves, and the two tentative "estimate, up to 5" placeholders for the
+bride's extended family. Give those real names in the sheet and they'll import.
 
 ### Passwords
 
@@ -63,9 +81,17 @@ RSVP.
 
 ### Personal links
 
-The link generator puts the password straight into the URL, so nobody has to
+Every invitation gets a link with its password already in it, so nobody has to
 type anything — the site unlocks on load and scrubs the password out of the
-address bar.
+address bar. `https://your-site.example/?c=4821#rsvp`
+
+**The easy way: `/admin` → Invitations & links.** Every household with its
+password, its personal link, a copy button, and where to send it. Filter to
+households, ceremony-only invites, who's coming, or who hasn't replied, then
+**Copy these links** or **Download links CSV** for just that group. Links are
+built from the address you're on, so they're always the right hostname.
+
+The same thing from a terminal, if you'd rather:
 
 ```sh
 npm run links -- --base https://your-site.onrender.com
@@ -75,7 +101,7 @@ npm run links -- --base https://your-site.onrender.com --who "Herpal,Durga"
 ```
 
 Formats: `table` (default), `csv` for a mail merge, `md`, `txt` for pasting into
-a message. Each link looks like `https://your-site.example/?c=4821#rsvp`.
+a message.
 
 ### Dinner
 
