@@ -120,11 +120,14 @@
  },
  {
   "code": "2551",
-  "name": "Brian",
-  "party": 1,
+  "name": "Brian & Angie",
+  "party": 2,
   "invite": "both",
   "contact": "",
-  "members": [],
+  "members": [
+   "Brian",
+   "Angie"
+  ],
   "role": "",
   "ask": "",
   "formal": "",
