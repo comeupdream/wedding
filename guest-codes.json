@@ -246,6 +246,21 @@
   "test": false
  },
  {
+  "code": "7472",
+  "name": "Jasmin & Nitin Dua",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Jasmin",
+   "Nitin"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
   "code": "1484",
   "name": "Jassi Slatch",
   "party": 2,
