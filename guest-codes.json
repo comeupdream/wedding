@@ -108,11 +108,14 @@
  },
  {
   "code": "2341",
-  "name": "Bholi Dhillon",
+  "name": "Bholi & Jaswinder Dhillon",
   "party": 2,
   "invite": "both",
   "contact": "bholi0910@gmail.com",
-  "members": [],
+  "members": [
+   "Bholi",
+   "Jaswinder"
+  ],
   "role": "",
   "ask": "",
   "formal": "",
