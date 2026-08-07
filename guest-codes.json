@@ -520,11 +520,14 @@
  },
  {
   "code": "5908",
-  "name": "Saurabh Sekhri",
-  "party": 1,
+  "name": "Saurabh & Tarika Sekhri",
+  "party": 2,
   "invite": "both",
   "contact": "What's App Brother's group",
-  "members": [],
+  "members": [
+   "Saurabh",
+   "Tarika"
+  ],
   "role": "",
   "ask": "",
   "formal": "",
