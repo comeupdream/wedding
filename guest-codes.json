@@ -272,6 +272,21 @@
   "test": false
  },
  {
+  "code": "3429",
+  "name": "Kabir & Divita Sodhi",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Kabir",
+   "Divita"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
   "code": "2668",
   "name": "Kamlesh & Ashok Varma",
   "party": 2,
@@ -451,14 +466,12 @@
  {
   "code": "2939",
   "name": "Raju & Herleen Sodhi",
-  "party": 4,
+  "party": 2,
   "invite": "both",
   "contact": "Harleen.sodhi2@gmail.com",
   "members": [
    "Raju",
-   "Herleen",
-   "Kabir",
-   "Divita"
+   "Herleen"
   ],
   "role": "",
   "ask": "",
