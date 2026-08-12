@@ -70,6 +70,10 @@ const fromExport = (rows) => {
       formal: get("formal"),
       // An optional standing at the wedding — "best-man" gets its own card.
       role: get("role"),
+      // Whose guest this is. Only "sharon" is used today, to gather the
+      // invitations she is sending onto a tab of her own in /admin. It changes
+      // nothing a guest sees, and nothing about the counts.
+      side: get("side").toLowerCase(),
       // Optional words for this invitation, overriding the role's default.
       ask: get("ask"),
       // A rehearsal invitation: real in every way except that it is left out
@@ -175,7 +179,7 @@ export const merge = (existing, incoming, randomInt, answered = new Set()) => {
       return { code: makeCode(taken, randomInt), name: g.name, party: g.party,
                invite: g.invite, contact: g.contact, members: g.members,
                role: g.role || "", ask: g.ask || "", formal: g.formal || "",
-               test: !!g.test };
+               side: g.side || "", test: !!g.test };
     }
     const diffs = [];
     if (prev.party !== g.party) diffs.push(`seats ${prev.party} → ${g.party}`);
@@ -184,12 +188,14 @@ export const merge = (existing, incoming, randomInt, answered = new Set()) => {
     if ((prev.role || "") !== (g.role || "")) diffs.push("role");
     if ((prev.ask || "") !== (g.ask || "")) diffs.push("wording");
     if ((prev.formal || "") !== (g.formal || "")) diffs.push("card name");
+    if ((prev.side || "") !== (g.side || "")) diffs.push("whose guest");
     if (diffs.length) changed.push(`${g.name}: ${diffs.join(", ")}`);
     else unchanged.push(g.name);
     return { code: prev.code, name: g.name, party: g.party,
              invite: prev.invite || g.invite, contact: g.contact, members: g.members,
              role: g.role || prev.role || "", ask: g.ask || prev.ask || "",
              formal: g.formal || prev.formal || "",
+             side: g.side || prev.side || "",
              test: g.test === undefined ? !!prev.test : !!g.test };
   });
 
