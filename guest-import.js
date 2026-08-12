@@ -169,10 +169,28 @@ export const merge = (existing, incoming, randomInt, answered = new Set()) => {
   const taken = new Set(existing.map((g) => String(g.code)).filter((c) => /^\d{4}$/.test(c)));
   const added = [], changed = [], unchanged = [], renamed = [];
 
-  const list = incoming.map((g) => {
-    // The password wins over the name, so a household can be renamed without
-    // losing the invitation that was already sent to it.
-    const prev = (g.code && byCode.get(String(g.code))) || byName.get(g.name);
+  // Bind each row to the invitation it continues, in two passes.
+  //
+  // Names go first, then passwords. A password still carries an invitation
+  // through a rename — the renamed household is no longer on the sheet under
+  // its old name, so nothing else has claimed it by the time passwords are
+  // read. But a household that IS still on the sheet under its own name keeps
+  // its invitation, even if some other row arrives carrying its password.
+  // That happens whenever a password is minted against a list that has drifted
+  // from the live one, and matching by password first would rename a guest to
+  // a stranger and hand over their link.
+  const bound = new Map();      // index in `incoming` -> the invitation it continues
+  const claimed = new Set();    // passwords already spoken for
+  const bind = (i, prev) => {
+    if (!prev || claimed.has(String(prev.code))) return;
+    bound.set(i, prev);
+    claimed.add(String(prev.code));
+  };
+  incoming.forEach((g, i) => bind(i, byName.get(g.name)));
+  incoming.forEach((g, i) => { if (!bound.has(i) && g.code) bind(i, byCode.get(String(g.code))); });
+
+  const list = incoming.map((g, i) => {
+    const prev = bound.get(i);
     if (prev && prev.name !== g.name) renamed.push(`${prev.name} → ${g.name}`);
     if (!prev) {
       added.push(g.name);
