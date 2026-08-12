@@ -879,6 +879,26 @@ return http.createServer(async (req, res) => {
       return send(200, fs.readFileSync(path.join(__dirname, "site", "index.html")),
         "text/html; charset=utf-8", { "Cache-Control": "no-cache" });
     }
+    // The schedule is the same page opened on its own tab, but it is shared on
+    // its own, so it unfurls with its own card rather than the couple's.
+    if (method === "GET" && (url.pathname === "/schedule" || url.pathname === "/schedule/")) {
+      const proto = String(req.headers["x-forwarded-proto"] || "https").split(",")[0];
+      const origin = `${proto}://${req.headers.host}`;
+      const html = fs.readFileSync(path.join(__dirname, "site", "index.html"), "utf8")
+        .replace(/<!--share-->[\s\S]*?<!--\/share-->/, [
+          `<meta property="og:type" content="website">`,
+          `<meta property="og:title" content="The order of the day — Sharon &amp; Zachary">`,
+          `<meta property="og:description" content="Saturday, the tenth of October, 2026. Lydia Mountain Lodge, Stanardsville, Virginia. Breakfast from half past ten, the ceremony at noon, the reception at eight.">`,
+          `<meta property="og:url" content="${escapeAttr(origin)}/schedule">`,
+          `<meta property="og:image" content="${escapeAttr(origin)}/assets/share/schedule.jpg">`,
+          `<meta property="og:image:type" content="image/jpeg">`,
+          `<meta property="og:image:width" content="1200">`,
+          `<meta property="og:image:height" content="630">`,
+          `<meta property="og:image:alt" content="The order of the wedding day">`,
+          `<meta name="twitter:card" content="summary_large_image">`,
+        ].join("\n"));
+      return send(200, html, "text/html; charset=utf-8", { "Cache-Control": "no-cache" });
+    }
     // The invitation card — an envelope with the household's name on it that
     // opens onto their own card. The page reads ?c= and unlocks like any guest.
     if (method === "GET" && (url.pathname === "/invite" || url.pathname === "/invite.html")) {
