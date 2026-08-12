@@ -7,6 +7,7 @@
 <link rel="alternate icon" href="/assets/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <meta name="theme-color" content="#5C2340">
+<!--share-->
 <meta property="og:type" content="website">
 <meta property="og:title" content="Sharon &amp; Zachary — A Fall Wedding at Lydia Mountain">
 <meta property="og:description" content="October 10, 2026 — join us in the Blue Ridge Mountains of Virginia. Enter your invitation password to RSVP.">
@@ -15,6 +16,7 @@
 <meta property="og:image:height" content="630">
 <meta property="og:url" content="https://sharonandzachary.love/">
 <meta name="twitter:card" content="summary_large_image">
+<!--/share-->
 <style>
   @font-face {
     font-family: "Parisienne";
@@ -99,6 +101,15 @@
     padding: 0.35rem 0;
   }
   .site-nav .tab[aria-selected="true"] { color: var(--sky-glow); border-bottom-color: var(--gold); }
+  /* three tabs is more than a phone width holds at full tracking, so the nav
+     tightens rather than wrapping the brand onto a second line */
+  @media (max-width: 34rem) {
+    .site-nav { padding: 0.6rem 0.7rem; justify-content: center; }
+    /* the monogram only goes home, which the first tab already does */
+    .site-nav .brand { display: none; }
+    .site-nav .tabs { gap: 1rem; }
+    .site-nav .tab { font-size: 0.6rem; letter-spacing: 0.1em; white-space: nowrap; }
+  }
   .site-nav .tab:focus-visible, .site-nav .brand:focus-visible {
     outline: 2px solid var(--sky-glow);
     outline-offset: 3px;
@@ -365,6 +376,21 @@
     letter-spacing: 0.3em;
     text-transform: uppercase;
     color: rgba(255, 233, 196, 0.8);
+  }
+  /* the schedule's address sits under a centred heading, so it centres too */
+  #view-schedule .venue-name,
+  #view-schedule .venue-loc { text-align: center; }
+  #view-schedule .venue-loc { margin-bottom: 0.5rem; }
+  /* an inline button that reads as a link, for pointing at another tab */
+  .linkish {
+    font: inherit;
+    color: var(--gold-ink);
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
   }
   .events-note {
     margin-top: 2rem;
@@ -642,6 +668,7 @@
   <button class="brand" type="button" data-goto="home">S &amp; Z</button>
   <div class="tabs" role="tablist">
     <button class="tab" type="button" role="tab" data-goto="home" aria-selected="true">The Invitation</button>
+    <button class="tab" type="button" role="tab" data-goto="schedule" aria-selected="false">The Schedule</button>
     <button class="tab" type="button" role="tab" data-goto="venue" aria-selected="false">Discover the Venue</button>
   </div>
 </nav>
@@ -724,8 +751,9 @@
         </div>
       </article>
     </div>
-    <p class="events-note">The full schedule and the final menu are still being
-       finalized — we'll post both here well before the day.</p>
+    <p class="events-note">The full order of the day is on
+       <button class="linkish" type="button" data-goto="schedule">the schedule</button>;
+       the final menu will be posted here before the day.</p>
   </div>
 </section>
 
@@ -800,6 +828,79 @@
   </div>
 </section>
 
+</div>
+
+<div class="view" id="view-schedule" hidden>
+  <section class="events">
+    <div class="shell">
+      <p class="sec-label">The Order of the Day</p>
+      <h2>Saturday, the tenth of October</h2>
+      <div class="leaf-rule" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c1 4-1 6 2 8 2-3 5-3 8-2-2 3-2 6-6 7 1 2 3 3 5 3-4 2-8 2-10-1-1 2-1 4 0 6h-2c-.6-2-.6-4 .2-6C6 20 3 19 1 16c3-1 5-2 6-5C4 10 3 8 2 5c3 0 6 1 8 3 1-2 1-4 2-6Z"/></svg>
+      </div>
+      <p class="venue-name">Lydia Mountain Lodge</p>
+      <p class="venue-loc">426 Laurel Mountain Pass · Stanardsville, Virginia</p>
+
+      <div class="event-list">
+        <article class="event">
+          <div class="event-when"><span>Morning</span><b>10:30</b></div>
+          <div>
+            <h3>Breakfast &amp; Refreshments</h3>
+            <p>The doors open, and breakfast and light refreshments are served
+               as guests arrive.</p>
+          </div>
+        </article>
+        <article class="event">
+          <div class="event-when"><span>Morning</span><b>11:15</b></div>
+          <div>
+            <h3>The Groom's Arrival</h3>
+            <p>The groom arrives in procession, greeted with music and dancing.</p>
+          </div>
+        </article>
+        <article class="event">
+          <div class="event-when"><span>Morning</span><b>11:30</b></div>
+          <div>
+            <h3>Welcome &amp; Puja</h3>
+            <p>The families receive the groom, followed by a short puja, until
+               ten minutes before noon.</p>
+          </div>
+        </article>
+        <article class="event">
+          <div class="event-when"><span>Midday</span><b>12:00</b></div>
+          <div>
+            <h3>The Ceremony</h3>
+            <p>The groom takes his place at the mandap and the ceremony begins.
+               It lasts approximately an hour and a quarter.</p>
+          </div>
+        </article>
+        <article class="event">
+          <div class="event-when"><span>Afternoon</span><b>1:00</b></div>
+          <div>
+            <h3>Luncheon</h3>
+            <p>Luncheon is served between one o'clock and a quarter past, as the
+               ceremony draws to a close.</p>
+          </div>
+        </article>
+        <article class="event">
+          <div class="event-when"><span>Evening</span><b>6:30</b></div>
+          <div>
+            <h3>Cocktail Hour</h3>
+            <p>Cocktails are served ahead of the reception.</p>
+          </div>
+        </article>
+        <article class="event">
+          <div class="event-when"><span>Evening</span><b>8:00</b></div>
+          <div>
+            <h3>The Reception</h3>
+            <p>The reception begins, and continues into the late hours.</p>
+          </div>
+        </article>
+      </div>
+
+      <p class="events-note">The order of the day is as planned; the hours may
+         shift a little as the day unfolds.</p>
+    </div>
+  </section>
 </div>
 
 <div class="view" id="view-venue" hidden>
@@ -959,6 +1060,7 @@
   (function () {
     var views = {
       home: document.getElementById("view-home"),
+      schedule: document.getElementById("view-schedule"),
       venue: document.getElementById("view-venue")
     };
     function show(name, anchor) {
@@ -966,6 +1068,10 @@
       document.querySelectorAll(".site-nav .tab").forEach(function (t) {
         t.setAttribute("aria-selected", String(t.dataset.goto === name));
       });
+      // The schedule is a page worth sending on its own, so it gets an address.
+      if (history.replaceState) {
+        history.replaceState(null, "", name === "schedule" ? "/schedule" : "/");
+      }
       if (anchor) {
         var el = document.querySelector(anchor);
         if (el) { el.scrollIntoView(); return; }
@@ -975,6 +1081,10 @@
     document.querySelectorAll("[data-goto]").forEach(function (t) {
       t.addEventListener("click", function () { show(t.dataset.goto, t.dataset.anchor); });
     });
+    // /schedule (or #schedule) opens straight onto the schedule.
+    if (/^\/schedule\/?$/.test(location.pathname) || location.hash === "#schedule") {
+      show("schedule");
+    }
   })();
 
   (function () {

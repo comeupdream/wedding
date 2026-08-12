@@ -38,7 +38,45 @@ const WAX = {
 
 const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 
+// The schedule's own card. Not an envelope — nothing is being addressed here —
+// but the same vellum and wax-red so it reads as part of the same stationery.
+const schedulePage = (fontCss) => `<!doctype html><meta charset="utf-8"><style>
+${fontCss}
+  html,body{margin:0;width:1200px;height:630px;overflow:hidden}
+  body{display:grid;place-items:center;
+    background:radial-gradient(120% 95% at 50% 0%, #4A2038 0%, #2E1A2E 55%, #241522 100%)}
+  .card{position:relative;width:860px;height:470px;padding:44px 60px;box-sizing:border-box;
+    background:linear-gradient(160deg,#FBF1DC 0%,#F6EAD2 45%,#EFE0C2 100%);
+    border:1px solid #E4D2AE;box-shadow:0 26px 60px rgba(0,0,0,.5);
+    display:flex;flex-direction:column;align-items:center;text-align:center;
+    font-family:"Iowan Old Style",Palatino,Georgia,serif;color:#2B1A17}
+  .card::after{content:"";position:absolute;inset:12px;border:1px solid rgba(179,63,46,.22)}
+  .eyebrow{font-size:15px;letter-spacing:.3em;text-transform:uppercase;color:#8A5A28}
+  .day{font-family:"Parisienne",cursive;font-size:62px;line-height:1.05;margin:6px 0 2px}
+  .where{font-size:17px;color:#57403A;margin-bottom:22px}
+  .rule{width:64px;height:1px;background:rgba(179,63,46,.4);margin-bottom:22px}
+  .rows{display:grid;grid-template-columns:auto auto;gap:10px 22px;
+    font-size:20px;text-align:left;align-items:baseline}
+  .t{font-size:16px;letter-spacing:.16em;text-transform:uppercase;color:#8A2A1E;
+    text-align:right;white-space:nowrap}
+</style>
+<div class="card">
+  <div class="eyebrow">The order of the day</div>
+  <div class="day">Saturday, the tenth of October</div>
+  <div class="where">Lydia Mountain Lodge &middot; Stanardsville, Virginia</div>
+  <div class="rule"></div>
+  <div class="rows">
+    <div class="t">10:30</div><div>Breakfast and refreshments</div>
+    <div class="t">11:15</div><div>The groom&rsquo;s arrival</div>
+    <div class="t">12:00</div><div>The ceremony at the mandap</div>
+    <div class="t">1:00</div><div>Luncheon</div>
+    <div class="t">6:30</div><div>Cocktails</div>
+    <div class="t">8:00</div><div>The reception</div>
+  </div>
+</div>`;
+
 const page = (guest, fontCss) => {
+  if (guest.code === "schedule") return schedulePage(fontCss);
   const wax = WAX[guest.role] || WAX[""];
   // The envelope is addressed to the household; a trailing parenthetical would
   // run into the seal, so it's dropped here exactly as it is on the card.
@@ -127,10 +165,12 @@ const audit = () => {
 if (flag("check")) {
   const { missing, stale } = audit();
   const dflt = fs.existsSync(path.join(OUT, "default.jpg"));
+  const sched = fs.existsSync(path.join(OUT, "schedule.jpg"));
   for (const g of missing) console.log(`  missing  ${g.code}  ${g.name}`);
   for (const g of stale) console.log(`  stale    ${g.code}  ${g.name}  (card drawn from a different name)`);
   if (!dflt) console.log("  missing  the fallback envelope (default.jpg)");
-  const bad = missing.length + stale.length + (dflt ? 0 : 1);
+  if (!sched) console.log("  missing  the schedule card (schedule.jpg)");
+  const bad = missing.length + stale.length + (dflt ? 0 : 1) + (sched ? 0 : 1);
   console.log(bad
     ? `\n${bad} share card(s) need rendering — \`node tools/share-cards.mjs --stale\``
     : `all ${guests.length} invitations have a current share card`);
@@ -142,7 +182,8 @@ let list = guests.filter((g) => (flag("all") ? true : Boolean(g.role)));
 if (flag("stale")) {
   const { missing, stale } = audit();
   list = [...missing, ...stale];
-  if (!list.length && fs.existsSync(path.join(OUT, "default.jpg"))) {
+  if (!list.length && fs.existsSync(path.join(OUT, "default.jpg"))
+      && fs.existsSync(path.join(OUT, "schedule.jpg"))) {
     console.log("every share card is already current");
     process.exit(0);
   }
@@ -151,14 +192,20 @@ if (who) {
   const needles = who.split(",").map((s) => s.trim().toLowerCase());
   list = guests.filter((g) => needles.some((n) => g.name.toLowerCase().includes(n)));
 }
+// The two cards that belong to no household: the fallback envelope, served for
+// any valid code with no card of its own — a password minted on the live site,
+// say — so every link unfurls with a picture; and the schedule's own card.
+// A --stale run only wants the ones actually missing.
+const pageCards = [{ code: "default" }, { code: "schedule" }];
+for (const c of pageCards) {
+  if (who) break;
+  if (flag("stale") && fs.existsSync(path.join(OUT, `${c.code}.jpg`))) continue;
+  list.push({ ...c, name: "", role: "" });
+}
 if (!list.length) {
   console.error("nothing to render — no invitation has a role yet, or --who matched nobody");
   process.exit(1);
 }
-// The fallback envelope, addressed to nobody: served for any valid code that
-// has no rendered card of its own — a password minted on the live site, say —
-// so every link unfurls with a picture rather than silently dropping it.
-if (!who) list.push({ code: "default", name: "", role: "" });
 
 // A bare import resolves from this file's folder, so also try the folder the
 // command was run from — that's usually where Playwright actually lives.
