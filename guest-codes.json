@@ -77,14 +77,12 @@
  {
   "code": "8995",
   "name": "Aparna & Ken Tribble",
-  "party": 4,
+  "party": 2,
   "invite": "both",
-  "contact": "Janetribble21@gmail.com; Sgosaie91@gmail.com; Sarahgosaie94@gmail.com",
+  "contact": "Janetribble21@gmail.com",
   "members": [
    "Aparna",
-   "Ken",
-   "Sarah",
-   "Shelly"
+   "Ken"
   ],
   "role": "",
   "ask": "",
@@ -206,7 +204,7 @@
    "Durga",
    "Ritika",
    "Nitika",
-   "Loveena"
+   "Laveena"
   ],
   "role": "",
   "ask": "",
@@ -246,15 +244,11 @@
  },
  {
   "code": "4337",
-  "name": "Herpal & Family",
-  "party": 5,
+  "name": "Harpal Malik",
+  "party": 1,
   "invite": "both",
   "contact": "Hsmalik1@yahoo.com",
-  "members": [
-   "Herpal",
-   "Maheer",
-   "Roshni"
-  ],
+  "members": [],
   "role": "",
   "ask": "",
   "formal": "",
@@ -383,6 +377,21 @@
   "members": [],
   "role": "maid-of-honor",
   "ask": "Lynda — you have been beside me for *your* whole life, whether you liked it or not. Will you be one of my maids of honour?",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "1784",
+  "name": "Mehar & Jujhaar",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Mehar",
+   "Jujhaar"
+  ],
+  "role": "",
+  "ask": "",
   "formal": "",
   "test": false
  },
@@ -566,6 +575,21 @@
   "test": false
  },
  {
+  "code": "7610",
+  "name": "Roshni & Sarneet",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Roshni",
+   "Sarneet"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
   "code": "2030",
   "name": "Sam Guion",
   "party": 1,
@@ -573,6 +597,18 @@
   "contact": "",
   "members": [],
   "role": "groomsman",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "6301",
+  "name": "Sarah Gosai",
+  "party": 1,
+  "invite": "both",
+  "contact": "Sarahgosaie94@gmail.com",
+  "members": [],
+  "role": "",
   "ask": "",
   "formal": "",
   "test": false
@@ -587,6 +623,18 @@
    "Saurabh",
    "Tarika"
   ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "test": false
+ },
+ {
+  "code": "7194",
+  "name": "Shelley Gosai",
+  "party": 1,
+  "invite": "both",
+  "contact": "Sgosaie91@gmail.com",
+  "members": [],
   "role": "",
   "ask": "",
   "formal": "",
@@ -633,11 +681,14 @@
  },
  {
   "code": "8383",
-  "name": "Sreedhar & Family",
+  "name": "Sreedhar & Vijya Makarla",
   "party": 3,
   "invite": "both",
   "contact": "makarla@gmail.com",
-  "members": [],
+  "members": [
+   "Sreedhar",
+   "Vijya"
+  ],
   "role": "",
   "ask": "",
   "formal": "",
