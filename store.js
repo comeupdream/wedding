@@ -109,6 +109,9 @@ alter table guests add column if not exists is_test boolean not null default fal
 -- How the household is written out inside the card, when that differs from the
 -- name on the envelope.
 alter table guests add column if not exists formal text not null default '';
+-- Whose guest the household is, so Sharon's list can be gathered on its own
+-- tab in /admin. Empty for everyone else; counts are unaffected either way.
+alter table guests add column if not exists side text not null default '';
 `;
 
 const UPSERT = `
@@ -159,7 +162,7 @@ const pgStore = async (url) => {
       return rows.map((r) => ({
         code: r.code, name: r.name, party: r.party, invite: r.invite,
         contact: r.contact, members: r.members || [], role: r.role || "", ask: r.ask || "",
-        formal: r.formal || "", test: r.is_test === true,
+        formal: r.formal || "", side: r.side || "", test: r.is_test === true,
       }));
     },
     // Replace the list wholesale, in one transaction: a half-applied guest list
@@ -171,11 +174,11 @@ const pgStore = async (url) => {
         await client.query("delete from guests");
         for (const g of list) {
           await client.query(
-            `insert into guests (code, name, party, invite, contact, members, role, ask, is_test, formal)
-             values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+            `insert into guests (code, name, party, invite, contact, members, role, ask, is_test, formal, side)
+             values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`,
             [g.code, g.name, g.party, g.invite, g.contact || "",
              JSON.stringify(g.members || []), g.role || "", g.ask || "", !!g.test,
-             g.formal || ""]);
+             g.formal || "", g.side || ""]);
         }
         await client.query("commit");
       } catch (err) {
