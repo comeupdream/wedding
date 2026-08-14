@@ -60,7 +60,9 @@ const indexGuests = (raw) => {
       // A standing at the wedding, if any. Only "best-man" is special so far.
       role: String(g.role || ""),
       // Words written for this invitation alone, if any.
-      ask: String(g.ask || "").slice(0, 400),
+      // Long enough for words that ask something of the guest rather than
+      // simply greeting them — Omer's is the length that set this.
+      ask: String(g.ask || "").slice(0, 700),
       // Whose guest this is — "sharon" gathers the invitation onto her tab in
       // /admin. Nothing a guest sees, and no effect on any headcount.
       side: String(g.side || ""),

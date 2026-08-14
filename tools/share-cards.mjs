@@ -145,19 +145,23 @@ const MANIFEST = path.join(OUT, "manifest.json");
 const readManifest = () => {
   try {
     const m = JSON.parse(fs.readFileSync(MANIFEST, "utf8"));
-    return { byName: m.byName || m, rendered: m.rendered || {} };
-  } catch { return { byName: {}, rendered: {} }; }
+    return { byName: m.byName || m, rendered: m.rendered || {}, roles: m.roles || {} };
+  } catch { return { byName: {}, rendered: {}, roles: {} }; }
 };
 
 // What each invitation needs: a file, drawn from the name it carries now.
 // A rename leaves the old picture in place, which is worse than none — the
 // preview shows a name the guest has already been told is wrong.
 const audit = () => {
-  const { rendered } = readManifest();
+  const { rendered, roles } = readManifest();
   const missing = [], stale = [];
   for (const g of guests) {
     if (!fs.existsSync(path.join(OUT, `${g.code}.jpg`))) missing.push(g);
     else if (rendered[g.code] !== g.name) stale.push(g);
+    // The seal takes its colour from the standing, so a card drawn before a
+    // household was made a bridesmaid carries the wrong wax. Cards rendered
+    // before roles were recorded have no opinion here, and are left alone.
+    else if (g.code in roles && roles[g.code] !== (g.role || "")) stale.push(g);
   }
   return { missing, stale };
 };
@@ -167,7 +171,7 @@ if (flag("check")) {
   const dflt = fs.existsSync(path.join(OUT, "default.jpg"));
   const sched = fs.existsSync(path.join(OUT, "schedule.jpg"));
   for (const g of missing) console.log(`  missing  ${g.code}  ${g.name}`);
-  for (const g of stale) console.log(`  stale    ${g.code}  ${g.name}  (card drawn from a different name)`);
+  for (const g of stale) console.log(`  stale    ${g.code}  ${g.name}  (card drawn from a different name or standing)`);
   if (!dflt) console.log("  missing  the fallback envelope (default.jpg)");
   if (!sched) console.log("  missing  the schedule card (schedule.jpg)");
   const bad = missing.length + stale.length + (dflt ? 0 : 1) + (sched ? 0 : 1);
@@ -254,6 +258,7 @@ for (const g of list) {
   if (!g.name) continue;
   manifest.byName[g.name] = `${g.code}.jpg`;
   manifest.rendered[g.code] = g.name;
+  manifest.roles[g.code] = g.role || "";
 }
 fs.writeFileSync(MANIFEST, JSON.stringify(manifest, null, 1));
 
