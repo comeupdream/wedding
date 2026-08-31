@@ -116,7 +116,8 @@
   "Tia Suzy & Tio Julio": "7300.jpg",
   "Tia Tirsa": "6551.jpg",
   "Tio Celvin": "5197.jpg",
-  "Tio Lirdan": "9164.jpg"
+  "Tio Lirdan": "9164.jpg",
+  "Ajay & Brooke Varma": "5736.jpg"
  },
  "rendered": {
   "1023": "Lynda",
@@ -167,6 +168,7 @@
   "5449": "Yamilet Macias",
   "5511": "Pandit Abhay & Daughter",
   "5567": "Julio Junior Guevara",
+  "5736": "Ajay & Brooke Varma",
   "5848": "Omer Estrada",
   "5883": "Carlos y Noelia",
   "5908": "Saurabh & Tarika Sekhri",
@@ -223,6 +225,7 @@
   "9962": "Cris & Cameron España"
  },
  "roles": {
-  "5449": "bridesmaid"
+  "5449": "bridesmaid",
+  "5736": ""
  }
 }
