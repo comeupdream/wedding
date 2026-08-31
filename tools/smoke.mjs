@@ -301,6 +301,25 @@ check("no guest is renamed to a stranger", collide.renamed.length === 0, collide
 check("a drifted password never issues a duplicate",
   new Set(collide.list.map((g) => g.code)).size === collide.list.length);
 
+// A password written down beside a new household is the one it gets, so the
+// link noted next to it is the link that works — unless somebody already holds
+// that password, in which case the newcomer is given another.
+// The whole sheet goes up each time, so the household holding the contested
+// password is on it too — which is what tells a collision from a rename.
+const carried = merge(
+  [{ code: "9052", name: "Yuly & Rudy", party: 2, invite: "both", contact: "", members: [] }],
+  [{ name: "Yuly & Rudy", code: "9052", party: 2, invite: "both", contact: "", members: [] },
+   { name: "Ajay & Brooke Varma", code: "5736", party: 2, invite: "both", contact: "", members: [] },
+   { name: "Someone Else", code: "9052", party: 1, invite: "both", contact: "", members: [] }],
+  (lo, hi) => lo + Math.floor(Math.random() * (hi - lo)));
+check("a free password on the sheet is the one a new household keeps",
+  carried.list.find((g) => g.name === "Ajay & Brooke Varma").code === "5736",
+  JSON.stringify(carried.list));
+check("a password someone already holds is not handed out twice",
+  carried.list.find((g) => g.name === "Someone Else").code !== "9052"
+  && new Set(carried.list.map((g) => g.code)).size === carried.list.length,
+  JSON.stringify(carried.list));
+
 // The rename it must not break: the old name is gone from the sheet, so the
 // password is what carries the invitation across.
 const rename = merge(

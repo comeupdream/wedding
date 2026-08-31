@@ -194,7 +194,13 @@ export const merge = (existing, incoming, randomInt, answered = new Set()) => {
     if (prev && prev.name !== g.name) renamed.push(`${prev.name} → ${g.name}`);
     if (!prev) {
       added.push(g.name);
-      return { code: makeCode(taken, randomInt), name: g.name, party: g.party,
+      // A password the sheet already carries is kept, so long as it is sound
+      // and nobody holds it — the links written down beside a new household
+      // are then the links it actually gets. Anything else is minted here.
+      const wanted = String(g.code || "");
+      const keep = /^\d{4}$/.test(wanted) && !weak(wanted) && !taken.has(wanted);
+      if (keep) taken.add(wanted);
+      return { code: keep ? wanted : makeCode(taken, randomInt), name: g.name, party: g.party,
                invite: g.invite, contact: g.contact, members: g.members,
                role: g.role || "", ask: g.ask || "", formal: g.formal || "",
                side: g.side || "", test: !!g.test };
