@@ -70,6 +70,10 @@ const fromExport = (rows) => {
       formal: get("formal"),
       // An optional standing at the wedding — "best-man" gets its own card.
       role: get("role"),
+      // Whose guest this is. Only "sharon" is used today, to gather the
+      // invitations she is sending onto a tab of her own in /admin. It changes
+      // nothing a guest sees, and nothing about the counts.
+      side: get("side").toLowerCase(),
       // Optional words for this invitation, overriding the role's default.
       ask: get("ask"),
       // A rehearsal invitation: real in every way except that it is left out
@@ -165,17 +169,35 @@ export const merge = (existing, incoming, randomInt, answered = new Set()) => {
   const taken = new Set(existing.map((g) => String(g.code)).filter((c) => /^\d{4}$/.test(c)));
   const added = [], changed = [], unchanged = [], renamed = [];
 
-  const list = incoming.map((g) => {
-    // The password wins over the name, so a household can be renamed without
-    // losing the invitation that was already sent to it.
-    const prev = (g.code && byCode.get(String(g.code))) || byName.get(g.name);
+  // Bind each row to the invitation it continues, in two passes.
+  //
+  // Names go first, then passwords. A password still carries an invitation
+  // through a rename — the renamed household is no longer on the sheet under
+  // its old name, so nothing else has claimed it by the time passwords are
+  // read. But a household that IS still on the sheet under its own name keeps
+  // its invitation, even if some other row arrives carrying its password.
+  // That happens whenever a password is minted against a list that has drifted
+  // from the live one, and matching by password first would rename a guest to
+  // a stranger and hand over their link.
+  const bound = new Map();      // index in `incoming` -> the invitation it continues
+  const claimed = new Set();    // passwords already spoken for
+  const bind = (i, prev) => {
+    if (!prev || claimed.has(String(prev.code))) return;
+    bound.set(i, prev);
+    claimed.add(String(prev.code));
+  };
+  incoming.forEach((g, i) => bind(i, byName.get(g.name)));
+  incoming.forEach((g, i) => { if (!bound.has(i) && g.code) bind(i, byCode.get(String(g.code))); });
+
+  const list = incoming.map((g, i) => {
+    const prev = bound.get(i);
     if (prev && prev.name !== g.name) renamed.push(`${prev.name} → ${g.name}`);
     if (!prev) {
       added.push(g.name);
       return { code: makeCode(taken, randomInt), name: g.name, party: g.party,
                invite: g.invite, contact: g.contact, members: g.members,
                role: g.role || "", ask: g.ask || "", formal: g.formal || "",
-               test: !!g.test };
+               side: g.side || "", test: !!g.test };
     }
     const diffs = [];
     if (prev.party !== g.party) diffs.push(`seats ${prev.party} → ${g.party}`);
@@ -184,12 +206,14 @@ export const merge = (existing, incoming, randomInt, answered = new Set()) => {
     if ((prev.role || "") !== (g.role || "")) diffs.push("role");
     if ((prev.ask || "") !== (g.ask || "")) diffs.push("wording");
     if ((prev.formal || "") !== (g.formal || "")) diffs.push("card name");
+    if ((prev.side || "") !== (g.side || "")) diffs.push("whose guest");
     if (diffs.length) changed.push(`${g.name}: ${diffs.join(", ")}`);
     else unchanged.push(g.name);
     return { code: prev.code, name: g.name, party: g.party,
              invite: prev.invite || g.invite, contact: g.contact, members: g.members,
              role: g.role || prev.role || "", ask: g.ask || prev.ask || "",
              formal: g.formal || prev.formal || "",
+             side: g.side || prev.side || "",
              test: g.test === undefined ? !!prev.test : !!g.test };
   });
 

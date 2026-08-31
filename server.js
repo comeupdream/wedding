@@ -60,7 +60,12 @@ const indexGuests = (raw) => {
       // A standing at the wedding, if any. Only "best-man" is special so far.
       role: String(g.role || ""),
       // Words written for this invitation alone, if any.
-      ask: String(g.ask || "").slice(0, 400),
+      // Long enough for words that ask something of the guest rather than
+      // simply greeting them — Omer's is the length that set this.
+      ask: String(g.ask || "").slice(0, 700),
+      // Whose guest this is — "sharon" gathers the invitation onto her tab in
+      // /admin. Nothing a guest sees, and no effect on any headcount.
+      side: String(g.side || ""),
       // A rehearsal invitation — answers are kept and shown, but never counted.
       test: g.test === true,
     });
@@ -419,6 +424,7 @@ const ADMIN_HTML = `<!doctype html><html lang="en"><meta charset="utf-8">
   <div class="tabs">
     <button class="ghost on" id="tab-rsvps">Replies</button>
     <button class="ghost" id="tab-links">Invitations &amp; links</button>
+    <button class="ghost" id="tab-sharon">Sharon's family &amp; friends</button>
     <button class="ghost" id="tab-special">Special invites</button>
     <button class="ghost" id="tab-preview">Preview</button>
     <button class="ghost" id="tab-list">Guest list</button>
@@ -443,6 +449,18 @@ const ADMIN_HTML = `<!doctype html><html lang="en"><meta charset="utf-8">
       <span class="ok" id="link-msg"></span>
     </div>
     <div id="links"></div>
+  </div>
+
+  <div id="panel-sharon" class="hide">
+    <p class="lede">The invitations Sharon is sending, gathered here so she has
+      them in one place. They are counted with everyone else — the figures at the
+      top of this page include them.</p>
+    <div class="bar">
+      <button id="sharon-copy">Copy these links</button>
+      <button id="sharon-csv">Download her list &amp; links CSV</button>
+      <span class="ok" id="sharon-msg"></span>
+    </div>
+    <div id="sharon"></div>
   </div>
 
   <div id="panel-special" class="hide">
@@ -604,6 +622,7 @@ function load() {
       }).join("") + "</table>";
     renderLinks();
     renderSpecial();
+    renderSharon();
     renderRail();
   }).catch(function (e) { msg.textContent = e.message; out.innerHTML = ""; sum.innerHTML = ""; });
 }
@@ -671,22 +690,74 @@ function download(name, text, type) {
   a.href = URL.createObjectURL(new Blob([text], { type: type }));
   a.download = name; a.click(); URL.revokeObjectURL(a.href);
 }
-document.getElementById("links-csv").addEventListener("click", function () {
+// Column names the importer reads, so this file can be edited and uploaded
+// straight back — the password column is what keeps an invitation attached
+// through a rename. The two link columns are extra, and ignored on the way in.
+function listCsv(list) {
   var cell = function (v) {
     var s = String(v == null ? "" : v);
     return /[",\\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
   };
-  // Column names the importer reads, so this file can be edited and uploaded
-  // straight back — the password column is what keeps an invitation attached
-  // through a rename. The two link columns are extra, and ignored on the way in.
-  var rows = shown().map(function (g) {
+  var rows = list.map(function (g) {
     return [g.name, g.code, g.party, g.invite, g.contact || "", (g.members || []).join("; "),
-            g.role || "", g.formal || "", g.test ? "yes" : "",
+            g.role || "", g.formal || "", g.test ? "yes" : "", g.side || "",
             cardFor(g.code), linkFor(g.code)].map(cell).join(",");
   });
-  download("invitation-links.csv",
-    "name,password,party,invite,contact,members,role,formal,test,invitation_link,rsvp_link\\n" +
-    rows.join("\\n") + "\\n", "text/csv");
+  return "name,password,party,invite,contact,members,role,formal,test,side," +
+    "invitation_link,rsvp_link\\n" + rows.join("\\n") + "\\n";
+}
+document.getElementById("links-csv").addEventListener("click", function () {
+  download("invitation-links.csv", listCsv(shown()), "text/csv");
+});
+
+// ---- Sharon's family & friends ----
+// The same rows as the links tab, narrowed to the invitations she is sending.
+// Nothing here is excluded from the figures at the top of the page: this is a
+// view of the one list, not a list of its own.
+function sharonsList() {
+  return GUESTS.filter(function (g) { return (g.side || "") === "sharon"; });
+}
+function renderSharon() {
+  var rows = sharonsList();
+  var seats = rows.reduce(function (n, g) { return n + (g.test ? 0 : g.party); }, 0);
+  var replied = rows.filter(function (g) { return g.replied; }).length;
+  if (!rows.length) {
+    document.getElementById("sharon").innerHTML =
+      "<p class=muted>Nobody is marked as Sharon's yet. Put <b>sharon</b> in the " +
+      "<b>side</b> column of the guest list and upload it again.</p>";
+    return;
+  }
+  document.getElementById("sharon").innerHTML =
+    "<p class=muted>" + rows.length + " invitation(s) · " + seats + " seat(s) · " +
+    replied + " replied — counted with everyone else in the totals above.</p>" +
+    "<table><tr><th>Household</th><th>Seats</th><th>Invited to</th><th>Send to</th>" +
+    "<th>Password</th><th>Invitation link</th><th>Actions</th><th>Status</th></tr>" +
+    rows.map(function (g) {
+      var status = !g.replied ? "<span class=muted>no reply</span>"
+        : g.events === "none" ? "<span class=muted>cannot attend</span>"
+        : "<b>" + (EVENTS[g.events] || esc(g.events)) + "</b>";
+      return "<tr" + (g.test ? " class=testrow" : "") + "><td>" + esc(g.name) + testChip(g) +
+        flag(g) + namesOf(g) + "</td><td class=num>" + esc(g.party) + "</td><td>" +
+        (SCOPE[g.invite] || esc(g.invite)) + "</td>" +
+        "<td class=muted>" + (g.contact ? esc(g.contact) : "—") + "</td>" +
+        "<td class=code>" + esc(g.code) + "</td>" +
+        "<td class=link>" + esc(cardFor(g.code)) + "</td>" +
+        "<td><button class='mini' data-preview='" + esc(g.code) +
+        "' aria-label='Preview the invitation for " + esc(g.name) + "'>preview</button> " +
+        "<button class='mini ghost' data-copy='" + esc(g.code) +
+        "' aria-label='Copy the invitation link for " + esc(g.name) + "'>copy</button></td>" +
+        "<td>" + status + "</td></tr>";
+    }).join("") + "</table>";
+}
+document.getElementById("sharon-copy").addEventListener("click", function () {
+  var rows = sharonsList();
+  var text = rows.map(function (g) { return g.name + "\\t" + g.code + "\\t" + cardFor(g.code); }).join("\\n");
+  navigator.clipboard.writeText(text).then(function () {
+    document.getElementById("sharon-msg").textContent = rows.length + " link(s) copied";
+  });
+});
+document.getElementById("sharon-csv").addEventListener("click", function () {
+  download("sharons-invitations.csv", listCsv(sharonsList()), "text/csv");
 });
 
 // ---- special invites ----
@@ -839,7 +910,7 @@ document.getElementById("preview-copy").addEventListener("click", function () {
 });
 
 // ---- tabs ----
-var TABS = ["rsvps", "links", "special", "preview", "list"];
+var TABS = ["rsvps", "links", "sharon", "special", "preview", "list"];
 function tab(which) {
   TABS.forEach(function (k) {
     document.getElementById("panel-" + k).classList.toggle("hide", which !== k);
@@ -878,6 +949,26 @@ return http.createServer(async (req, res) => {
     if (method === "GET" && (url.pathname === "/" || url.pathname === "/index.html")) {
       return send(200, fs.readFileSync(path.join(__dirname, "site", "index.html")),
         "text/html; charset=utf-8", { "Cache-Control": "no-cache" });
+    }
+    // The schedule is the same page opened on its own tab, but it is shared on
+    // its own, so it unfurls with its own card rather than the couple's.
+    if (method === "GET" && (url.pathname === "/schedule" || url.pathname === "/schedule/")) {
+      const proto = String(req.headers["x-forwarded-proto"] || "https").split(",")[0];
+      const origin = `${proto}://${req.headers.host}`;
+      const html = fs.readFileSync(path.join(__dirname, "site", "index.html"), "utf8")
+        .replace(/<!--share-->[\s\S]*?<!--\/share-->/, [
+          `<meta property="og:type" content="website">`,
+          `<meta property="og:title" content="The order of the day — Sharon &amp; Zachary">`,
+          `<meta property="og:description" content="Saturday, the tenth of October, 2026. Lydia Mountain Lodge, Stanardsville, Virginia. Breakfast from half past ten, the ceremony at noon, the reception at eight.">`,
+          `<meta property="og:url" content="${escapeAttr(origin)}/schedule">`,
+          `<meta property="og:image" content="${escapeAttr(origin)}/assets/share/schedule.jpg">`,
+          `<meta property="og:image:type" content="image/jpeg">`,
+          `<meta property="og:image:width" content="1200">`,
+          `<meta property="og:image:height" content="630">`,
+          `<meta property="og:image:alt" content="The order of the wedding day">`,
+          `<meta name="twitter:card" content="summary_large_image">`,
+        ].join("\n"));
+      return send(200, html, "text/html; charset=utf-8", { "Cache-Control": "no-cache" });
     }
     // The invitation card — an envelope with the household's name on it that
     // opens onto their own card. The page reads ?c= and unlocks like any guest.
@@ -1008,6 +1099,9 @@ return http.createServer(async (req, res) => {
         .map((g) => ({
           code: g.code, name: g.name, party: g.party, invite: g.invite,
           contact: g.contact, members: g.members, role: g.role, test: g.test,
+          // `formal` rides along so the downloaded CSV keeps the card name;
+          // `side` is what gathers Sharon's invitations onto her own tab.
+          formal: g.formal, side: g.side,
           needsSurname: needsSurname(g.name),
           replied: Boolean(all[g.code]),
           events: all[g.code] ? all[g.code].events : null,

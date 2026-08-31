@@ -12,6 +12,7 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": true
  },
  {
@@ -28,6 +29,36 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
+  "test": false
+ },
+ {
+  "code": "5736",
+  "name": "Ajay & Brooke Varma",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Ajay",
+   "Brooke"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "",
+  "test": false
+ },
+ {
+  "code": "8159",
+  "name": "Alejandra",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
   "test": false
  },
  {
@@ -45,6 +76,7 @@
   "role": "maid-of-honor",
   "ask": "",
   "formal": "",
+  "side": "sharon",
   "test": false
  },
  {
@@ -57,6 +89,7 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -72,28 +105,41 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
+  "test": false
+ },
+ {
+  "code": "9191",
+  "name": "Anthony España Paredes",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
   "test": false
  },
  {
   "code": "8995",
-  "name": "Appu & Ken",
-  "party": 4,
+  "name": "Aparna & Ken Tribble",
+  "party": 2,
   "invite": "both",
-  "contact": "Janetribble21@gmail.com; Sgosaie91@gmail.com; Sarahgosaie94@gmail.com",
+  "contact": "Janetribble21@gmail.com",
   "members": [
-   "Appu",
-   "Ken",
-   "Sarah",
-   "Shelly"
+   "Aparna",
+   "Ken"
   ],
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
   "code": "4845",
-  "name": "Archana & Rajeev",
+  "name": "Archana & Rajeev Khanna",
   "party": 2,
   "invite": "both",
   "contact": "Arcraj@aol.com",
@@ -104,18 +150,39 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
+  "test": false
+ },
+ {
+  "code": "5256",
+  "name": "Aroldo y Miriam Hernández",
+  "party": 2,
+  "invite": "ceremony",
+  "contact": "",
+  "members": [
+   "Aroldo",
+   "Miriam"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
   "test": false
  },
  {
   "code": "2341",
-  "name": "Bholi Dhillon",
+  "name": "Bholi & Jaswinder Dhillon",
   "party": 2,
   "invite": "both",
   "contact": "bholi0910@gmail.com",
-  "members": [],
+  "members": [
+   "Bholi",
+   "Jaswinder"
+  ],
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -131,6 +198,7 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -143,6 +211,55 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
+  "test": false
+ },
+ {
+  "code": "1425",
+  "name": "Carlos y Davila",
+  "party": 2,
+  "invite": "ceremony",
+  "contact": "",
+  "members": [
+   "Carlos",
+   "Davila"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "7804",
+  "name": "Carlos y Jenny",
+  "party": 2,
+  "invite": "ceremony",
+  "contact": "",
+  "members": [
+   "Carlos",
+   "Jenny"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "5883",
+  "name": "Carlos y Noelia",
+  "party": 2,
+  "invite": "ceremony",
+  "contact": "",
+  "members": [
+   "Carlos",
+   "Noelia"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
   "test": false
  },
  {
@@ -155,6 +272,23 @@
   "role": "groomsman",
   "ask": "",
   "formal": "",
+  "side": "",
+  "test": false
+ },
+ {
+  "code": "9124",
+  "name": "Celvin y Aide",
+  "party": 2,
+  "invite": "ceremony",
+  "contact": "",
+  "members": [
+   "Celvin",
+   "Aide"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
   "test": false
  },
  {
@@ -165,8 +299,9 @@
   "contact": "ccwjr@comcast.net",
   "members": [],
   "role": "",
-  "ask": "",
+  "ask": "Charles — you have been a good friend to my mom for as long as I can remember, and you and I have never once had a conversation that knew how to end. Come start another one with me — we will keep the night long enough for it.",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -179,6 +314,68 @@
   "role": "bridesmaid",
   "ask": "",
   "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "6172",
+  "name": "Cleiber y esposa",
+  "party": 2,
+  "invite": "ceremony",
+  "contact": "",
+  "members": [
+   "Cleiber",
+   "esposa"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "9962",
+  "name": "Cris & Cameron España",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Cris",
+   "Cameron"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "7006",
+  "name": "Cristian y esposa",
+  "party": 2,
+  "invite": "ceremony",
+  "contact": "",
+  "members": [
+   "Cristian",
+   "esposa"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "4646",
+  "name": "Dhruv Kapoor",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -191,11 +388,57 @@
    "Durga",
    "Ritika",
    "Nitika",
-   "Loveena"
+   "Laveena"
   ],
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
+  "test": false
+ },
+ {
+  "code": "1474",
+  "name": "Eliezer y Roxana",
+  "party": 2,
+  "invite": "ceremony",
+  "contact": "",
+  "members": [
+   "Eliezer",
+   "Roxana"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "6285",
+  "name": "Engracia Estrada y esposo",
+  "party": 2,
+  "invite": "ceremony",
+  "contact": "",
+  "members": [
+   "Engracia",
+   "esposo"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "7728",
+  "name": "Fawaz",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
   "test": false
  },
  {
@@ -211,37 +454,127 @@
   "role": "maid-of-honor",
   "ask": "",
   "formal": "Gaby & Dylan Hausenfleck",
+  "side": "sharon",
   "test": false
  },
  {
   "code": "2022",
   "name": "Gita & Sudhir Chopra",
-  "party": 2,
+  "party": 3,
   "invite": "both",
   "contact": "goregous37@gmail.com",
   "members": [
    "Gita",
-   "Sudhir"
+   "Sudhir",
+   "Neha"
   ],
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
   "code": "4337",
-  "name": "Herpal & Family",
-  "party": 5,
+  "name": "Harpal Malik",
+  "party": 1,
   "invite": "both",
   "contact": "Hsmalik1@yahoo.com",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "",
+  "test": false
+ },
+ {
+  "code": "8884",
+  "name": "Hermelinda y esposo",
+  "party": 2,
+  "invite": "ceremony",
+  "contact": "",
   "members": [
-   "Herpal",
-   "Maheer",
-   "Roshni"
+   "Hermelinda",
+   "esposo"
   ],
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "1901",
+  "name": "Idan",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "8530",
+  "name": "Isaac España",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "1356",
+  "name": "Isnel y Lipa",
+  "party": 2,
+  "invite": "ceremony",
+  "contact": "",
+  "members": [
+   "Isnel",
+   "Lipa"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "3487",
+  "name": "Jairo y esposa",
+  "party": 2,
+  "invite": "ceremony",
+  "contact": "",
+  "members": [
+   "Jairo",
+   "esposa"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "7472",
+  "name": "Jasmin & Nitin Dua",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Jasmin",
+   "Nitin"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -254,6 +587,23 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
+  "test": false
+ },
+ {
+  "code": "3926",
+  "name": "Johnatan y esposa",
+  "party": 2,
+  "invite": "ceremony",
+  "contact": "",
+  "members": [
+   "Johnatan",
+   "esposa"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
   "test": false
  },
  {
@@ -269,6 +619,91 @@
   "role": "best-man",
   "ask": "",
   "formal": "",
+  "side": "",
+  "test": false
+ },
+ {
+  "code": "7357",
+  "name": "Josue",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "3264",
+  "name": "Julia y esposo",
+  "party": 2,
+  "invite": "ceremony",
+  "contact": "",
+  "members": [
+   "Julia",
+   "esposo"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "3123",
+  "name": "Julianna",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "5567",
+  "name": "Julio Junior Guevara",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "3429",
+  "name": "Kabir & Divita Sodhi",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Kabir",
+   "Divita"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "",
+  "test": false
+ },
+ {
+  "code": "6339",
+  "name": "Kai España",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
   "test": false
  },
  {
@@ -284,6 +719,49 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
+  "test": false
+ },
+ {
+  "code": "2508",
+  "name": "Keili España Paredes & Randy Mazariegos",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Keili",
+   "Randy"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "7765",
+  "name": "Keysy Guevara",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "2340",
+  "name": "Kristen",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
   "test": false
  },
  {
@@ -299,6 +777,7 @@
   "role": "bridesmaid",
   "ask": "",
   "formal": "",
+  "side": "sharon",
   "test": false
  },
  {
@@ -311,6 +790,23 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
+  "test": false
+ },
+ {
+  "code": "8007",
+  "name": "Leny y Lucio",
+  "party": 2,
+  "invite": "ceremony",
+  "contact": "",
+  "members": [
+   "Leny",
+   "Lucio"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
   "test": false
  },
  {
@@ -326,6 +822,7 @@
   "role": "",
   "ask": "Before there were vows, there were pudding cups, backyard baseball, and a very small boy asking for “McDonalds winna pweez.” You took care of me then — it wouldn’t be a wedding without you here now.",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -338,6 +835,103 @@
   "role": "maid-of-honor",
   "ask": "Lynda — you have been beside me for *your* whole life, whether you liked it or not. Will you be one of my maids of honour?",
   "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "2379",
+  "name": "Maco & Lilian",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Maco",
+   "Lilian"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "1784",
+  "name": "Mehar & Jujhaar",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Mehar",
+   "Jujhaar"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "",
+  "test": false
+ },
+ {
+  "code": "8858",
+  "name": "Merindo y Allba",
+  "party": 2,
+  "invite": "ceremony",
+  "contact": "",
+  "members": [
+   "Merindo",
+   "Allba"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "7262",
+  "name": "Miguel y Marlen",
+  "party": 2,
+  "invite": "ceremony",
+  "contact": "",
+  "members": [
+   "Miguel",
+   "Marlen"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "2709",
+  "name": "Neal & Aneesha Sekhri",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Neal",
+   "Aneesha"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "",
+  "test": false
+ },
+ {
+  "code": "7783",
+  "name": "Nelo y esposa",
+  "party": 2,
+  "invite": "ceremony",
+  "contact": "",
+  "members": [
+   "Nelo",
+   "esposa"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
   "test": false
  },
  {
@@ -350,6 +944,7 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -365,6 +960,7 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -377,6 +973,20 @@
   "role": "bridesmaid",
   "ask": "",
   "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "5848",
+  "name": "Omer Estrada",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "Omer — we cannot wait to celebrate this day with you, and we would be truly honoured if you would stand beside us as our *Master of Ceremonies*. You have been part of our family for as long as I can remember, and you have always had a gift for bringing a room together. We can think of no one better to guide the day and keep it warm and joyful. No pressure at all if you would rather not — we simply wanted to ask the person who already feels like family. With love, Sharon and Zachary.",
+  "formal": "",
+  "side": "sharon",
   "test": false
  },
  {
@@ -392,6 +1002,7 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -407,6 +1018,7 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -422,11 +1034,25 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
+  "test": false
+ },
+ {
+  "code": "9052",
+  "name": "Rachel España",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
   "test": false
  },
  {
   "code": "9254",
-  "name": "Rahul Sekri",
+  "name": "Rahul Sekhri",
   "party": 1,
   "invite": "both",
   "contact": "What's App Brother's group",
@@ -434,6 +1060,7 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -446,23 +1073,23 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
   "code": "2939",
   "name": "Raju & Herleen Sodhi",
-  "party": 4,
+  "party": 2,
   "invite": "both",
   "contact": "Harleen.sodhi2@gmail.com",
   "members": [
    "Raju",
-   "Herleen",
-   "Kabir",
-   "Divita"
+   "Herleen"
   ],
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -475,6 +1102,7 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -489,6 +1117,7 @@
   "role": "groom-mother",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -504,6 +1133,23 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
+  "test": false
+ },
+ {
+  "code": "7610",
+  "name": "Roshni & Sarneet",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Roshni",
+   "Sarneet"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -516,18 +1162,49 @@
   "role": "groomsman",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
-  "code": "5908",
-  "name": "Saurabh Sekhri",
+  "code": "6301",
+  "name": "Sarah Gosai",
   "party": 1,
   "invite": "both",
-  "contact": "What's App Brother's group",
+  "contact": "Sarahgosaie94@gmail.com",
   "members": [],
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
+  "test": false
+ },
+ {
+  "code": "5908",
+  "name": "Saurabh & Tarika Sekhri",
+  "party": 2,
+  "invite": "both",
+  "contact": "What's App Brother's group",
+  "members": [
+   "Saurabh",
+   "Tarika"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "",
+  "test": false
+ },
+ {
+  "code": "7194",
+  "name": "Shelley Gosai",
+  "party": 1,
+  "invite": "both",
+  "contact": "Sgosaie91@gmail.com",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -540,21 +1217,23 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
   "code": "7901",
-  "name": "Siddarth & Pari Sekhri",
+  "name": "Siddharth & Pari Sekhri",
   "party": 2,
   "invite": "both",
   "contact": "What's App Brother's group; What's App Brother's group",
   "members": [
-   "Siddarth",
+   "Siddharth",
    "Pari"
   ],
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -567,18 +1246,23 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
   "code": "8383",
-  "name": "Sreedhar & Family",
+  "name": "Sreedhar & Vijya Makarla",
   "party": 3,
   "invite": "both",
   "contact": "makarla@gmail.com",
-  "members": [],
+  "members": [
+   "Sreedhar",
+   "Vijya"
+  ],
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -596,6 +1280,7 @@
   "role": "groom-sister",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -613,6 +1298,7 @@
   "role": "groom-sister",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -628,8 +1314,123 @@
    "Simran"
   ],
   "role": "",
+  "ask": "Sarika — love you, and I can’t wait to see you and your family there: you, Neil, Asher and Simran, the whole crew in one place.",
+  "formal": "",
+  "side": "",
+  "test": false
+ },
+ {
+  "code": "6071",
+  "name": "Tessa",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
   "ask": "",
   "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "7352",
+  "name": "Tia Chela, Grace y Victor",
+  "party": 3,
+  "invite": "ceremony",
+  "contact": "",
+  "members": [
+   "Chela",
+   "Grace",
+   "Victor"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "5125",
+  "name": "Tia Elsa & Hector",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Elsa",
+   "Hector"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "7583",
+  "name": "Tia Ina",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "7300",
+  "name": "Tia Suzy & Tio Julio",
+  "party": 2,
+  "invite": "both",
+  "contact": "",
+  "members": [
+   "Suzy",
+   "Julio"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "6551",
+  "name": "Tia Tirsa",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "5197",
+  "name": "Tio Celvin",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
+  "code": "9164",
+  "name": "Tio Lirdan",
+  "party": 1,
+  "invite": "both",
+  "contact": "",
+  "members": [],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
   "test": false
  },
  {
@@ -645,6 +1446,7 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -662,6 +1464,7 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -674,6 +1477,7 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -684,8 +1488,9 @@
   "contact": "What's App Brother's group",
   "members": [],
   "role": "",
-  "ask": "",
+  "ask": "Vinay — we have bumped heads more times than either of us could count, and not one of them ever changed how dearly I love you. I am looking forward to having you there, celebrating with me.",
   "formal": "",
+  "side": "",
   "test": false
  },
  {
@@ -695,9 +1500,10 @@
   "invite": "both",
   "contact": "",
   "members": [],
-  "role": "",
+  "role": "bridesmaid",
   "ask": "",
   "formal": "",
+  "side": "sharon",
   "test": false
  },
  {
@@ -713,11 +1519,12 @@
   "role": "bride-parents",
   "ask": "",
   "formal": "",
+  "side": "sharon",
   "test": false
  },
  {
   "code": "9208",
-  "name": "Zed Maely",
+  "name": "Zed Mealy",
   "party": 1,
   "invite": "both",
   "contact": "",
@@ -725,6 +1532,7 @@
   "role": "",
   "ask": "",
   "formal": "",
+  "side": "",
   "test": false
  }
 ]

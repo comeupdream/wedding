@@ -281,6 +281,34 @@ check("new guests get fresh passwords",
   JSON.stringify(plan.added));
 check("a changed seat count is reported", plan.changed.some((c) => c.includes("seats 3")), plan.changed.join("|"));
 check("passwords never collide", new Set(plan.list.map((g) => g.code)).size === 3);
+
+// A sheet whose passwords were minted against a list that has since drifted:
+// the newcomer arrives carrying a password the live list already gave someone
+// else. Matching by password first renamed that guest to the newcomer and
+// issued one password twice, which the primary key on `guests` then rejected —
+// the upload died with a server error, and the diff offered to rename a guest
+// to a stranger on the way there.
+const drifted = [{ code: "9052", name: "Yuly & Rudy", party: 2, invite: "both", contact: "", members: [] }];
+const collide = merge(drifted, [
+  { name: "Yuly & Rudy", code: "7072", party: 2, invite: "both", contact: "", members: [] },
+  { name: "Rachel España", code: "9052", party: 1, invite: "both", contact: "", members: [] },
+], (lo, hi) => lo + Math.floor(Math.random() * (hi - lo)));
+check("a household on the sheet keeps its invitation when another row carries its password",
+  collide.list.find((g) => g.name === "Yuly & Rudy").code === "9052", JSON.stringify(collide.list));
+check("the newcomer is given a password of its own",
+  collide.list.find((g) => g.name === "Rachel España").code !== "9052", JSON.stringify(collide.list));
+check("no guest is renamed to a stranger", collide.renamed.length === 0, collide.renamed.join("|"));
+check("a drifted password never issues a duplicate",
+  new Set(collide.list.map((g) => g.code)).size === collide.list.length);
+
+// The rename it must not break: the old name is gone from the sheet, so the
+// password is what carries the invitation across.
+const rename = merge(
+  [{ code: "4337", name: "Herpal & Family", party: 5, invite: "both", contact: "", members: [] }],
+  [{ code: "4337", name: "Harpal Malik", party: 1, invite: "both", contact: "", members: [] }],
+  (lo, hi) => lo + Math.floor(Math.random() * (hi - lo)));
+check("a renamed household still keeps its password",
+  rename.list[0].code === "4337" && rename.renamed.length === 1, JSON.stringify(rename.renamed));
 check("the real workbook parses", (() => {
   try {
     const wb = fs.readFileSync("/root/.claude/uploads/37f4758c-02f6-5314-99c5-ad3acb2225b6/a7a62819-WEDDING_GUEST_LIST_4_1.xlsx");
