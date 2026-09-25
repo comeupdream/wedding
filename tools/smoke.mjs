@@ -275,7 +275,21 @@ check("skipped rows are reported back", up.skipped.length === 3, JSON.stringify(
 const before = [{ code: "4821", name: "The Dodsons", party: 3, invite: "ceremony", contact: "", members: [] }];
 const plan = merge(before, readUpload(csv).guests, (lo, hi) => lo + Math.floor(Math.random() * (hi - lo)));
 check("an existing password is kept", plan.list.find((g) => g.name === "The Dodsons").code === "4821");
-check("a scope set by hand is kept", plan.list.find((g) => g.name === "The Dodsons").invite === "ceremony");
+check("a scope written on the sheet is applied",
+  plan.list.find((g) => g.name === "The Dodsons").invite === "both",
+  JSON.stringify(plan.list.find((g) => g.name === "The Dodsons")));
+check("a changed scope is reported before it is applied",
+  plan.changed.some((c) => c.includes("invited to ceremony → both")), plan.changed.join("|"));
+
+// The workbook has no scope column, and a CSV need not carry one either. A
+// sheet that says nothing must not promote every ceremony-only guest to the
+// full invite — which is what hardcoding "both" on the way in used to do.
+const quiet = merge(
+  [{ code: "4821", name: "The Dodsons", party: 3, invite: "ceremony", contact: "", members: [] }],
+  readUpload(Buffer.from("name,party,contact\nThe Dodsons,4,amy@example.com\n"), "list.csv").guests,
+  (lo, hi) => lo + Math.floor(Math.random() * (hi - lo)));
+check("a sheet with no scope column leaves the scope alone",
+  quiet.list[0].invite === "ceremony", JSON.stringify(quiet.list));
 check("new guests get fresh passwords",
   plan.added.length === 2 && plan.list.filter((g) => /^\d{4}$/.test(g.code)).length === 3,
   JSON.stringify(plan.added));
