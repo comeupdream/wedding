@@ -475,6 +475,22 @@
   "test": false
  },
  {
+  "code": "5174",
+  "name": "Grace González y Víctor Monteflores",
+  "party": 2,
+  "invite": "ceremony",
+  "contact": "",
+  "members": [
+   "Grace",
+   "Víctor"
+  ],
+  "role": "",
+  "ask": "",
+  "formal": "",
+  "side": "sharon",
+  "test": false
+ },
+ {
   "code": "4337",
   "name": "Harpal Malik",
   "party": 1,
@@ -1334,15 +1350,11 @@
  },
  {
   "code": "7352",
-  "name": "Tia Chela, Grace y Victor",
-  "party": 3,
+  "name": "Tia Chela",
+  "party": 1,
   "invite": "ceremony",
   "contact": "",
-  "members": [
-   "Chela",
-   "Grace",
-   "Victor"
-  ],
+  "members": [],
   "role": "",
   "ask": "",
   "formal": "",

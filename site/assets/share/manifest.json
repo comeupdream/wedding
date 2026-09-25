@@ -117,7 +117,9 @@
   "Tia Tirsa": "6551.jpg",
   "Tio Celvin": "5197.jpg",
   "Tio Lirdan": "9164.jpg",
-  "Ajay & Brooke Varma": "5736.jpg"
+  "Ajay & Brooke Varma": "5736.jpg",
+  "Grace González y Víctor Monteflores": "5174.jpg",
+  "Tia Chela": "7352.jpg"
  },
  "rendered": {
   "1023": "Lynda",
@@ -163,6 +165,7 @@
   "4845": "Archana & Rajeev Khanna",
   "5069": "Aman Khera",
   "5125": "Tia Elsa & Hector",
+  "5174": "Grace González y Víctor Monteflores",
   "5197": "Tio Celvin",
   "5256": "Aroldo y Miriam Hernández",
   "5449": "Yamilet Macias",
@@ -190,7 +193,7 @@
   "7194": "Shelley Gosai",
   "7262": "Miguel y Marlen",
   "7300": "Tia Suzy & Tio Julio",
-  "7352": "Tia Chela, Grace y Victor",
+  "7352": "Tia Chela",
   "7357": "Josue",
   "7455": "Linda & Shaun Fitzmaurice",
   "7472": "Jasmin & Nitin Dua",
@@ -225,7 +228,9 @@
   "9962": "Cris & Cameron España"
  },
  "roles": {
+  "5174": "",
   "5449": "bridesmaid",
-  "5736": ""
+  "5736": "",
+  "7352": ""
  }
 }
