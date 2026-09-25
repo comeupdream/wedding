@@ -62,7 +62,9 @@ const fromExport = (rows) => {
       name,
       code: /^\d{3,8}$/.test(code) ? code : "",
       party,
-      invite: SCOPES.includes(invite) ? invite : "both",
+      // Blank when the sheet says nothing, so the scope already in use is kept
+      // rather than everyone being quietly promoted to the full invite.
+      invite: SCOPES.includes(invite) ? invite : "",
       contact: get("contact"),
       members: get("members").split(";").map(clean).filter(Boolean).slice(0, party),
       // How the household is written out inside the card, when that differs
@@ -104,7 +106,9 @@ const fromWorkbook = (rows) => {
     out.push({
       name,
       party: Math.max(1, party),
-      invite: "both",
+      // The planning workbook has no scope column at all, so it never has an
+      // opinion: whatever each invitation already carries is left alone.
+      invite: "",
       contact: clean(r[1]),
       // Names spelled out in the parentheses, but only when the count matches
       // exactly — never invent a family's shape.
@@ -201,12 +205,16 @@ export const merge = (existing, incoming, randomInt, answered = new Set()) => {
       const keep = /^\d{4}$/.test(wanted) && !weak(wanted) && !taken.has(wanted);
       if (keep) taken.add(wanted);
       return { code: keep ? wanted : makeCode(taken, randomInt), name: g.name, party: g.party,
-               invite: g.invite, contact: g.contact, members: g.members,
+               invite: g.invite || "both", contact: g.contact, members: g.members,
                role: g.role || "", ask: g.ask || "", formal: g.formal || "",
                side: g.side || "", test: !!g.test };
     }
     const diffs = [];
+    // What the scope will become, so the change is both reported and applied
+    // from one decision rather than two that could drift apart.
+    const invite = g.invite || prev.invite || "both";
     if (prev.party !== g.party) diffs.push(`seats ${prev.party} → ${g.party}`);
+    if ((prev.invite || "") !== invite) diffs.push(`invited to ${prev.invite || "nothing"} → ${invite}`);
     if ((prev.contact || "") !== g.contact) diffs.push("contact");
     if ((prev.members || []).join("; ") !== g.members.join("; ")) diffs.push("names");
     if ((prev.role || "") !== (g.role || "")) diffs.push("role");
@@ -216,7 +224,7 @@ export const merge = (existing, incoming, randomInt, answered = new Set()) => {
     if (diffs.length) changed.push(`${g.name}: ${diffs.join(", ")}`);
     else unchanged.push(g.name);
     return { code: prev.code, name: g.name, party: g.party,
-             invite: prev.invite || g.invite, contact: g.contact, members: g.members,
+             invite, contact: g.contact, members: g.members,
              role: g.role || prev.role || "", ask: g.ask || prev.ask || "",
              formal: g.formal || prev.formal || "",
              side: g.side || prev.side || "",
