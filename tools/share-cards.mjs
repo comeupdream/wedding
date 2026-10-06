@@ -67,7 +67,7 @@ ${fontCss}
   <div class="rule"></div>
   <div class="rows">
     <div class="t">10:30</div><div>Breakfast and refreshments</div>
-    <div class="t">11:15</div><div>The groom&rsquo;s arrival</div>
+    <div class="t">11:00</div><div>The groom&rsquo;s arrival</div>
     <div class="t">12:00</div><div>The ceremony at the mandap</div>
     <div class="t">1:00</div><div>Luncheon</div>
     <div class="t">6:30</div><div>Cocktails</div>
